@@ -4,6 +4,13 @@ class Plugin:
     import sys
 
     PORT = 8888
+    ORM = {"table": {
+        'tableName': "test_table2",
+        "column": {
+            "name": "ip",
+            "type": "TEXT",
+        }
+    }}
 
     def __init__(self):
         print "Module Loaded and waiting on run() command"
@@ -30,3 +37,6 @@ class Plugin:
 
     def get_port(self):
         return self.PORT
+
+    def get_orm(self):
+        return self.ORM
