@@ -35,7 +35,7 @@ Ext.define('CartoDBComponent', {
 			   attributionControl: true
 			});
             
-			me.leafletMap.setView([24.4836181, -12.5272386], 3);
+			me.leafletMap.setView([21,15], 3);
 			this.setMap(me.leafletMap);
 		}
 	},
