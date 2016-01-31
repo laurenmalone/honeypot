@@ -1,6 +1,13 @@
 class Plugin:
 
     PORT = "8080"
+    ORM = {"table": {
+        'tableName': "test_table1",
+        "column": {
+            "name": "ip",
+            "type": "TEXT"
+        }
+    }}
 
     def __init__(self):
         print("plugin Test init")
@@ -10,3 +17,6 @@ class Plugin:
 
     def get_port(self):
         return self.PORT
+
+    def get_orm(self):
+        return self.ORM
