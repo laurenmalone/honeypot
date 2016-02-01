@@ -10,6 +10,7 @@ Ext.define("table_options",{
         displayField: "display",
         valueFiled: "value",
         queryMode: 'local',
+        editable: false,
         store: Ext.create("Ext.data.Store",{
             fields: ['display', 'value'],
             data: [
