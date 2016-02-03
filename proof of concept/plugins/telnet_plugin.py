@@ -1,5 +1,6 @@
 class Plugin:
 
+    import sys
     ORM = {"table": {
         'tableName': "test_table2",
         "column": {
@@ -37,8 +38,9 @@ class Plugin:
                     print 'Password : ' + password
                     conn.sendall("---Incorrect--\n")
                     conn.sendall("Password: ")
-                    self.count = + 1
+                    self.count = self.count + 1
             passed_socket.close()
+            self.sys.exit(0)
         else:
             print "socket error"
 
