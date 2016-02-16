@@ -37,6 +37,8 @@ def convert_to_geojson_feature(ip_record):
 def get_record_from_geoip(ip_address):
     return giDB.record_by_name(ip_address)
 
-record = get_record_from_geoip("5.149.176.5")
+record = get_record_from_geoip("71.205.10.208")
+
+print record
 print convert_to_geojson_point(record)
 print convert_to_geojson_feature(record)
