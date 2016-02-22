@@ -1,4 +1,6 @@
 import unittest
+from geoIp import get_record_from_geoip, convert_to_geojson_point, convert_to_geojson_feature
+
 
 
 class TestGeoIpMethods(unittest.TestCase):
@@ -37,7 +39,7 @@ class TestGeoIpMethods(unittest.TestCase):
                                           "region_name": "Colorado", "time_zone": "America/Denver"}, "type": "Feature"})
 
 
-    def test_geoip_decoder(self):
+    def test_geoip_decoder2(self):
         self.assertNotEqual(get_record_from_geoip(
                 "71.205.10.208"),
                 {'city': 'Arvada',
@@ -55,12 +57,12 @@ class TestGeoIpMethods(unittest.TestCase):
                  }
         )
 
-    def test_geoip_result_point(self):
+    def test_geoip_result_point2(self):
         result = get_record_from_geoip("71.205.10.208")
         self.assertNotEquals(convert_to_geojson_point(result),
                           {"coordinates": [38.828800201416016, -105.06069946289062], "type": "Point"})
 
-    def test_geoip_result_feature(self):
+    def test_geoip_result_feature2(self):
         result = get_record_from_geoip("71.205.10.208")
         self.assertNotEquals(convert_to_geojson_feature(result),
                           {"geometry": {"coordinates": [39.828800201416017, -105.06069946289062], "type": "Point"},
