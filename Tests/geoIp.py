@@ -1,7 +1,3 @@
-import GeoIP
-import geojson
-
-
 
 def convert_to_geojson_point(ip_record):
     result = ""
