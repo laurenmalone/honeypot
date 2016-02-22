@@ -1,4 +1,6 @@
 import unittest
+from geoIp import get_record_from_geoip, convert_to_geojson_point, convert_to_geojson_feature
+
 
 
 class TestGeoIpMethods(unittest.TestCase):
@@ -35,6 +37,7 @@ class TestGeoIpMethods(unittest.TestCase):
                                           "dma_code": 751, "metro_code": 751, "postal_code": "80003", "region": "CO",
                                           "region_name": "Colorado", "time_zone": "America/Denver"}, "type": "Feature"})
 
+<<<<<<< HEAD
     def test_geoip_decoder(self):
         self.assertNotEqual(get_record_from_geoip(
                 "71.205.10.208"),
@@ -67,3 +70,8 @@ class TestGeoIpMethods(unittest.TestCase):
                                           "dma_code": 751, "metro_code": 751, "postal_code": "80003", "region": "CO",
                                           "region_name": "Colorado", "time_zone": "America/Denver"}, "type": "Feature"}
                              )
+=======
+
+if __name__ == '__main__':
+    unittest.main()
+>>>>>>> 1320b1dad24d6e53e7c106ce1878229709ee777a
