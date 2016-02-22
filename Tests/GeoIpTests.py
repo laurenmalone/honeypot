@@ -26,7 +26,6 @@ class TestGeoIpMethods(unittest.TestCase):
         self.assertEquals(convert_to_geojson_point(result),
                           {"coordinates": [39.828800201416016, -105.06069946289062], "type": "Point"})
 
-
     def test_geoip_result_feature(self):
         result = get_record_from_geoip("71.205.10.208")
         self.assertEquals(convert_to_geojson_feature(result),
@@ -35,7 +34,6 @@ class TestGeoIpMethods(unittest.TestCase):
                                           "country_code3": "USA", "country_name": "United States",
                                           "dma_code": 751, "metro_code": 751, "postal_code": "80003", "region": "CO",
                                           "region_name": "Colorado", "time_zone": "America/Denver"}, "type": "Feature"})
-
 
     def test_geoip_decoder(self):
         self.assertNotEqual(get_record_from_geoip(

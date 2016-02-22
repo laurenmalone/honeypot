@@ -1,6 +1,7 @@
-class Plugin:
+import sys
 
-    import sys
+
+class Plugin:
     ORM = {"table": {
         'tableName': "test_table2",
         "column": {
@@ -14,12 +15,12 @@ class Plugin:
         self.sqliteDbConn = None
         self.geoIp = None
         self.passwords = []
-        self.count =0
+        self.count = 0
         self.login = ""
         self.PORT = 8888
 
     def run(self, passed_socket):
-        #print("Port Number: " + passed_socket.getsockname()[0])
+        # print("Port Number: " + passed_socket.getsockname()[0])
         if passed_socket:
             passed_socket.listen(10)
             while 1:
@@ -30,6 +31,7 @@ class Plugin:
                 print 'socket proto: ' + str(passed_socket.proto)
                 conn.sendall("Login: ")
                 self.login = conn.recv(64)
+                # need to sleep thread if no answer
                 print 'Login : ' + self.login
                 while self.count < 3:
                     conn.sendall("Password: ")
@@ -38,9 +40,9 @@ class Plugin:
                     print 'Password : ' + password
                     conn.sendall("---Incorrect--\n")
                     conn.sendall("Password: ")
-                    self.count = self.count + 1
+                    self.count += 1
             passed_socket.close()
-            self.sys.exit(0)
+            sys.exit(0)
         else:
             print "socket error"
 
