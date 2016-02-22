@@ -2,10 +2,7 @@ import unittest
 from HoneypotBase import HoneypotBase
 
 
-
 class MyTestCase(unittest.TestCase):
-
-
     # plugins tests
 
     # invalid plugin directory
@@ -28,12 +25,10 @@ class MyTestCase(unittest.TestCase):
         count = 0
         for i in HoneypotBase.threads:
             if i.isAlive:
-                count +=1
+                count += 1
         self.assertNotEqual(len(HoneypotBase.threads), 0)
         self.assertEqual(len(HoneypotBase.threads), count)
-
-
-    # listen user commands
+        # listen user commands
 
     # stop program
     def test_num_threads_running(self):
@@ -42,19 +37,12 @@ class MyTestCase(unittest.TestCase):
         count = 0
         for i in HoneypotBase.threads:
             if i.isAlive:
-                count +=1
+                count += 1
         self.assertNotEqual(len(HoneypotBase.threads), 0)
         self.assertEqual(0, count)
 
     def test_system_exit(self):
         self.assertEqual(HoneypotBase.stop(), True)
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
