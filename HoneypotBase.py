@@ -1,22 +1,25 @@
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 class HoneypotBase:
 
-    # db = 'sqliteDB/test.db'
-    db_location = None
+
     plugin_directory = None
     threads = []
 
-
-
+    engine = create_engine('sqlite:///sqliteDB/test.db', echo=True)
+    Session = sessionmaker(bind=engine)
 
     # call start_manager_thread() for each item in plugins
     @staticmethod
     def load_plugins(directory):
         pass
 
-    def start_manager_thread(db_location, plugin):
-        pass
+    @classmethod
+    def start_manager_thread(self, plugin):
+        thread = PluginManager()
+        thread.start(plugin, self.Session)
+
 
     # listens for user commands
     @staticmethod
@@ -27,5 +30,3 @@ class HoneypotBase:
     @staticmethod
     def stop():
         pass
-
-#__all__ = ["load_plugins", "start_manager_thread", "stop", "start_interface", "threads"]
