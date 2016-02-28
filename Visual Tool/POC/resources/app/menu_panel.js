@@ -3,6 +3,8 @@ Ext.define("menu_panel",{
     layout: "card",
     items: [],
     split: true,
+    collapsible: true,
+    collapseMode: "mini",
     width: "20%",
     title: "Menu Panel",
     region: "west",

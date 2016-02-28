@@ -5,17 +5,12 @@ Ext.define("analytics_options",{
     title: "Analytics Options",
     items: [{
         xtype: "combobox",
+        itemId: "pluginComboAnalytics",
         margin: "10 0 0 0",
         fieldLabel: "Plugins",
         displayField: "display",
         valueFiled: "value",
-        queryMode: 'local',
-        store: Ext.create("Ext.data.Store",{
-            fields: ['display', 'value'],
-            data: [
-                {display: "Pie Charts", value: "pieChart"}
-            ]
-        })
+        queryMode: 'local'
     }],
     initComponent: function (){
 		Ext.apply(this, {

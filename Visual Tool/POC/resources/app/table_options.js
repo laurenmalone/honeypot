@@ -5,18 +5,13 @@ Ext.define("table_options",{
     title: "Table Options",
     items: [{
         xtype: "combobox",
+        itemId: "pluginComboTable",
         fieldLabel: "Plugins",
         margin: "10 0 0 0",
         displayField: "display",
         valueFiled: "value",
         queryMode: 'local',
         editable: false,
-        store: Ext.create("Ext.data.Store",{
-            fields: ['display', 'value'],
-            data: [
-                {display: "Telnet", value: "telnet"}
-            ]
-        }),
         listeners: {
             afterRender: function(){
                 this.select(0)

@@ -5,36 +5,46 @@ Ext.define("map_options",{
     title: "Map Options",
     items: [{
         xtype: "combobox",
+        itemId: "baseLayerCombo",
         fieldLabel: "Base Layer",
         labelAlign: "right",
+        value: "Satellite",
         margin: "10 0 0 0",
         displayField: "display",
         valueFiled: "value",
         queryMode: 'local',
         store: Ext.create("Ext.data.Store",{
-            fields: ['display', 'value'],
+            fields: [
+                {name: 'display', type: "string"},
+                {name: 'value', type: "string"}
+            ],
             data: [
-                {display: "Positron", value: "positron"}
+                {display: "Street", value: "mapbox.streets"},
+                {display: "Light", value: "mapbox.light"},
+                {display: "Dark", value: "mapbox.dark"},
+                {display: "Satellite", value: "mapbox.satellite"},
+                {display: "Streets-Satellite", value: "mapbox.streets-satellite"},
+                {display: "Pirates", value: "mapbox.pirates"},
+                {display: "Wheat Paste", value: "mapbox.wheatpaste"},
+                {display: "Streets-Basic", value: "mapbox.streets-basic"},
+                {display: "Comic", value: "mapbox.comic"}
+                
             ]
         })
     },{
         xtype: "combobox",
+        itemId: "pluginCombo",
         fieldLabel: "Plugin",
         labelAlign: "right",
         margin: "10 0 0 0",
         displayField: "display",
         valueFiled: "value",
         queryMode: 'local',
-        store: Ext.create("Ext.data.Store",{
-            fields: ['display', 'value'],
-            data: [
-                {display: "All", value: "all"},
-                {display: "Telnet", value: "telnet"}
-            ]
-        })
+        store: Ext.StoreMgr.lookup("plugins")
     }],
     initComponent: function (){
-		Ext.apply(this, {
+        
+        Ext.apply(this, {
 			
 			});
 		this.callParent();
