@@ -4,7 +4,7 @@ Ext.define("center_panel",{
     region: "center",
     items: [],
     initComponent: function (){
-		this.map_panel = Ext.create("map_panel");
+		this.map_panel = Ext.create("mapPanel");
         this.grid_panel = Ext.create("grid_panel");
         this.analytics_panel = Ext.create("analytics_panel");
 
