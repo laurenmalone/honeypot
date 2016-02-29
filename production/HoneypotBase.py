@@ -7,7 +7,7 @@ import sys
 
 class HoneypotBase:
     def __init__(self):
-        self._plugin_directory = './proof_of_concept/plugins/'
+        self._plugin_directory = './plugins/'
         self._threads = []
         self._engine = create_engine('sqlite:///sqliteDB/test.db', echo=True)
         self._Session = sessionmaker(bind=self._engine)
