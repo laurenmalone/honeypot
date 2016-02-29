@@ -1,48 +1,44 @@
 import unittest
-from HoneypotBase import HoneypotBase
+from production.HoneypotBase import HoneypotBase
 
 
 class MyTestCase(unittest.TestCase):
     # plugins tests
 
-    # invalid plugin directory
-    def test_plugins_found(self):
-        self.assertRaises(IOError, lambda: HoneypotBase().load_plugins('path_doesnt_exist'))
-
-    # invalid plugin files
-    def test_plugins_valid(self):
-        self.assertRaises(IOError, lambda: HoneypotBase().load_plugins('bad_plugins'))
-
     # make sure threads are being created for each plugin
     def test_plugins_loaded(self):
-        HoneypotBase.load_plugins('plugins')
-        self.assertIsNotNone(HoneypotBase.threads)
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
+        hp = HoneypotBase()
+        hp._load_plugins()
+        self.assertIsNotNone(hp._threads)
+        self.assertNotEqual(len(hp._threads), 0)
 
     # make sure all plugin manager threads are running
     def test_num_threads_started(self):
-        HoneypotBase.load_plugins('plugins')
+        hp = HoneypotBase()
+        hp._load_plugins()
         count = 0
-        for i in HoneypotBase.threads:
+        for i in HoneypotBase()._threads:
             if i.isAlive:
                 count += 1
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
-        self.assertEqual(len(HoneypotBase.threads), count)
+        self.assertNotEqual(len(hp._threads), 0)
+        self.assertEqual(len(hp._threads), count)
         # listen user commands
 
     # stop program
     def test_num_threads_running(self):
-        HoneypotBase.load_plugins('plugins')
-        HoneypotBase.stop()
+        hp = HoneypotBase()
+        hp._load_plugins()
+        hp._stop_hp()
         count = 0
-        for i in HoneypotBase.threads:
+        for i in hp._threads:
             if i.isAlive:
                 count += 1
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
+        self.assertNotEqual(len(hp._threads), 0)
         self.assertEqual(0, count)
 
     def test_system_exit(self):
-        self.assertEqual(HoneypotBase.stop(), True)
+        hp = HoneypotBase()
+        self.assertEqual(hp._stop_hp, True)
 
 if __name__ == '__main__':
     unittest.main()
