@@ -3,20 +3,15 @@ Ext.define("analytics_panel", {
     layout: "border",
     initComponent: function () {
         
-        this.items = [Ext.create("Ext.panel.Panel",{
-            region: "center",
-            layout: "fit",
-            items: Ext.create("center_piechart"),
+        this.items = [
             
-            }),
-            Ext.create("Ext.panel.Panel",{
-                region: "south",
-                collapsible: true,
-                layout: "fit",
+            
+            Ext.create("center_piechart"),
+            
+            Ext.create("south_linegraph", {
+               region: 'south',
                 height: "30%",
-                split: true,
-                items: Ext.create("south_linegraph"),
-
+                split: true
             }),
 
             Ext.create("Ext.panel.Panel",{
@@ -30,6 +25,7 @@ Ext.define("analytics_panel", {
                 items: []
 
             }),
+            
             Ext.create("Ext.panel.Panel",{
                 region: "east",
                 layout: "fit",
