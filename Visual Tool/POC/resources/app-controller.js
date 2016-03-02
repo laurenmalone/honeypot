@@ -86,10 +86,19 @@ Ext.onReady(function () {
         pluginsArray.push(singlePluginStore);
         singlePluginStore.load({scope: this, callback: function (records, operation, success){
                 console.log("records", records, operation);
-                
+                center_panel.map_panel.addPluginLayerToMap(plugin.data.value); 
             }
         });
         
+    };
+    
+    var continuousUpdate = function (updateTime) {
+        var timer = updateTime*1000;
+        while(this.continuousFlag){
+          setTimeout(function(){
+            
+          }, timer);
+      }  
     };
     
     setupPluginStores();
@@ -115,7 +124,7 @@ Ext.onReady(function () {
     });
     
     west_menu.down("#pluginCombo").on('select', function(combo, records, eOpts){
-        center_panel.map_panel.showPluginLayer(records.data.value); 
+        
     });
     
     

@@ -17,11 +17,5 @@ Ext.define("table_options",{
                 this.select(0)
             }
         }
-    }],
-    initComponent: function (){
-		Ext.apply(this, {
-			
-			});
-		this.callParent();
-	}
+    }]
 });
