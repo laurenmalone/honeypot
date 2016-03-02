@@ -25,10 +25,9 @@ Ext.define("analytics_panel", {
             Ext.create("Ext.panel.Panel",{
                 region: "west",
                 layout: "fit",
+                header: false,
                 width: "30%",
                 collapsible: true,
-                split: true,
-                html: "south",
                 split: true,
                 items: []
 
@@ -38,6 +37,7 @@ Ext.define("analytics_panel", {
                 region: "east",
                 layout: "fit",
                 width: "30%",
+                header: false,
                 collapsible: true,
                 split: true,
                 html: "east",

@@ -50,7 +50,10 @@ Ext.define("south_linegraph",{
         grid: true,
         minimum: 0,
         maximum: 24,
-        renderer: function (v) { return v + '%'; }
+//        renderer: function (v) { 
+//            console.log("V", v);
+//            return v.name + '%'; 
+//        }
     }, {
         type: 'category',
         fields: 'month',
