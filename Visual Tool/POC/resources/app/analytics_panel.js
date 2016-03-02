@@ -6,7 +6,15 @@ Ext.define("analytics_panel", {
         this.items = [
             
             
-            Ext.create("center_piechart"),
+            Ext.create("center_piechart", {
+                listeners: {
+                    afterrender: function() {
+                        this.redraw();
+                    }
+                }
+                                                       
+            
+            }),
             
             Ext.create("south_linegraph", {
                region: 'south',
