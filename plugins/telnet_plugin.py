@@ -1,46 +1,57 @@
 import sys
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
 
+Base = declarative_base()
 
 class Plugin:
-    ORM = {"table": {
-        'tableName': "test_table2",
-        "column": {
-            "name": "ip",
-            "type": "TEXT",
-        }
-    }}
 
-    def __init__(self):
-        print "Module Loaded and waiting on run() command"
-        self.sqliteDbConn = None
-        self.geoIp = None
+    ORM = {"table": {"table_name": "telnet",
+                     "column":[{"name": "username", "type": "TEXT"},
+                               {"name": "password", "type": "TEXT"},
+                               {"name": "ip", "type": "TEXT"}]
+                     }}
+
+
+    class User(Base):
+        _tablename_ = 'telnet'
+
+        id = Column(Integer, primary_key=True)
+        username = Column(String)
+        password =  Column(String)
+        geo_ip =  Column(String)
+
+    def _init_(self):
+        # print "Module Loaded and waiting on run() command"
+        self.geo_ip = None
         self.passwords = []
         self.count = 0
-        self.login = ""
+        self.username = ""
         self.PORT = 8888
 
-    def run(self, passed_socket):
-        # print("Port Number: " + passed_socket.getsockname()[0])
+    def run(self,passed_socket, session):
+         # print("Port Number: " + passed_socket.getsockname()[0])
         if passed_socket:
-            passed_socket.listen(10)
-            while 1:
-                conn, address = passed_socket.accept()
-                print 'Connecting with ' + address[0] + ':' + str(address[1])
-                print 'socket family: ' + str(passed_socket.family)
-                print 'socket type: ' + str(passed_socket.type)
-                print 'socket proto: ' + str(passed_socket.proto)
-                conn.sendall("Login: ")
-                self.login = conn.recv(64)
-                # need to sleep thread if no answer
-                print 'Login : ' + self.login
-                while self.count < 3:
-                    conn.sendall("Password: ")
-                    password = conn.recv(64)
-                    self.passwords.append(password)
-                    print 'Password : ' + password
-                    conn.sendall("---Incorrect--\n")
-                    conn.sendall("Password: ")
-                    self.count += 1
+            # need to sleep thread if no answer
+            # for loop and try catch the timeout exception
+            # while self.count < 3:
+            for i in range(0,3):
+               # try catch
+               passed_socket.settimeout(35)
+                passed_socket.sendall("username:")
+                self.username = passed_socket.recv(64)
+                passed_socket.sendall("Password: ")
+                password = passed_socket.recv(64)
+                self.passwords.append(password)
+               
+                # if they take too long to enter password
+                # session.add_all([User(username='', password=''),
+                #                   User(username='', password='')])
+                # session.commit()
+                print 'Password : ' + password
+                passed_socket.sendall("---Incorrect--\n")
+                passed_socket.sendall("Password: ")
+                self.count += 1
             passed_socket.close()
             sys.exit(0)
         else:
@@ -52,8 +63,5 @@ class Plugin:
     def get_orm(self):
         return self.ORM
 
-    def set_db_conn(self, conn):
-        self.sqliteDbConn = conn
-
-    def set_geoip(self, geoip):
-        self.geoIp = geoip
+    def get_geo_ip(self, passed_socket):
+        return self.geo_ip
