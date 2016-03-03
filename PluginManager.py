@@ -25,6 +25,6 @@ class PluginManager(Thread):
     def stop(self):
         self._flag = 1
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect('localhost', self._plugin.get_port())
+        sock.connect(('localhost', self._plugin.get_port()))
         sock.close()
 
