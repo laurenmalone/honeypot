@@ -1,5 +1,5 @@
 import unittest
-from production.HoneypotBase import HoneypotBase
+from HoneypotBase import HoneypotBase
 
 
 class MyTestCase(unittest.TestCase):
