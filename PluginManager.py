@@ -7,7 +7,6 @@ class PluginManager(Thread):
         self._plugin = plugin
         self._session_factory = session_factory
         self._flag = 0
-        # ensure plugin's table is set up
 
     def run(self):
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +15,7 @@ class PluginManager(Thread):
         while 1:
             clientsocket, address = serversocket.accept()
             if self._flag:
-                clientsocket.close() # shutdown required?
+                clientsocket.close()
                 break
             else:
                 args = clientsocket, address, session_factory()
@@ -24,9 +23,8 @@ class PluginManager(Thread):
         serversocket.close()
 
     def stop(self):
-        self._flag = 1 # use "with" keyword to synchronize?
+        self._flag = 1
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect('localhost', self._plugin.get_port())
         sock.close()
-        # self.join() ?
 
