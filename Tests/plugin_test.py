@@ -1,5 +1,5 @@
 import unittest
-
+import geoIp
 
 class PluginTest(unittest.TestCase):
     PORT = 8080
@@ -18,10 +18,9 @@ class PluginTest(unittest.TestCase):
         # if a closed connection is passed, drop socket.
         result = 8080
         if self.assertEquals(passed_socket.port, result, 'Test Passed'):
-        else passed_socket.closed:
-            print "Throws Error Message"
-            print "Test Failed"
-            #self.assertEquals(passed_socket.ip, ipresult, 'Test Passed')
+        else:
+            self.assertRaises(IOError, lambda: Plugin().run('Closed Connection Passed'):
+            print 'failed'
             # needs to test sleep time
             # message1 = 'username: '
             # message2 = 'password: '
@@ -30,4 +29,6 @@ class PluginTest(unittest.TestCase):
         return self.PORT
 
     def get_orm(self):
+        ip_result = ''
+        self.assertEquals(self.ORM , ip_result, True)
         return self.ORM
