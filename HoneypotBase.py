@@ -48,7 +48,7 @@ def start():
 plugin_directory = './plugins/'
 threads = []
 plugins = []
-engine = create_engine('sqlite:///sqliteDB/test.db', echo=True)
+engine = create_engine('sqlite:///test.db', echo=True)
 Base = declarative_base()
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
