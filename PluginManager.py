@@ -10,6 +10,7 @@ class PluginManager(Thread):
 
     def run(self):
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversocket.bind(('', self._plugin.get_port()))
         serversocket.listen(5)
         while 1:
