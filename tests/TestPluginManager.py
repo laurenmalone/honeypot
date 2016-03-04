@@ -15,7 +15,7 @@ class TestPluginManager(TestCase):
                 return self._port
         plugin_manager = PluginManager(Plugin(), lambda: None)
         plugin_manager.start()
-        time.sleep(1)
+        time.sleep(0.01)
         plugin_manager.stop()
         plugin_manager.join()
         self.assertFalse(plugin_manager.is_alive())
