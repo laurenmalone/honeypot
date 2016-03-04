@@ -8,6 +8,7 @@ import sys
 import time
 import logging
 import datetime
+import signal
 
 
 def _load_plugins():
@@ -17,20 +18,22 @@ def _load_plugins():
             filename, ext = os.path.splitext(i)
             if filename == '__init__':
                 continue
-            if ext == '.py':
-                print "Loading File: " + filename
-                try:
-                    mod = __import__(filename)
-                    plugin = mod.Plugin
-                    if _port_already_open(plugin):
-                        print (filename + " not loaded. Port already in use.")
-                    else:
-                        plugins.append(plugin)
-                    print ("Plugin loaded: " + filename)
-                except AttributeError:
-                    print("Invalid plugin: " + filename)
-                except IndentationError:
-                    print("Plugin in wrong format: " + filename)
+            elif ext != '.py':
+                print "Invalid plugin. Must have .py ext: " + filename
+                continue
+            print "Loading File: " + filename
+            try:
+                mod = __import__(filename)
+                plugin = mod.Plugin
+                if _port_already_open(plugin):
+                    print (filename + " not loaded. Port already in use.")
+                else:
+                    plugins.append(plugin)
+                print ("Plugin loaded: " + filename)
+            except AttributeError:
+                print("Invalid plugin. Needs a module named Plugin: " + filename)
+            except IndentationError:
+                print("Plugin in wrong format: " + filename)
         sys.path.pop(0)
     except OSError:
         print("Plugin folder not found.")
@@ -51,37 +54,36 @@ def _start_manager_threads():
         threads.append(thread)
 
 
-def _stop_hp():
+def signal_handler(signal, frame):
+    print"\nKilling threads"
     for thread in threads:
         thread.stop()
     raise SystemExit(0)
 
 
-def _wait():
-    try:
-        while 1:
-            time.sleep(.1)
-    except KeyboardInterrupt:
-        _stop_hp()
+if __name__ == '__main__':
 
+    plugin_directory = './plugins/'
+    threads = []
+    plugins = []
 
-plugin_directory = './plugins/'
-threads = []
-plugins = []
+    my_date_time = datetime.datetime
+    logging.basicConfig(filename='honey.log', level=logging.DEBUG)
 
-my_date_time = datetime.datetime
-logging.basicConfig(filename='honey.log', level=logging.DEBUG)
-
-try:
     engine = create_engine('sqlite:///test.db', echo=True)
     Base = declarative_base()
     _load_plugins()
-    Base.metadata.create_all(engine)
 
-except OperationalError:
-    print"Db directory doesn't exist."
-    raise SystemExit(1)
+    # create tables
+    try:
+        Base.metadata.create_all(engine)
+    except OperationalError:
+        print"Db directory doesn't exist."
+        raise SystemExit(1)
 
-Session = sessionmaker(bind=engine)
-_start_manager_threads()
-_wait()
+    Session = sessionmaker(bind=engine)
+    _start_manager_threads()
+
+    # wait for program to be killed
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.pause()
