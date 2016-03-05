@@ -31,5 +31,3 @@ class MyTestCase(unittest.TestCase):
         self.assertNotEqual(len(HoneypotBase.threads), 0)
 
 
-if __name__ == '__main__':
-    unittest.main()

@@ -59,30 +59,27 @@ def signal_handler(signal, frame):
         thread.stop()
     raise SystemExit(0)
 
-if __name__ == '__main__':
+plugin_directory = '../honeypot/plugins/'
+threads = []
+plugins = []
 
-    plugin_directory = os.path.abspath('../honeypot/plugins')
-    #'./plugins/'
-    threads = []
-    plugins = []
+my_date_time = datetime.datetime
+logging.basicConfig(filename='honey.log', level=logging.DEBUG)
 
-    my_date_time = datetime.datetime
-    logging.basicConfig(filename='honey.log', level=logging.DEBUG)
+engine = create_engine('sqlite:///test.db', echo=True)
+Base = declarative_base()
+_load_plugins()
 
-    engine = create_engine('sqlite:///test.db', echo=True)
-    Base = declarative_base()
-    _load_plugins()
+# create tables
+try:
+    Base.metadata.create_all(engine)
+except OperationalError:
+    print"Db directory doesn't exist."
+    raise SystemExit(1)
 
-    # create tables
-    try:
-        Base.metadata.create_all(engine)
-    except OperationalError:
-        print"Db directory doesn't exist."
-        raise SystemExit(1)
+Session = sessionmaker(bind=engine)
+_start_manager_threads()
 
-    Session = sessionmaker(bind=engine)
-    _start_manager_threads()
-
-    # wait for program to be killed
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.pause()
+# wait for program to be killed
+signal.signal(signal.SIGINT, signal_handler)
+signal.pause()
