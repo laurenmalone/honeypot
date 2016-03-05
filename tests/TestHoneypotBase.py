@@ -25,16 +25,11 @@ class MyTestCase(unittest.TestCase):
     # stop program
     def test_num_threads_running(self):
         HoneypotBase._load_plugins()
-        HoneypotBase._stop_hp()
-        count = 0
+        HoneypotBase.signal_handler('^C2', None)
         for i in HoneypotBase.threads:
-            if i.isAlive:
-                count += 1
+            self.assertFalse(i.isAlive())
         self.assertNotEqual(len(HoneypotBase.threads), 0)
-        self.assertEqual(0, count)
 
-    def test_system_exit(self):
-        self.assertEqual(HoneypotBase._stop_hp, True)
 
 if __name__ == '__main__':
     unittest.main()

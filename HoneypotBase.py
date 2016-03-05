@@ -5,7 +5,6 @@ from sqlalchemy.exc import OperationalError
 from PluginManager import PluginManager
 import os
 import sys
-import time
 import logging
 import datetime
 import signal
@@ -60,10 +59,10 @@ def signal_handler(signal, frame):
         thread.stop()
     raise SystemExit(0)
 
-
 if __name__ == '__main__':
 
-    plugin_directory = './plugins/'
+    plugin_directory = os.path.abspath('../honeypot/plugins')
+    #'./plugins/'
     threads = []
     plugins = []
 
