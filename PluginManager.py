@@ -19,7 +19,7 @@ class PluginManager(Thread):
                 clientsocket.close()
                 break
             else:
-                args = clientsocket, address, session_factory()
+                args = clientsocket, address, self._session_factory()
                 Thread(target = self._plugin.run, args = args).start()
         serversocket.close()
 
