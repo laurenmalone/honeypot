@@ -1,9 +1,8 @@
 import sys
 from sqlalchemy import Column, Integer, String
-#from sqlalchemy.ext.declarative import declarative_base
-from HoneypotBase import Base
+from sqlalchemy.ext.declarative import declarative_base
 
-#Base = declarative_base()
+Base = declarative_base()
 
 class Plugin:
 
@@ -14,8 +13,9 @@ class Plugin:
                      }}
 
 
-    class Telnet(Base):
+    class User(Base):
         _tablename_ = 'telnet'
+
         id = Column(Integer, primary_key=True)
         username = Column(String)
         password =  Column(String)
@@ -29,13 +29,12 @@ class Plugin:
         self.username = ""
         self.PORT = 8888
 
-    def run(self,passed_socket, address, session):
+    def run(self,passed_socket, session):
          # print("Port Number: " + passed_socket.getsockname()[0])
         if passed_socket:
             # need to sleep thread if no answer
             # for loop and try catch the timeout exception
             # while self.count < 3:
-            # may have to save the timeout for the next iteration
             for i in range(0,3):
                # try catch
                passed_socket.settimeout(35)
@@ -44,7 +43,7 @@ class Plugin:
                 passed_socket.sendall("Password: ")
                 password = passed_socket.recv(64)
                 self.passwords.append(password)
-
+               
                 # if they take too long to enter password
                 # session.add_all([User(username='', password=''),
                 #                   User(username='', password='')])
@@ -53,10 +52,6 @@ class Plugin:
                 passed_socket.sendall("---Incorrect--\n")
                 passed_socket.sendall("Password: ")
                 self.count += 1
-                record = Telnet(username= '<name>', password = '<password>')
-                 session.add(record)
-                 session.commit()
-                 session.close()
             passed_socket.close()
             sys.exit(0)
         else:
