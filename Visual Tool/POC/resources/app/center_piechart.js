@@ -56,7 +56,7 @@ Ext.define("center_piechart",{
         tooltip: {
             trackMouse: true,
             renderer: function(storeItem, item) {
-                this.setHtml(storeItem.get('os') + ': ' + storeItem.get('data1') + '%');
+//                this.setHtml(storeItem.get('os') + ': ' + storeItem.get('data1') + '%');
             }
         }
     }]

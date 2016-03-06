@@ -29,6 +29,7 @@ Ext.define("analytics_panel", {
                 width: "30%",
                 collapsible: true,
                 split: true,
+                html: '',
                 items: []
 
             }),

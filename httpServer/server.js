@@ -44,15 +44,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var app = express();
     console.log("Loading FS");
     var fs = require("fs");
-    console.log("SQLITE3");
+    console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
     var dbLocation = "HPTSERVER.db";
-    console.log("Looking for DB at location: " + dbLocation);
+    console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
     
     if(dbExists){
         app.get('/plugins', function (req, res) {
+            console.log("Plugins Total Accessed");
+            console.log("Opening DB at location: " + dbLocation);
+            var db = new dblite.Database(dbLocation);
+            var resultObject = {"success": true, "rows": [], totalCount: 0};
+            var pluginObject = {"value": "", "count": 0};
+            var pluginList = [];
+            
+            var getPlugins = function (err, row) {
+                pluginList.push(row.value);
+            };
+            
+            var setTotalCount = function (err, row) {
+                resultObject.totalCount = row.count;  
+            };
+            
+            db.serialize(function(){
+                db.all("Select * from plugins", getPlugins);
+                
+            });
+        });
+        
+        app.get('/', function (req, res) {
             console.log("Plugins Accessed");
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
@@ -82,19 +104,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         app.get('/plugins/:id', function (req, res) {
             //get plugin table :id 
+            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
-            console.log("Sever Pluggins Accessed From " + req.params.id);
+            console.log("Plugin Table " + req.params.id + " Accessed");
+            db.serialize(function(){
+
+            });
+            res.jsonp({name: req.params.id});
             db.close();
-            res.jsonp({name: req.params.id})
         });
 
 
         app.get('/plugins/:id/features', function (req, res) {
             //get plugin table :id Table Data
+            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Sever Table " + req.params.id + "from IP " + req.ip);
-            db.close();w
-            res.jsonp({name: req.params.id})
+            db.serialize(function(){
+
+            });
+            res.jsonp({name: req.params.id});
+            db.close();
         });
 
 
