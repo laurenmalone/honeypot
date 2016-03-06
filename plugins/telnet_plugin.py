@@ -35,6 +35,7 @@ class Plugin:
             # need to sleep thread if no answer
             # for loop and try catch the timeout exception
             # while self.count < 3:
+            # may have to save the timeout for the next iteration
             for i in range(0,3):
                 # try catch
                 passed_socket.settimeout(35)
@@ -52,6 +53,10 @@ class Plugin:
                 passed_socket.sendall("---Incorrect--\n")
                 passed_socket.sendall("Password: ")
                 self.count += 1
+                record = Telnet(username= '<name>', password = '<password>')
+                session.add(record)
+                session.commit()
+                session.close()
             passed_socket.close()
             sys.exit(0)
         else:
