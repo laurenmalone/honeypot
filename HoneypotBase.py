@@ -5,7 +5,6 @@ from sqlalchemy.exc import OperationalError
 from PluginManager import PluginManager
 import os
 import sys
-import time
 import logging
 import datetime
 import signal
@@ -60,30 +59,27 @@ def signal_handler(signal, frame):
         thread.stop()
     raise SystemExit(0)
 
+plugin_directory = '../honeypot/plugins/'
+threads = []
+plugins = []
 
-if __name__ == '__main__':
+my_date_time = datetime.datetime
+logging.basicConfig(filename='honey.log', level=logging.DEBUG)
 
-    plugin_directory = './plugins/'
-    threads = []
-    plugins = []
+engine = create_engine('sqlite:///test.db', echo=True)
+Base = declarative_base()
+_load_plugins()
 
-    my_date_time = datetime.datetime
-    logging.basicConfig(filename='honey.log', level=logging.DEBUG)
+# create tables
+try:
+    Base.metadata.create_all(engine)
+except OperationalError:
+    print"Db directory doesn't exist."
+    raise SystemExit(1)
 
-    engine = create_engine('sqlite:///test.db', echo=True)
-    Base = declarative_base()
-    _load_plugins()
+Session = sessionmaker(bind=engine)
+_start_manager_threads()
 
-    # create tables
-    try:
-        Base.metadata.create_all(engine)
-    except OperationalError:
-        print"Db directory doesn't exist."
-        raise SystemExit(1)
-
-    Session = sessionmaker(bind=engine)
-    _start_manager_threads()
-
-    # wait for program to be killed
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.pause()
+# wait for program to be killed
+signal.signal(signal.SIGINT, signal_handler)
+signal.pause()
