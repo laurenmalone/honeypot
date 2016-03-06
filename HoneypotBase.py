@@ -23,7 +23,7 @@ def _load_plugins():
             print "Loading File: " + filename
             try:
                 mod = __import__(filename)
-                plugin = mod.Plugin
+                plugin = mod.Plugin()
                 if _port_already_open(plugin):
                     print (filename + " not loaded. Port already in use.")
                 else:
