@@ -17,18 +17,17 @@ def _load_plugins():
             filename, ext = os.path.splitext(i)
             if filename == '__init__':
                 continue
-            elif ext != '.py':
-                print "Invalid plugin. Must have .py ext: " + filename
+            if ext != '.py':
                 continue
-            print "Loading File: " + filename
             try:
+                print "Loading File: " + filename + ext
                 mod = __import__(filename)
-                plugin = mod.Plugin
+                plugin = mod.Plugin()
                 if _port_already_open(plugin):
                     print (filename + " not loaded. Port already in use.")
                 else:
                     plugins.append(plugin)
-                print ("Plugin loaded: " + filename)
+                    print ("Plugin loaded: " + filename + ext)
             except AttributeError:
                 print("Invalid plugin. Needs a module named Plugin: " + filename)
             except IndentationError:
@@ -54,10 +53,10 @@ def _start_manager_threads():
 
 
 def signal_handler(signal, frame):
-    print"\nKilling threads"
     for thread in threads:
         thread.stop()
     raise SystemExit(0)
+
 
 plugin_directory = '../honeypot/plugins/'
 threads = []
