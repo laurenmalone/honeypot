@@ -65,7 +65,7 @@ plugins = []
 my_date_time = datetime.datetime
 logging.basicConfig(filename='honey.log', level=logging.DEBUG)
 
-engine = create_engine('sqlite:///test.db', echo=True)
+engine = create_engine('sqlite:///test.db', echo=False)
 Base = declarative_base()
 _load_plugins()
 
