@@ -20,7 +20,7 @@ class PluginManager(Thread):
                 break
             else:
                 args = clientsocket, address, self._session_factory()
-                Thread(target = self._plugin.run, args = args).start()
+                Thread(target=self._plugin.run, args=args).start()
         serversocket.close()
 
     def stop(self):
