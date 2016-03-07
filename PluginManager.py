@@ -13,7 +13,7 @@ class PluginManager(Thread):
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversocket.bind(('', self._plugin.get_port()))
         serversocket.listen(5)
-        while 1:
+        while True:
             clientsocket, address = serversocket.accept()
             if self._flag.is_set():
                 clientsocket.close()
