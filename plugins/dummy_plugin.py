@@ -13,7 +13,7 @@ class Plugin:
         self.passwords = []
         self.count = 0
         self.username = []
-        self.PORT = 38746
+        self.PORT = 33333
 
     class Dummy(Base):
         __tablename__ = 'dummy'
@@ -23,7 +23,7 @@ class Plugin:
 
     def run(self, socket, address, session):
         socket.close()
-        session.add(self.Dummy(username = 'gdejohn', password='qwerty'))
+        session.add(self.Dummy(username = 'gdejohn4', password='qwerty'))
         session.commit()
         session.close()
 
