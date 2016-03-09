@@ -16,9 +16,9 @@ engine = create_engine('sqlite:///test.db', echo=False)
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
-plugin_directory = '../honeypot/plugins/'
+plugin_directory = 'plugins/'
 threads = []
-plugins = []
+plugin_list = []
 
 my_date_time = datetime.datetime
 logging.basicConfig(filename='honey.log', level=logging.DEBUG)
@@ -34,16 +34,13 @@ class Plugin(Base):
 
 
 def _load_plugins():
-    #print (sys.executable)
-    #print(os.getcwd())
-    #print (sys.path)
-
     try:
         sys.path.insert(0, plugin_directory)
         os.listdir(plugin_directory)
 
     except OSError:
         print("Plugin folder not found.")
+        print(sys.path)
         raise SystemExit(1)
 
     else:
@@ -51,43 +48,47 @@ def _load_plugins():
             filename, ext = os.path.splitext(i)
             if filename == '__init__' or ext != '.py':
                 continue
-            print "Attempting to load " + filename + ext
+            print filename + ext+ " loading..."
             try:
                 mod = __import__(filename)
                 plugin = mod.Plugin()
                 if _port_already_used(plugin):
-                    logging.exception(filename + " couldn't be loaded :Time: " + str(my_date_time.now()))
+                    logging.exception(filename + " not loaded :Time: " + str(my_date_time.now()))
                     print (filename + " not loaded. Port " + plugin.get_port+ " already in use.")
                 else:
-                    plugins.append(plugin)
-                    print ("Plugin loaded: " + filename + ext)
+                    plugin_list.append(plugin)
+                    print (filename + ext + " successfuly loaded")
             except Exception:
-                logging.exception(filename + " couldn't be loaded " ":Time: " + str(my_date_time.now()))
-                print ("Plugin could not be loaded: " + filename + ext)
+                logging.exception(filename + " not loaded " ":Time: " + str(my_date_time.now()))
+                print (filename + ext + " not loaded")
         sys.path.pop(0)
 
 
 def _port_already_used(plugin):
-    for i in plugins:
+    for i in plugin_list:
         if i.get_port() == plugin.get_port():
             return True
     return False
 
 
 def _start_manager_threads():
-    for plugin in plugins:
+    # start a plugin manager thread for each plugin
+    for plugin in plugin_list:
         thread = PluginManager(plugin, Session)
         thread.start()
         threads.append(thread)
 
 
 def _signal_handler(signal, frame):
+    # called on ctrl c or kill pid
+    print(signal)
     for thread in threads:
         thread.stop()
-    raise SystemExit(0)
+    print 'Exiting honeypot'
 
 
 def _add_plugin_table():
+    # add plugin table to db
     session = Session()
     #for i in plugins:
         #record = Plugin(name = i.)
@@ -97,6 +98,8 @@ def _add_plugin_table():
 
 
 def _create_plugin_tables():
+    # add table to db for each plugin
+
     try:
         Base.metadata.create_all(engine)
     except OperationalError:
@@ -120,4 +123,5 @@ def run():
     signal.pause()
 
 
-run()
+if __name__ == "__main__":
+    run()
