@@ -46,6 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var fs = require("fs");
     console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
+//	var dblite = require('/../../../../../usr/bin/sqlite3');
     var dbLocation = "HPTSERVER.db";
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
@@ -128,7 +129,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         });
 
 
-        var server = app.listen(443, function () {
+        var server = app.listen(9005, function () {
         var host = server.address().address
         var port = server.address().port
 
