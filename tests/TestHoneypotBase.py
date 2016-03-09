@@ -1,33 +1,13 @@
-import unittest
+from unittest import TestCase
 import HoneypotBase
+import time
 
+class TestHoneypotBase(TestCase):
 
-class MyTestCase(unittest.TestCase):
-    # plugins tests
-
-    # make sure threads are being created for each plugin
-    def test_plugins_loaded(self):
+    def test_1(self):
         HoneypotBase._load_plugins()
-        self.assertIsNotNone(HoneypotBase.threads)
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
-
-    # make sure all plugin manager threads are running
-    def test_num_threads_started(self):
-        HoneypotBase._load_plugins()
-        count = 0
-        for i in HoneypotBase.threads:
-            if i.isAlive:
-                count += 1
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
-        self.assertEqual(len(HoneypotBase.threads), count)
-        # listen user commands
-
-    # stop program
-    def test_num_threads_running(self):
-        HoneypotBase._load_plugins()
-        HoneypotBase.signal_handler('^C2', None)
-        for i in HoneypotBase.threads:
-            self.assertFalse(i.isAlive())
-        self.assertNotEqual(len(HoneypotBase.threads), 0)
-
+        time.sleep(0.01)
+        HoneypotBase._signal_handler('15', None)
+        #HoneypotBase._signal_handler('^C2', None)
+        #'15' - kill, '^C2' - ctrl c
 
