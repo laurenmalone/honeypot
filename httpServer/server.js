@@ -28,15 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (function () {
     'use strict';
-    console.log("                       _________                        __________   \\      /      __________    ____________   ____________");
-    console.log("       /      /       /        /        /|       /     /              \\    /      /         /   /           /       /");
-    console.log("      /      /       /        /        / |      /     /                \\  /      /         /   /           /       /");
-    console.log("     /      /       /        /        /  |     /     /                  \\/      /         /   /           /       /");
-    console.log("    /______/       /        /        /   |    /     /----------         /      /_________/   /           /       /");
-    console.log("   /      /       /        /        /    |   /     /                   /      /             /           /       /");
-    console.log("  /      /       /        /        /     |  /     /                   /      /             /           /       /");
-    console.log(" /      /       /        /        /      | /     /                   /      /             /           /       /");
-    console.log("/      /       /________/        /       |/     /___________        /      /             /___________/       /");
+    console.info("                       _________                        __________   \\      /      __________    ____________   ____________");
+    console.info("       /      /       /        /        /|       /     /              \\    /      /         /   /           /       /");
+    console.info("      /      /       /        /        / |      /     /                \\  /      /         /   /           /       /");
+    console.info("     /      /       /        /        /  |     /     /                  \\/      /         /   /           /       /");
+    console.info("    /______/       /        /        /   |    /     /----------         /      /_________/   /           /       /");
+    console.info("   /      /       /        /        /    |   /     /                   /      /             /           /       /");
+    console.info("  /      /       /        /        /     |  /     /                   /      /             /           /       /");
+    console.info(" /      /       /        /        /      | /     /                   /      /             /           /       /");
+    console.info("/      /       /________/        /       |/     /___________        /      /             /___________/       /");
     
     console.log("Loading HoneyPot Server..........");
     console.log("Loading Express");
@@ -58,21 +58,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
-            var pluginObject = {"value": "", "count": 0};
+            var pluginObject = {"value":"", "display":"",  "count": 0};
             var pluginList = [];
+            
+            var finish = function() {
+                db.close();
+                res.jsonp({"rows": pluginList});
+                console.log("close");
+            };
+            
+            var addToObject = function (err, row) {
+                pluginList.push({"value": row.value, "display": row.display})  
+            };
+            
             
             var getPlugins = function (err, row) {
                 pluginList.push(row.value);
-            };
-            
-            var setTotalCount = function (err, row) {
-                resultObject.totalCount = row.count;  
+                this.row = row;
+                var me = this;
+                console.log("row", row.value);
+                db.get("Select COUNT(*) from ?", row.value, function (err, row) {
+                    console.log("row", row);
+//                        pluginList.push({"count": row.count});
+                });
             };
             
             db.serialize(function(){
-                db.all("Select * from plugins", getPlugins);
+                db.each("Select * from plugins", getPlugins);
+                db.get("Select * from plugins", finish)
+                
                 
             });
+            
+            
+            
         });
         
         app.get('/', function (req, res) {
@@ -97,12 +116,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             
             db.serialize(function(){
                 
-                db.get("select COUNT(*) as count from plugins", setTotalCount);
+                db.get("Select COUNT(*) as count from plugins", setTotalCount);
                 db.all("Select * from plugins", selectCB);
 
             });
         });
-
+        
         app.get('/plugins/:id', function (req, res) {
             //get plugin table :id 
             console.log("Opening DB at location: " + dbLocation);
@@ -124,7 +143,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             db.serialize(function(){
 
             });
-            res.jsonp({name: req.params.id});
+            res.jsonp({name: req.params.id, feature: "GEOFEATURE"});
             db.close();
         });
 
