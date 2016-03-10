@@ -28,15 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (function () {
     'use strict';
-    console.log("                       _________                        __________   \\      /      __________    ____________   ____________");
-    console.log("       /      /       /        /        /|       /     /              \\    /      /         /   /           /       /");
-    console.log("      /      /       /        /        / |      /     /                \\  /      /         /   /           /       /");
-    console.log("     /      /       /        /        /  |     /     /                  \\/      /         /   /           /       /");
-    console.log("    /______/       /        /        /   |    /     /----------         /      /_________/   /           /       /");
-    console.log("   /      /       /        /        /    |   /     /                   /      /             /           /       /");
-    console.log("  /      /       /        /        /     |  /     /                   /      /             /           /       /");
-    console.log(" /      /       /        /        /      | /     /                   /      /             /           /       /");
-    console.log("/      /       /________/        /       |/     /___________        /      /             /___________/       /");
+    console.info("                       _________                        __________   \\      /      __________    ____________   ____________");
+    console.info("       /      /       /        /        /|       /     /              \\    /      /         /   /           /       /");
+    console.info("      /      /       /        /        / |      /     /                \\  /      /         /   /           /       /");
+    console.info("     /      /       /        /        /  |     /     /                  \\/      /         /   /           /       /");
+    console.info("    /______/       /        /        /   |    /     /----------         /      /_________/   /           /       /");
+    console.info("   /      /       /        /        /    |   /     /                   /      /             /           /       /");
+    console.info("  /      /       /        /        /     |  /     /                   /      /             /           /       /");
+    console.info(" /      /       /        /        /      | /     /                   /      /             /           /       /");
+    console.info("/      /       /________/        /       |/     /___________        /      /             /___________/       /");
     
     console.log("Loading HoneyPot Server..........");
     console.log("Loading Express");
@@ -44,16 +44,57 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var app = express();
     console.log("Loading FS");
     var fs = require("fs");
-    console.log("SQLITE3");
+    console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
 //	var dblite = require('/../../../../../usr/bin/sqlite3');
     var dbLocation = "HPTSERVER.db";
-    console.log("Looking for DB at location: " + dbLocation);
+    console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
     
     if(dbExists){
         app.get('/plugins', function (req, res) {
+            console.log("Plugins Total Accessed");
+            console.log("Opening DB at location: " + dbLocation);
+            var db = new dblite.Database(dbLocation);
+            var resultObject = {"success": true, "rows": [], totalCount: 0};
+            var pluginObject = {"value":"", "display":"",  "count": 0};
+            var pluginList = [];
+            
+            var finish = function() {
+                db.close();
+                res.jsonp({"rows": pluginList});
+                console.log("close");
+            };
+            
+            var addToObject = function (err, row) {
+                pluginList.push({"value": row.value, "display": row.display})  
+            };
+            
+            
+            var getPlugins = function (err, row) {
+                pluginList.push(row.value);
+                this.row = row;
+                var me = this;
+                console.log("row", row.value);
+                db.get("Select COUNT(*) from ?", row.value, function (err, row) {
+                    console.log("row", row);
+//                        pluginList.push({"count": row.count});
+                });
+            };
+            
+            db.serialize(function(){
+                db.each("Select * from plugins", getPlugins);
+                db.get("Select * from plugins", finish)
+                
+                
+            });
+            
+            
+            
+        });
+        
+        app.get('/', function (req, res) {
             console.log("Plugins Accessed");
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
@@ -75,27 +116,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             
             db.serialize(function(){
                 
-                db.get("select COUNT(*) as count from plugins", setTotalCount);
+                db.get("Select COUNT(*) as count from plugins", setTotalCount);
                 db.all("Select * from plugins", selectCB);
 
             });
         });
-
+        
         app.get('/plugins/:id', function (req, res) {
             //get plugin table :id 
+            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
-            console.log("Sever Pluggins Accessed From " + req.params.id);
+            console.log("Plugin Table " + req.params.id + " Accessed");
+            db.serialize(function(){
+
+            });
+            res.jsonp({name: req.params.id});
             db.close();
-            res.jsonp({name: req.params.id})
         });
 
 
         app.get('/plugins/:id/features', function (req, res) {
             //get plugin table :id Table Data
+            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Sever Table " + req.params.id + "from IP " + req.ip);
-            db.close();w
-            res.jsonp({name: req.params.id})
+            db.serialize(function(){
+
+            });
+            res.jsonp({name: req.params.id, feature: "GEOFEATURE"});
+            db.close();
         });
 
 
