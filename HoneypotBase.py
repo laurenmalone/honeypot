@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import Sequence
 from PluginManager import PluginManager
@@ -40,8 +40,8 @@ def _load_plugins():
 
     except OSError:
         print("Plugin folder not found.")
-        print(sys.path)
-        raise SystemExit(1)
+        return False
+
 
     else:
         for i in os.listdir(plugin_directory):
@@ -52,7 +52,7 @@ def _load_plugins():
             try:
                 mod = __import__(filename)
                 plugin = mod.Plugin()
-                if _port_already_used(plugin):
+                if _port_already_used(plugin.get_port):
                     logging.exception(filename + " not loaded :Time: " + str(my_date_time.now()))
                     print (filename + " not loaded. Port " + plugin.get_port+ " already in use.")
                 else:
@@ -62,11 +62,11 @@ def _load_plugins():
                 logging.exception(filename + " not loaded " ":Time: " + str(my_date_time.now()))
                 print (filename + ext + " not loaded")
         sys.path.pop(0)
+        return True
 
-
-def _port_already_used(plugin):
+def _port_already_used(port):
     for i in plugin_list:
-        if i.get_port() == plugin.get_port():
+        if i.get_port() == port:
             return True
     return False
 
@@ -81,20 +81,20 @@ def _start_manager_threads():
 
 def _signal_handler(signal, frame):
     # called on ctrl c or kill pid
-    print(signal)
     for thread in threads:
         thread.stop()
-    print 'Exiting honeypot'
 
 
 def _add_plugin_table():
     # add plugin table to db
+    #try:
     session = Session()
     #for i in plugins:
         #record = Plugin(name = i.)
         #session.add(record)
     #session.commit()
     session.close()
+    return False
 
 
 def _create_plugin_tables():
@@ -102,18 +102,29 @@ def _create_plugin_tables():
 
     try:
         Base.metadata.create_all(engine)
+        return True
     except OperationalError:
         print"Db directory doesn't exist."
-        raise SystemExit(1)
+        return False
+    except SQLAlchemyError:
+        print"Db error"
+        return False
+
 
 
 def run():
 
-    _load_plugins()
+    if not _load_plugins():
+        print 1
+        raise SystemExit(1)
 
-    _add_plugin_table()
+    #if not _add_plugin_table():
+        #print 2
+        #raise SystemExit(1)
 
-    _create_plugin_tables()
+    if not _create_plugin_tables():
+        print 3
+        raise SystemExit(1)
 
     _start_manager_threads()
 
@@ -125,3 +136,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
