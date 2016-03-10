@@ -101,7 +101,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var selectCB = function (err, row) {
                 console.log("Row", row);
-                resultObject.rows.push(row);
+                resultObject.rows = row;
                 console.log("Result", resultObject);
                 res.type('application/json');
                 res.jsonp(resultObject);
@@ -130,7 +130,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             db.serialize(function(){
 
             });
-            res.jsonp({name: req.params.id});
+            res.jsonp({value: req.params.id});
             db.close();
         });
 
@@ -143,7 +143,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             db.serialize(function(){
 
             });
-            res.jsonp({name: req.params.id, feature: "GEOFEATURE"});
+            res.jsonp({value: req.params.id, feature: "GEOFEATURE"});
             db.close();
         });
 
