@@ -10,6 +10,7 @@ import sys
 import logging
 import datetime
 import signal
+import traceback
 
 
 engine = create_engine('sqlite:///test.db', echo=False)
@@ -28,12 +29,13 @@ class Plugin(Base):
         __tablename__ = 'plugin'
 
         id = Column(Integer, Sequence('plugin_id_seq'), primary_key=True, nullable=False)
-        name = Column(String,nullable=False )
+        name = Column(String, nullable=False)
         orm = Column(String, nullable=False)
         description = Column(String, nullable=False)
 
 
 def _load_plugins():
+
     try:
         sys.path.insert(0, plugin_directory)
         os.listdir(plugin_directory)
@@ -41,7 +43,6 @@ def _load_plugins():
     except OSError:
         print("Plugin folder not found.")
         return False
-
 
     else:
         for i in os.listdir(plugin_directory):
@@ -52,23 +53,33 @@ def _load_plugins():
             try:
                 mod = __import__(filename)
                 plugin = mod.Plugin()
-                if _port_already_used(plugin.get_port):
+                if not _port_valid(plugin.get_port()):
                     logging.exception(filename + " not loaded :Time: " + str(my_date_time.now()))
-                    print (filename + " not loaded. Port " + plugin.get_port+ " already in use.")
+                    print (filename + " not loaded. Port " + str(plugin.get_port()) + " not available.")
                 else:
-                    plugin_list.append(plugin)
+                    if plugin.get_port == 0: # add to end of list
+                        plugin_list.append(plugin)
+                    else:
+                        plugin_list.insert(0, plugin)
                     print (filename + ext + " successfuly loaded")
-            except Exception:
+            except Exception as e:
+                traceback.print_exc(file=sys.stdout)
+                print(e)
                 logging.exception(filename + " not loaded " ":Time: " + str(my_date_time.now()))
                 print (filename + ext + " not loaded")
         sys.path.pop(0)
         return True
 
-def _port_already_used(port):
+
+def _port_valid(port):
     for i in plugin_list:
-        if i.get_port() == port:
-            return True
-    return False
+        if i.get_port() == port and port != 0:
+            print "1"
+            return False
+        if port > 65535:
+            print "2"
+            return False
+    return True
 
 
 def _start_manager_threads():
@@ -83,6 +94,7 @@ def _signal_handler(signal, frame):
     # called on ctrl c or kill pid
     for thread in threads:
         thread.stop()
+        thread.join()
 
 
 def _add_plugin_table():
@@ -109,7 +121,6 @@ def _create_plugin_tables():
     except SQLAlchemyError:
         print"Db error"
         return False
-
 
 
 def run():
