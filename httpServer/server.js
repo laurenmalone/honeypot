@@ -52,6 +52,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
     
+    
+    // SELECT name as value FROM sqlite_master WHERE type = "table"
     if(dbExists){
         app.get('/plugins', function (req, res) {
             console.log("Plugins Total Accessed");
@@ -73,25 +75,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             
             
             var getPlugins = function (err, row) {
-                pluginList.push(row.value);
-                this.row = row;
-                var me = this;
-                console.log("row", row.value);
-                db.get("Select COUNT(*) from ?", row.value, function (err, row) {
-                    console.log("row", row);
-//                        pluginList.push({"count": row.count});
+                console.log("get row", row);
+                row.forEach(function (item){
+                    
+//                    db.
+//                    pluginList.push({value: item.value, count:    
                 });
             };
             
             db.serialize(function(){
-                db.each("Select * from plugins", getPlugins);
-                db.get("Select * from plugins", finish)
-                
-                
+                db.all("Select value from plugins", getPlugins);
+                db.get("Select * from plugins", finish);
             });
-            
-            
-            
         });
         
         app.get('/', function (req, res) {
@@ -107,7 +102,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 res.jsonp(resultObject);
                 console.log("res");
                 db.close();
-                
             };
             
             var setTotalCount = function (err, row) {

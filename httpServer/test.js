@@ -1,10 +1,10 @@
 var supertest = require("supertest");
 var should = require("should");
-
+var should2 = require("should-http");
 
 var server = supertest.agent("http://localhost:9005");
 
-describe("Http Server Tests", function () {
+describe("Node Http Server Tests", function () {
 	// #1 should return list of plugins
 	it ("Check to see if /index is invalid", function test(done) {
 		server
@@ -43,13 +43,23 @@ describe("Http Server Tests", function () {
 //            done();
 //		});
 //	});
-    it ("Base Route should return object with rows properties", function test(done) {
+    it ("Base Route should return an object", function test(done) {
         server
 		.get("/")
 		.expect("Content-type", /json/)
 		.expect(200)
 		.end(function(err,res){
-			res.body.should.have.property('rows');
+			res.body.should.be.an.instanceOf(Object);
+            done();
+		});
+	});
+    it ("Base Route should return object with rows, totalCount properties", function test(done) {
+        server
+		.get("/")
+		.expect("Content-type", /json/)
+		.expect(200)
+		.end(function(err,res){
+            res.body.should.be.an.instanceOf(Object).and.have.properties(['rows', "totalCount"]);
             done();
 		});
 	});
@@ -59,17 +69,16 @@ describe("Http Server Tests", function () {
 		.expect("Content-type",/json/)
 		.expect(200)
 		.end(function(err,res){
-			res.status.should.equal(200);
 			done();
 		});
 	});
-    it ("plugins/:id route should return an object with property name", function test(done) {
+    it ("plugins/:id route should return an object with property rows, totalCount", function test(done) {
 		server
 		.get("/plugins/id")
 		.expect("Content-type",/json/)
 		.expect(200)
 		.end(function(err,res){
-          res.body.should.have.properties(['value']);
+          res.body.should.have.properties(['rows', 'totalCount']);
 			done();
 		});
 	});
@@ -83,13 +92,23 @@ describe("Http Server Tests", function () {
 			done();
 		});
 	});
-    it ("plugins/:id/features route should return an object with properties value and feature", function test(done) {
+    it ("plugins/:id/features route should return an object with properties rows and totalCount", function test(done) {
 		server
 		.get("/plugins/id/features")
 		.expect("Content-type",/json/)
 		.expect(200)
 		.end(function(err,res){
-          res.body.should.have.properties(['value', 'feature']);
+          res.body.should.have.properties(['rows', 'totalCount']);
+			done();
+		});
+	});
+    it ("plugins/:id/features route should return a json", function test(done) {
+		server
+		.get("/plugins/id/features")
+		.expect("Content-type",/json/)
+		.expect(200)
+		.end(function(err,res){
+            res.should.be.json();
 			done();
 		});
 	});
