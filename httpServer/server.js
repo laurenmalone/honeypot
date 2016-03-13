@@ -53,6 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
     
     
+    var db = new dblite.Database(dbLocation);
+//    PRAGMA table_info(plugins)
     // SELECT name as value FROM sqlite_master WHERE type = "table"
     if(dbExists){
         app.get('/plugins', function (req, res) {
@@ -121,11 +123,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Plugin Table " + req.params.id + " Accessed");
+            var resultObject = {
+                    rows: [],
+                    totalCount: 0
+            };
+            var dbQueryCallback = function (err, row) {
+                
+                console.log("plugins/:id row", row, err);
+                resultObject.rows = row;
+                res.jsonp(resultObject);
+                db.close();  
+            };
+            
+            var setTotalCount = function (err, row) {
+                resultObject.totalCount = row.count;  
+            };
+            
             db.serialize(function(){
-
+                db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
+                db.all("Select * from " + req.params.id, dbQueryCallback);
             });
-            res.jsonp({value: req.params.id});
-            db.close();
+            
         });
 
 
