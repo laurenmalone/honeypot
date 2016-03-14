@@ -7,17 +7,24 @@ from PluginManager import PluginManager
 class TestPluginManager(TestCase):
 
     def test_stop(self):
+        """Test connecting to plugin's port, stopping PluginManager."""
+
         class Plugin:
+            """Mock plugin, uses random available port."""
+
             def __init__(self):
                 sock = socket.socket()
                 sock.bind(('', 0)) # bind to any available port
                 self._port = sock.getsockname()[1]
                 sock.close()
                 self.run_called = Event()
+
             def get_port(self):
                 return self._port
+
             def run(self, sock, address, session):
                 self.run_called.set()
+
         plugin = Plugin()
         plugin_manager = PluginManager(plugin, lambda: None)
         plugin_manager.start()
