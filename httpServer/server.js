@@ -52,6 +52,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
     
+    
+    var db = new dblite.Database(dbLocation);
+//    PRAGMA table_info(plugins)
+    // SELECT name as value FROM sqlite_master WHERE type = "table"
     if(dbExists){
         app.get('/plugins', function (req, res) {
             console.log("Plugins Total Accessed");
@@ -60,38 +64,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var pluginObject = {"value":"", "display":"",  "count": 0};
             var pluginList = [];
+            var count = 0;
             
             var finish = function() {
                 db.close();
-                res.jsonp({"rows": pluginList});
+                res.jsonp({"rows": pluginList, count: -1});
                 console.log("close");
             };
             
             var addToObject = function (err, row) {
-                pluginList.push({"value": row.value, "display": row.display})  
+                pluginList.push({"value": row.value, "display": row.display});
+                
             };
             
             
             var getPlugins = function (err, row) {
-                pluginList.push(row.value);
-                this.row = row;
-                var me = this;
-                console.log("row", row.value);
-                db.get("Select COUNT(*) from ?", row.value, function (err, row) {
-                    console.log("row", row);
-//                        pluginList.push({"count": row.count});
+                console.log("get row", row);
+                row.forEach(function (item){
+                    pluginList.push(item);
+//                    db.
+//                    pluginList.push({value: item.value, count:    
                 });
             };
             
             db.serialize(function(){
-                db.each("Select * from plugins", getPlugins);
-                db.get("Select * from plugins", finish)
-                
-                
+                db.all("Select value from plugins", getPlugins);
+                db.get("", finish);
             });
-            
-            
-            
         });
         
         app.get('/', function (req, res) {
@@ -101,13 +100,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var selectCB = function (err, row) {
                 console.log("Row", row);
-                resultObject.rows.push(row);
+                resultObject.rows = row;
                 console.log("Result", resultObject);
                 res.type('application/json');
                 res.jsonp(resultObject);
                 console.log("res");
                 db.close();
-                
             };
             
             var setTotalCount = function (err, row) {
@@ -127,11 +125,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Plugin Table " + req.params.id + " Accessed");
+            var resultObject = {
+                    rows: [],
+                    totalCount: 0
+            };
+            var dbQueryCallback = function (err, row) {
+                
+                console.log("plugins/:id row", row, err);
+                resultObject.rows = row;
+                res.jsonp(resultObject);
+                db.close();  
+            };
+            
+            var setTotalCount = function (err, row) {
+                resultObject.totalCount = row.count;  
+            };
+            
             db.serialize(function(){
-
+                db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
+                db.all("Select * from " + req.params.id, dbQueryCallback);
             });
-            res.jsonp({name: req.params.id});
-            db.close();
+            
         });
 
 
@@ -140,11 +154,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Sever Table " + req.params.id + "from IP " + req.ip);
+            
+            var returnFeature = function (err, row) {
+                res.jsonp({value: row, totalCount: -1});
+                db.close();
+            };
+            
             db.serialize(function(){
-
-            });
-            res.jsonp({name: req.params.id, feature: "GEOFEATURE"});
-            db.close();
+                db.all("Select feature from " + req.params.id, returnFeature);     
+            });    
         });
 
 

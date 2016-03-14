@@ -3,18 +3,17 @@ Ext.define("analytics_panel", {
     layout: "border",
     initComponent: function () {
         
+        var pie = Ext.create("center_piechart", {
+            listeners: {
+                afterrender: function() {
+                    this.redraw();
+                }
+            }
+        });
         this.items = [
             
+            pie,
             
-            Ext.create("center_piechart", {
-                listeners: {
-                    afterrender: function() {
-                        this.redraw();
-                    }
-                }
-                                                       
-            
-            }),
             
             Ext.create("south_linegraph", {
                region: 'south',
@@ -32,19 +31,19 @@ Ext.define("analytics_panel", {
                 html: '',
                 items: []
 
-            }),
-            
-            Ext.create("Ext.panel.Panel",{
-                region: "east",
-                layout: "fit",
-                width: "30%",
-                header: false,
-                collapsible: true,
-                split: true,
-                html: "east",
-                split: true,
-                items: [] 
             })
+//            ,
+//            Ext.create("Ext.panel.Panel",{
+//                region: "east",
+//                layout: "fit",
+//                width: "30%",
+//                header: false,
+//                collapsible: true,
+//                split: true,
+//                html: "east",
+//                split: true,
+//                items: [] 
+//            })
         ]
 //        this.items = Ext.create("center_piechart");
 //        this.items = Ext.create("south_linegraph");

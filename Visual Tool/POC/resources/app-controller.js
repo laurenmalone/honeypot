@@ -8,24 +8,12 @@ Ext.onReady(function () {
             }
         }
     });
-    
+    center_panel = Ext.create("center_panel");
     this.pluginsArray = [];
     pluginsStore = {};
-    var ormString = JSON.stringify({
-                        "fields": [{
-                            "name": "area_code",
-                            "type": "string"
-                        }, {
-                            "name": "city",
-                            "type": "string"
-                        }]
-                    });
-    console.log("ormString", ormString);
-    var jsonFromString = JSON.parse(ormString);
-    console.log("fromString", jsonFromString.fields);
     
     
-    
+
     var loadPlugins = function () {
         pluginsStore = Ext.create('Ext.data.Store', {
             storeId: "plugins",
@@ -35,10 +23,26 @@ Ext.onReady(function () {
                      ],
             proxy: {
                 type: 'jsonp',
-                url: './resources/app/jsons/plugins.json',
+                url: CONFIG.url + '/',
                 reader: {
                     type: 'json',
                     rootProperty: 'rows'
+                },
+                listeners: {
+                    exception: function(proxy, response, operation) {
+                        
+                        var message = "There was an error connecting to the Honey Pot Http server</br> @" + CONFIG.url
+                        console.log("loading error", operation);
+                        Ext.create('widget.uxNotification', {
+											title: 'Error Connecting to Server',
+											position: 't',
+											manager: 'Error',
+                                            width: "35%",
+                                            autoClose: false,
+											spacing: 20,
+											html: message
+										}).show();
+                    }
                 }
             },
             autoLoad: false
@@ -46,39 +50,91 @@ Ext.onReady(function () {
         return pluginsStore;
     };
     
+    
+    var createAllStore = function () {
+        Ext.create('Ext.data.Store', {
+            storeId: "all",
+            fields: [{name: 'plugin', type: "string"}, 
+                     {name: 'hits', type: "integer"}
+                     ],
+            proxy: {
+                type: 'jsonp',
+                url: CONFIG.url + '/plugins',
+                reader: {
+                    type: 'json',
+                    rootProperty: 'rows'
+                }
+            },
+            autoLoad: true
+        });
+    };
+    
     var setupPluginStores = function () {
         var me = this;
-        pluginsStore = loadPlugins();
+        var pluginsStore = loadPlugins();
         pluginsStore.load(function(records, operation, success){
-            var pluginCombo = west_menu.down("#pluginCombo");
+            var pluginCombo = center_panel.down("#pluginCombo");
             pluginCombo.bindStore(pluginsStore);
             pluginCombo.setValue('All');
-            var pluginComboTable = west_menu.down("#pluginComboTable")
+            var pluginComboTable = center_panel.down("#pluginComboTable");
             pluginComboTable.bindStore(pluginsStore);
             pluginComboTable.setValue('All');
-            var pluginComboAna = west_menu.down("#pluginComboAnalytics");
+            var pluginComboAna = center_panel.down("#pluginComboAnalytics");
             pluginComboAna.bindStore(pluginsStore);
             pluginComboAna.setValue('All');
+            createAllStore();
+            center_panel.grid_panel.setStoreColumns(["plugin", 'hits'], 'all');
             me.pluginsStore.each(function(item){
                 console.log("store item", item);
                 createPluginStore(item);
+            });
+            pluginsStore.add(
+                {
+                    value: 'all', 
+                    display: 'All', 
+                    orm: '{"fields":[{"name":"Plugin","type":"string"},{"name":"Hits","type":"integer"}]}',
+                    fields: {
+                        fields: [
+                            {name: 'Plugins', type: "string"},{name: "Hits", type: "integer"}
+                        ]
+                    } 
+                }
+            );
+            center_panel.grid_panel.setStoreColumns([{name: 'Plugins', type: "string"},{name: "Hits", type: "integer"}], 'all');
+                    // Remove Loading Div
+            Ext.get('loading').remove();
+            Ext.get('loading-mask').fadeOut({
+                remove: true
             });
         });
     };
     
     var createPluginStore = function (plugin) {
         plugin.data.fields = (plugin.data.orm) ? JSON.parse(plugin.data.orm) : "";
-        if(plugin.data.value === "all"){
-            center_panel.grid_panel.setStoreColumns(plugin.data.fields.fields, plugin.data.value);
-        }
         singlePluginStore = Ext.create('Ext.data.Store', {
             storeId: plugin.data.value,
             proxy: {
                 type: 'jsonp',
-                url: './resources/app/jsons/' + plugin.data.value + ".json",
+                url: CONFIG.url + "/plugins/" + plugin.data.value + "",
                 reader: {
                     type: 'json',
                     rootProperty: 'rows'
+                },
+                listeners: {
+                    exception: function(proxy, response, operation) {
+                        
+                        var message = "There was an error loading data for plugin " + plugin.data.value + "</br> @URL " + CONFIG.url
+                        console.log("loading error", operation);
+                        Ext.create('widget.uxNotification', {
+											title: 'Error Connecting to Server',
+											position: 't',
+											manager: 'Error',
+                                            width: "35%",
+                                            autoClose: false,
+											spacing: 20,
+											html: message
+										}).show();
+                    }
                 }
             },
             autoLoad: false
@@ -103,27 +159,51 @@ Ext.onReady(function () {
     
     setupPluginStores();
     
-    center_panel = Ext.create("center_panel");
+    
         
-    west_menu.down("#pluginComboTable").on('select', function(combo, records, eOpts){
+    center_panel.down("#pluginComboTable").on('select', function(combo, records, eOpts){
         center_panel.grid_panel.setStoreColumns(records.data.fields.fields, records.data.value);
+        console.log("");
     });
     
     
-    west_menu.down("#map_table_button").on('change', function(segGroup, newValue, oldValue){
+    center_panel.down("#map_table_button").on('change', function(segGroup, newValue, oldValue){
         console.log(newValue[0]);
-        if(newValue[0] == 1){
-//            Ext.getStore('table_data_store').load();
-        }
+//        if(newValue[0] == 1){
+////            Ext.getStore('table_data_store').load();
+//        }
         center_panel.setView(newValue[0]);
-        west_menu.setView(newValue[0]);
+        switch(newValue[0]){
+            case 0:
+                center_panel.down("#baseLayerCombo").show();
+                center_panel.down("#pluginCombo").show();
+                center_panel.down("#pluginComboTable").hide();
+                center_panel.down("#pluginComboAnalytics").hide();
+                break;
+            case 1:
+                center_panel.down("#pluginComboTable").show();
+                center_panel.down("#pluginCombo").hide();
+                center_panel.down("#baseLayerCombo").hide();
+                center_panel.down("#pluginComboAnalytics").hide();
+                break;
+            case 2: 
+                center_panel.down("#pluginComboAnalytics").show();
+                center_panel.down("#pluginCombo").hide();
+                center_panel.down("#baseLayerCombo").hide();
+                center_panel.down("#pluginComboTable").hide();
+                break;
+            default:
+                console.log("ERROR");
+        }
+//            center_panel.down("#")
+//        west_menu.setView(newValue[0]);
     });
     
-    west_menu.down("#baseLayerCombo").on('select', function(combo, records, eOpts){
+    center_panel.down("#baseLayerCombo").on('select', function(combo, records, eOpts){
         center_panel.map_panel.changeBaseLayer(records.data.value); 
     });
     
-    west_menu.down("#pluginCombo").on('select', function(combo, records, eOpts){
+    center_panel.down("#pluginCombo").on('select', function(combo, records, eOpts){
         
     });
     
@@ -133,7 +213,10 @@ Ext.onReady(function () {
 	Ext.create('Ext.Viewport', {
 		title: 'Honey Pot',
 		layout: 'border',
-		items: [center_panel,west_menu]
+		items: [center_panel]
 
 	});
+    
+
+    
 });

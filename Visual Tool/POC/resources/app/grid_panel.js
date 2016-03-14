@@ -26,12 +26,14 @@ Ext.define("grid_panel",{
         var me = this;
         this.columns = [];
         orm.forEach(function(item){
-             me.columns.push({text: item.name, dataIndex: item.name, flex: 1})
+            if(item.name !== 'feature'){
+                me.columns.push({text: item.name, dataIndex: item.name, flex: 1});
+            }
         });
 //        this.getTheresetGrid();
 //        this.removeGridData();
         
-        var theStore = (Ext.StoreMgr.lookup(plugin + "data")) ? Ext.StoreMgr.lookup(plugin + "data") : this.createNewStore(orm, plugin);
+        var theStore = (Ext.StoreMgr.lookup(plugin)) ? Ext.StoreMgr.lookup(plugin) : this.createNewStore(orm, plugin);
         this.reconfigure(theStore, this.columns);
     },
     

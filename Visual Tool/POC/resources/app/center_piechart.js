@@ -3,6 +3,10 @@ Ext.define("center_piechart",{
     region: "center",
     insetPadding: 50,
     innerPadding: 20,
+    style: {
+        width: "100%",
+        height: "100%"
+    },
 //    width: 500,
 //    height: 500,
     store: Ext.create('Ext.data.JsonStore', {

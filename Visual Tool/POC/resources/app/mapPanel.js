@@ -42,7 +42,8 @@ Ext.define('mapPanel', {
             var map = this.getMap();
             var features = [];
             data.forEach(function (item){
-                features.push(item.data);    
+                console.log("addmapLayer data.forEach", item);
+                features.push(item.data.feature);    
             });
             var newLayer = L.geoJson(features, {
                 onEachFeature: function (feature, layer) {
@@ -63,18 +64,23 @@ Ext.define('mapPanel', {
                 var data = [];
                 var store = Ext.StoreMgr.lookup(plugin);
                 store.each(function (item){
+                    console.log("Map Panel Add Feature Store.each", item);
                     data.push(me.correctGeoJsonFeature(item));
                 });
                 this.addMapLayer(data, plugin);
             }
         },
         //Correct GeoJson Feature: Leaflet maps reverse the LatLong order. This funciton corrects this. 
-        correctGeoJsonFeature: function (feature) {
+        correctGeoJsonFeature: function (row) {
             var geoPoints = [];
-            geoPoints[0] = feature.data.geometry.coordinates[1];
-            geoPoints[1] = feature.data.geometry.coordinates[0];
-            feature.data.geometry.coordinates = geoPoints;
-            return feature;
+            JSONfeature = JSON.parse(row.data.feature);
+            
+            geoPoints[0] = JSONfeature.geometry.coordinates[1];
+            geoPoints[1] = JSONfeature.geometry.coordinates[0];
+            
+            JSONfeature.geometry.coordinates = geoPoints;
+            row.data.feature = JSONfeature;
+            return row;
         },
         
         displaySelectedPluginLayer: function (plugin) {
