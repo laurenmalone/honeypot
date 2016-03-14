@@ -5,7 +5,7 @@ var server = supertest.agent("http://localhost:9005");
 
 describe("Http Server Tests", function () {
 	// #1 should return list of plugins
-	it ("should return list of plugins", function() {
+	it ("should fail!!", function test(done) {
 		server
 		.get("/")
 	//	.expect("Content-type",/json/)
