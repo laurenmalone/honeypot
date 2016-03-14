@@ -23,10 +23,26 @@ Ext.onReady(function () {
                      ],
             proxy: {
                 type: 'jsonp',
-                url: 'http://localhost:9005/',
+                url: CONFIG.url + '/',
                 reader: {
                     type: 'json',
                     rootProperty: 'rows'
+                },
+                listeners: {
+                    exception: function(proxy, response, operation) {
+                        
+                        var message = "There was an error connecting to the Honey Pot Http server</br> @" + CONFIG.url
+                        console.log("loading error", operation);
+                        Ext.create('widget.uxNotification', {
+											title: 'Error Connecting to Server',
+											position: 't',
+											manager: 'Error',
+                                            width: "35%",
+                                            autoClose: false,
+											spacing: 20,
+											html: message
+										}).show();
+                    }
                 }
             },
             autoLoad: false
@@ -43,7 +59,7 @@ Ext.onReady(function () {
                      ],
             proxy: {
                 type: 'jsonp',
-                url: 'http://localhost:9005/plugins',
+                url: CONFIG.url + '/plugins',
                 reader: {
                     type: 'json',
                     rootProperty: 'rows'
@@ -85,9 +101,12 @@ Ext.onReady(function () {
                 }
             );
             center_panel.grid_panel.setStoreColumns([{name: 'Plugins', type: "string"},{name: "Hits", type: "integer"}], 'all');
+                    // Remove Loading Div
+            Ext.get('loading').remove();
+            Ext.get('loading-mask').fadeOut({
+                remove: true
+            });
         });
-        
-        
     };
     
     var createPluginStore = function (plugin) {
@@ -96,10 +115,26 @@ Ext.onReady(function () {
             storeId: plugin.data.value,
             proxy: {
                 type: 'jsonp',
-                url: "http://localhost:9005/plugins/" + plugin.data.value + "",
+                url: CONFIG.url + "/plugins/" + plugin.data.value + "",
                 reader: {
                     type: 'json',
                     rootProperty: 'rows'
+                },
+                listeners: {
+                    exception: function(proxy, response, operation) {
+                        
+                        var message = "There was an error loading data for plugin " + plugin.data.value + "</br> @URL " + CONFIG.url
+                        console.log("loading error", operation);
+                        Ext.create('widget.uxNotification', {
+											title: 'Error Connecting to Server',
+											position: 't',
+											manager: 'Error',
+                                            width: "35%",
+                                            autoClose: false,
+											spacing: 20,
+											html: message
+										}).show();
+                    }
                 }
             },
             autoLoad: false
@@ -155,7 +190,7 @@ Ext.onReady(function () {
                 center_panel.down("#pluginComboAnalytics").show();
                 center_panel.down("#pluginCombo").hide();
                 center_panel.down("#baseLayerCombo").hide();
-                center_panel.down("#pluginComboAnalytics").hide();
+                center_panel.down("#pluginComboTable").hide();
                 break;
             default:
                 console.log("ERROR");
@@ -181,4 +216,7 @@ Ext.onReady(function () {
 		items: [center_panel]
 
 	});
+    
+
+    
 });

@@ -17,7 +17,7 @@ Ext.define("center_panel",{
         this.getLayout().setActiveItem(setCard);
     },
     tbar: [{
-                xtype: 'segmentedbutton',
+                    xtype: 'segmentedbutton',
                     itemId: 'map_table_button',
                     width: "25%",
                     margin: '10 60 0 60',
@@ -94,5 +94,13 @@ Ext.define("center_panel",{
                     hidden: true,
                     valueFiled: "value",
                     queryMode: 'local'
+                },{
+                    xtype:'tbfill'
+                },{
+                    xtype: 'splitbutton',
+                    text: "Refresh",
+                    menu: [{
+                        text: 'Auto 3 Min'
+                    }]
                 }]
 });

@@ -64,22 +64,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var pluginObject = {"value":"", "display":"",  "count": 0};
             var pluginList = [];
+            var count = 0;
             
             var finish = function() {
                 db.close();
-                res.jsonp({"rows": pluginList});
+                res.jsonp({"rows": pluginList, count: -1});
                 console.log("close");
             };
             
             var addToObject = function (err, row) {
-                pluginList.push({"value": row.value, "display": row.display})  
+                pluginList.push({"value": row.value, "display": row.display});
+                
             };
             
             
             var getPlugins = function (err, row) {
                 console.log("get row", row);
                 row.forEach(function (item){
-                    
+                    pluginList.push(item);
 //                    db.
 //                    pluginList.push({value: item.value, count:    
                 });
@@ -87,7 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             
             db.serialize(function(){
                 db.all("Select value from plugins", getPlugins);
-                db.get("Select * from plugins", finish);
+                db.get("", finish);
             });
         });
         
@@ -152,11 +154,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             console.log("Sever Table " + req.params.id + "from IP " + req.ip);
+            
+            var returnFeature = function (err, row) {
+                res.jsonp({value: row, totalCount: -1});
+                db.close();
+            };
+            
             db.serialize(function(){
-
-            });
-            res.jsonp({value: req.params.id, feature: "GEOFEATURE"});
-            db.close();
+                db.all("Select feature from " + req.params.id, returnFeature);     
+            });    
         });
 
 

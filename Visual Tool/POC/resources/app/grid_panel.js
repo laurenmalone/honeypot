@@ -26,7 +26,9 @@ Ext.define("grid_panel",{
         var me = this;
         this.columns = [];
         orm.forEach(function(item){
-             me.columns.push({text: item.name, dataIndex: item.name, flex: 1})
+            if(item.name !== 'feature'){
+                me.columns.push({text: item.name, dataIndex: item.name, flex: 1});
+            }
         });
 //        this.getTheresetGrid();
 //        this.removeGridData();
