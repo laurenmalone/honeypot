@@ -64,7 +64,7 @@ describe("Node Http Server Tests", function () {
 	});
     it ("plugins/:id route should be available", function test(done) {
 		server
-		.get("/plugins/id")
+		.get("/plugins/telnet")
 		.expect("Content-type",/json/)
 		.expect(200)
 		.end(function(err,res){
@@ -73,7 +73,7 @@ describe("Node Http Server Tests", function () {
 	});
     it ("plugins/:id route should return an object with property rows, totalCount", function test(done) {
 		server
-		.get("/plugins/id")
+		.get("/plugins/telnet")
 		.expect("Content-type",/json/)
 		.expect(200)
 		.end(function(err,res){

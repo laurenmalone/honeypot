@@ -98,26 +98,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
+            
+            
             var selectCB = function (err, row) {
-                console.log("Row", row);
-                resultObject.rows = row;
-                console.log("Result", resultObject);
-                res.type('application/json');
-                res.jsonp(resultObject);
-                console.log("res");
-                db.close();
+                if(!err){    
+                    console.log("Row", row);
+                    resultObject.rows = row;
+                    console.log("Result", resultObject);
+                    res.type('application/json');
+                    res.jsonp(resultObject);
+                    console.log("res");
+                    db.close();
+                }else{
+                    console.log("Error: ", err);
+                    res.sendStatus(406);
+                    db.close();
+                }
             };
             
             var setTotalCount = function (err, row) {
-                resultObject.totalCount = row.count;  
+                if(!err){
+                    resultObject.totalCount = row.count;  
+                }else{
+                    console.log("Error: ", err);
+                }
             };
             
+         
             db.serialize(function(){
-                
+
                 db.get("Select COUNT(*) as count from plugins", setTotalCount);
                 db.all("Select * from plugins", selectCB);
 
             });
+
         });
         
         app.get('/plugins/:id', function (req, res) {
@@ -127,24 +141,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             console.log("Plugin Table " + req.params.id + " Accessed");
             var resultObject = {
                     rows: [],
-                    totalCount: 0
+    
+                totalCount: 0
             };
             var dbQueryCallback = function (err, row) {
-                
-                console.log("plugins/:id row", row, err);
-                resultObject.rows = row;
-                res.jsonp(resultObject);
-                db.close();  
+                if(!err){
+                    console.log("plugins/:id row", row, err);
+                    resultObject.rows = row;
+                    res.jsonp(resultObject);
+                    db.close(); 
+                }else{
+                    console.log('err', err);
+                    res.sendStatus(406);
+                    db.close(); 
+                }
             };
             
+
             var setTotalCount = function (err, row) {
-                resultObject.totalCount = row.count;  
+                if(!err){
+                    resultObject.totalCount = row.count;  
+                }else{
+                    resultObject.error = err;
+                    console.log('err', err);
+                }
+
+
             };
-            
+
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
                 db.all("Select * from " + req.params.id, dbQueryCallback);
             });
+            
             
         });
 
