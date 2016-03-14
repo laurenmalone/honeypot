@@ -65,31 +65,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var pluginObject = {"value":"", "display":"",  "count": 0};
             var pluginList = [];
             var count = 0;
+            var tempObj = {};
             
             var finish = function() {
                 db.close();
-                res.jsonp({"rows": pluginList, count: -1});
+                console.log("response sent");
+                res.jsonp({"rows": pluginList, "count": pluginList.length });
                 console.log("close");
             };
             
-            var addToObject = function (err, row) {
-                pluginList.push({"value": row.value, "display": row.display});
+//             var addToObject = function (err, data) {
+//                 console.log("add to object");
+//                 pluginList.push({"count": data, "table": tempObj.value});
                 
-            };
+//             };
             
             
-            var getPlugins = function (err, row) {
-                console.log("get row", row);
-                row.forEach(function (item){
-                    pluginList.push(item);
-//                    db.
-//                    pluginList.push({value: item.value, count:    
-                });
-            };
+//             var getPlugins = function (err, row) {
+//                 console.log("get row", row);
+//                 row.forEach(function (item){
+//                     tempObj = item;
+//                     console.log(" this is temp obj" + tempObj);
+//                     db.all("SELECT COUNT(*) from " + item.value, addToObject )
+//                     //pluginList.push(item);
+// //                    db.
+// //                    pluginList.push({value: item.value, count:    
+//                 });
+//             };
             
             db.serialize(function(){
-                db.all("Select value from plugins", getPlugins);
-                db.get("", finish);
+                db.all("Select value from plugins", function(err, row){
+                   console.log("get row", row);
+                   db.serialize(function(){
+                    row.forEach(function (item){
+                        tempObj = item;
+                        console.log(" this is temp obj" + tempObj);
+                        db.serialize(function(){
+                            db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
+                                console.log("add to object " + tempObj.value);
+                                pluginList.push({ "count": data.count, "table": tempObj.value});
+                            }); 
+                            db.get("", finish);   
+                        });
+                    });
+                });
+                });
+                
             });
         });
         
