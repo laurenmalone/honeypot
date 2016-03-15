@@ -9,17 +9,22 @@ import datetime
 import signal
 import traceback
 from base import Base
+from ConfigParser import SafeConfigParser
 
-
-engine = create_engine('sqlite:///test.db', echo=False)
-Session = sessionmaker(bind=engine)
-
-plugin_directory = 'plugins/'
 threads = []
 plugin_list = []
-
 my_date_time = datetime.datetime
-logging.basicConfig(filename='honey.log', level=logging.DEBUG)
+
+
+def _read_config(filename):
+    parser = SafeConfigParser()
+    parser.read(filename)
+
+    db = parser.get('honeypot', 'db')
+    plugins = parser.get('honeypot', 'plugins')
+    log = parser.get('honeypot', 'log')
+
+    return {'db': db, 'plugins': plugins, 'log': log}
 
 
 class Plugin(Base):
@@ -31,7 +36,7 @@ class Plugin(Base):
         orm = Column(String, nullable=False)
 
 
-def _load_plugins():
+def _load_plugins(plugin_directory):
 
     try:
         sys.path.insert(0, plugin_directory)
@@ -86,7 +91,7 @@ def _port_valid(port):
     return True
 
 
-def _start_manager_threads():
+def _start_manager_threads(Session):
     # start a plugin manager thread for each plugin
 
     for plugin in plugin_list:
@@ -103,7 +108,7 @@ def _signal_handler(signal, frame):
         thread.join()
 
 
-def _add_plugin_table():
+def _add_plugin_table(Session):
     # add plugin table to db
 
     session = Session()
@@ -119,13 +124,12 @@ def _add_plugin_table():
             except SQLAlchemyError as e:
                 print(e)
                 logging.exception("record not added to table " ":Time: " + str(my_date_time.now()))
-                return False
 
     session.close()
     return True
 
 
-def _create_plugin_tables():
+def _create_plugin_tables(engine):
     # add table to db for each plugin
 
     try:
@@ -140,14 +144,21 @@ def _create_plugin_tables():
 
 def run():
 
-    if not _load_plugins():
+    config = _read_config('honeypot.ini')
+
+    engine = create_engine(config['db'], echo=False)
+    Session = sessionmaker(bind=engine)
+
+    logging.basicConfig(filename=config['log'], level=logging.DEBUG)
+
+    if not _load_plugins(config['plugins']):
         raise SystemExit(1)
 
-    _create_plugin_tables()
+    _create_plugin_tables(engine)
 
-    _add_plugin_table()
+    _add_plugin_table(Session)
 
-    _start_manager_threads()
+    _start_manager_threads(Session)
 
     # wait for program to be killed
     signal.signal(signal.SIGINT, _signal_handler)
