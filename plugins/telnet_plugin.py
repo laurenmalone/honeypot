@@ -1,9 +1,32 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from geoip import geolite2
+from base import Base
+import GeoIP
+import geojson
 
-Base = declarative_base()
+giDB = GeoIP.open("geoIP/GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
 
+def convert_to_geojson_point(ip_record):
+    return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
+
+def convert_to_geojson_feature(ip_record):
+    feature = geojson.Feature(geometry=convert_to_geojson_point(ip_record))
+    feature["properties"] = {
+        "city": ip_record["city"],
+        "region_name": ip_record["region_name"],
+        "region": ip_record["region"],
+        "area_code": ip_record["area_code"],
+        "time_zone": ip_record["time_zone"],
+        "metro_code": ip_record["metro_code"],
+        "country_code3": ip_record["country_code3"],
+        "postal_code": ip_record["postal_code"],
+        "dma_code": ip_record["dma_code"],
+        "country_code": ip_record["country_code"],
+        "country_name": ip_record["country_name"]
+    }
+    return feature
+
+def get_geo_ip(ip_address):
+    return giDB.record_by_name(ip_address)
 
 class Telnet(Base):
     __tablename__ = 'telnet'
@@ -28,13 +51,10 @@ class Plugin:
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
         self.geo_ip = None
-        self.passwords = []
-        self.count = 0
-        self.username = []
         self.PORT = 8888
 
     def display(self):
-        return self
+        return "telnet"
 
     def get_description(self):
         info = ("This plugin uses the telnet port to listen how attackers try to attack the telnet specific port."
@@ -42,46 +62,33 @@ class Plugin:
         return info
 
     def run(self, socket, address, session):
-        # print("Port Number: " + socket.getsockname()[0])
         socket.settimeout(35)
         if socket:
             # for loop and try catch the timeout exception
-            username = []
-            password = []
-            for i in range(0, 3):
+            usernames = []
+            passwords = []
+            for _ in range(3):
                 # look into clearing the buffer to read and write
-                socket.sendall("username:")
+                socket.sendall("Username: ")
                 try:
-                    # this sets the timeout and times out after 35 seconds
-                    username = socket.recv(64)
+                    usernames.append(socket.recv(64))
                 except socket.timeout:
                     print 'timeout error'
-                else:
-                    # otherwise it receives the data and shuts the timeout off
-                    username[i] = socket.recv(64)
-                    socket.settimeout(None)
-                    self.username.append(username)
-                print 'username' + username
+                    usernames.append(None)
                 socket.sendall("Password: ")
                 try:
-                    password[i] = socket.recv(64)
+                    passwords.append(socket.recv(64))
                 except socket.timeout:
                     print 'timeout error'
-                else:
-                    password = socket.recv(64)
-                    # socket.settimeout(None)
-                    self.passwords.append(password)
-                print 'Password : ' + password
+                    passwords.append(None)
                 socket.sendall("---Incorrect--\n")
-                # socket.sendall("Password: ")
-                self.count += 1
 
             socket.close()
             # record all the information within columns of the db table
             # commit all the information from the session
-            record = Telnet(username1=username[0], username2=username[1],username3=username[2],
-                            password1=password[0], password2 = password[1], password3=password[2],
-                            geo_ip=self.get_geo_ip(address[0]))
+            record = Telnet(username1=usernames[0], username2=usernames[1], username3=usernames[2],
+                            password1=passwords[0], password2=passwords[1], password3=passwords[2],
+                            geo_ip=get_geo_ip(address[0]))
             session.add(record)
             session.commit()
             session.close()
@@ -93,10 +100,3 @@ class Plugin:
 
     def get_orm(self):
         return self.ORM
-
-    def get_geo_ip(self, host):
-        # should use Josh's code for the json conversion and the ip conversion
-        match = geolite2.lookup(host)
-        self.geo_ip = match.location  # (latitude, longitude)
-        return self.geo_ip
-
