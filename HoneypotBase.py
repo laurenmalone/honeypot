@@ -118,7 +118,7 @@ def _port_valid(port):
 
 
 def _create_plugin_tables():
-    """Create tables that are defined by a plugin.
+    """Create tables that are defined by plugins.
 
     For each class that inherits from declarative base and defines __tablename__.
     Raise SQLAlchemyError if a table is not created successfully.
@@ -132,8 +132,8 @@ def _create_plugin_tables():
 
 
 def _add_items_to_plugin_table():
-    """
-    Insert an item into plugin table for each item in plugins_list.
+    """Insert an item into plugin table for each item in plugins_list.
+
     Raise AttributeError if a plugin does not have attributes required for visual tool.
     Raise SQLAlchemyError if an item is not added to plugin table successfully.
     """
