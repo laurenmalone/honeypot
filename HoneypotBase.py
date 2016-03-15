@@ -15,8 +15,14 @@ threads = []
 plugin_list = []
 my_date_time = datetime.datetime
 
+plugins = null
+db = null
+Session = sessionmaker()
+engine = null
+
 
 def _read_config(filename):
+    global db, plugins, log, engine, Session
     parser = SafeConfigParser()
     parser.read(filename)
 
@@ -24,7 +30,10 @@ def _read_config(filename):
     plugins = parser.get('honeypot', 'plugins')
     log = parser.get('honeypot', 'log')
 
-    return {'db': db, 'plugins': plugins, 'log': log}
+    engine = create_engine(db, echo=False)
+    Session.configure(bind=engine)
+
+    logging.basicConfig(filename=log, level=logging.DEBUG)
 
 
 class Plugin(Base):
@@ -36,18 +45,18 @@ class Plugin(Base):
         orm = Column(String, nullable=False)
 
 
-def _load_plugins(plugin_directory):
+def _load_plugins():
 
     try:
-        sys.path.insert(0, plugin_directory)
-        os.listdir(plugin_directory)
+        sys.path.insert(0, plugins)
+        os.listdir(plugins)
 
     except OSError:
         print("Plugin folder not found.")
         return False
 
     else:
-        for i in os.listdir(plugin_directory):
+        for i in os.listdir(plugins):
             filename, ext = os.path.splitext(i)
             if filename == '__init__' or ext != '.py':
                 continue
@@ -91,7 +100,7 @@ def _port_valid(port):
     return True
 
 
-def _start_manager_threads(Session):
+def _start_manager_threads():
     # start a plugin manager thread for each plugin
 
     for plugin in plugin_list:
@@ -108,7 +117,7 @@ def _signal_handler(signal, frame):
         thread.join()
 
 
-def _add_plugin_table(Session):
+def _add_plugin_table():
     # add plugin table to db
 
     session = Session()
@@ -117,6 +126,7 @@ def _add_plugin_table(Session):
             record = Plugin(display=i.get_display(), description=i.get_description(), orm=str(i.get_orm()))
         except AttributeError:
             print "Plugin does not have attributes to use visual tool"
+            logging.exception("Plugin does not have attributes to use visual tool :Time: " + str(my_date_time.now()))
         else:
             try:
                 session.add(record)
@@ -129,7 +139,7 @@ def _add_plugin_table(Session):
     return True
 
 
-def _create_plugin_tables(engine):
+def _create_plugin_tables():
     # add table to db for each plugin
 
     try:
@@ -144,21 +154,16 @@ def _create_plugin_tables(engine):
 
 def run():
 
-    config = _read_config('honeypot.ini')
+    _read_config('honeypot.ini')
 
-    engine = create_engine(config['db'], echo=False)
-    Session = sessionmaker(bind=engine)
-
-    logging.basicConfig(filename=config['log'], level=logging.DEBUG)
-
-    if not _load_plugins(config['plugins']):
+    if not _load_plugins():
         raise SystemExit(1)
 
-    _create_plugin_tables(engine)
+    _create_plugin_tables()
 
-    _add_plugin_table(Session)
+    _add_plugin_table()
 
-    _start_manager_threads(Session)
+    _start_manager_threads()
 
     # wait for program to be killed
     signal.signal(signal.SIGINT, _signal_handler)
