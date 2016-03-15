@@ -19,12 +19,30 @@ plugins = null
 db = null
 Session = sessionmaker()
 engine = null
+config = 'honeypot.ini'
 
 
-def _read_config(filename):
+class Plugin(Base):
+    """Represent plugin table in db.
+
+    Inherit declarative base class from base.py
+    """
+    __tablename__ = 'plugin'
+    id = Column(Integer, primary_key=True)
+    display = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    orm = Column(String, nullable=False)
+
+
+def _read_config():
+    """Initialize settings
+
+    Get locations of db, log, and plugins.
+    Create engine and sessionmaker for interacting with db.
+    """
     global db, plugins, log, engine, Session
     parser = SafeConfigParser()
-    parser.read(filename)
+    parser.read(config)
 
     db = parser.get('honeypot', 'db')
     plugins = parser.get('honeypot', 'plugins')
@@ -36,17 +54,13 @@ def _read_config(filename):
     logging.basicConfig(filename=log, level=logging.DEBUG)
 
 
-class Plugin(Base):
+def _import_plugins():
+    """Import plugins.
 
-        __tablename__ = 'plugin'
-        id = Column(Integer, primary_key=True)
-        display = Column(String, nullable=False)
-        description = Column(String, nullable=False)
-        orm = Column(String, nullable=False)
-
-
-def _load_plugins():
-
+    Add successfully imported plugins to plugin_list.
+    Raise OSError if plugin folder isn't found.
+    Raise Exception if a plugin cannot be imported.
+    """
     try:
         sys.path.insert(0, plugins)
         os.listdir(plugins)
@@ -85,11 +99,14 @@ def _load_plugins():
                 print (filename + ext + " not loaded")
 
         sys.path.pop(0)
-        return True
 
 
 def _port_valid(port):
+    """Check that given port is valid and available.
 
+    param: port -- the port being checked
+    return: bool -- True if port is valid and available, False otherwise
+    """
     for i in plugin_list:
 
         if i.get_port() == port and port != 0:
@@ -100,26 +117,26 @@ def _port_valid(port):
     return True
 
 
-def _start_manager_threads():
-    # start a plugin manager thread for each plugin
+def _create_plugin_tables():
+    """Create tables that are defined by a plugin.
 
-    for plugin in plugin_list:
-        thread = PluginManager(plugin, Session)
-        thread.start()
-        threads.append(thread)
+    For each class that inherits from declarative base and defines __tablename__.
+    Raise SQLAlchemyError if a table is not created successfully.
+    """
+    try:
+        Base.metadata.create_all(engine)
 
-
-def _signal_handler(signal, frame):
-    # called on ctrl c or kill pid
-
-    for thread in threads:
-        thread.stop()
-        thread.join()
+    except SQLAlchemyError as e:
+        print(e)
+        logging.exception("plugin table not created " ":Time: " + str(my_date_time.now()))
 
 
-def _add_plugin_table():
-    # add plugin table to db
-
+def _add_items_to_plugin_table():
+    """
+    Insert an item into plugin table for each item in plugins_list.
+    Raise AttributeError if a plugin does not have attributes required for visual tool.
+    Raise SQLAlchemyError if an item is not added to plugin table successfully.
+    """
     session = Session()
     for i in plugin_list:
         try:
@@ -136,32 +153,35 @@ def _add_plugin_table():
                 logging.exception("record not added to table " ":Time: " + str(my_date_time.now()))
 
     session.close()
-    return True
 
 
-def _create_plugin_tables():
-    # add table to db for each plugin
+def _start_manager_threads():
+    """Start a PluginManager thread for each item in plugins
+    """
+    for plugin in plugin_list:
+        thread = PluginManager(plugin, Session)
+        thread.start()
+        threads.append(thread)
 
-    try:
-        Base.metadata.create_all(engine)
-        return True
 
-    except SQLAlchemyError as e:
-        print(e)
-        logging.exception("plugin table not created " ":Time: " + str(my_date_time.now()))
-        return False
+def _signal_handler(signal, frame):
+    """ Stop each PluginManager thread in threads
+    """
+    for thread in threads:
+        thread.stop()
+        thread.join()
 
 
 def run():
+    """ Drive program.
+    """
+    _read_config()
 
-    _read_config('honeypot.ini')
-
-    if not _load_plugins():
-        raise SystemExit(1)
+    _import_plugins()
 
     _create_plugin_tables()
 
-    _add_plugin_table()
+    _add_items_to_plugin_table()
 
     _start_manager_threads()
 
