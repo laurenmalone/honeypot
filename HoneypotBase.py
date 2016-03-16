@@ -143,18 +143,22 @@ def _add_items_to_plugin_table():
     """
     session = _Session()
     for i in _plugin_list:
-        try:
-            record = Plugin(display=i.get_display(), description=i.get_description(), orm=str(i.get_orm()))
-        except AttributeError:
-            print "Plugin does not have attributes to use visual tool"
-            logging.exception("Plugin does not have attributes to use visual tool :Time: " + str(my_date_time.now()))
-        else:
+
             try:
-                session.add(record)
-                session.commit()
-            except SQLAlchemyError as e:
-                print(e)
-                logging.exception("record not added to table " ":Time: " + str(my_date_time.now()))
+                q = session.query(Plugin).filter(Plugin.display == i.get_display())
+                if q.count() > 0:
+                    continue
+                record = Plugin(display=i.get_display(), description=i.get_description(), orm=str(i.get_orm()))
+            except AttributeError:
+                print "Plugin does not have attributes to use visual tool"
+                logging.exception("Plugin does not have attributes to use visual tool :Time: " + str(my_date_time.now()))
+            else:
+                try:
+                    session.add(record)
+                    session.commit()
+                except SQLAlchemyError as e:
+                    print(e)
+                    logging.exception("record not added to table " ":Time: " + str(my_date_time.now()))
 
     session.close()
 
