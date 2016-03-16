@@ -7,15 +7,14 @@ class TestHoneypotBase(TestCase):
 
     def setUp(self):
 
-        HoneypotBase.plugin_directory = 'plugins/'
+        #HoneypotBase.plugin_directory = 'plugins/'
         HoneypotBase.threads = []
         HoneypotBase.plugin_list = []
+        HoneypotBase._read_config('honeypot.ini')
 
     def test_num_threads_stopped_using_kill(self):
 
         self.assertTrue(HoneypotBase._load_plugins())
-        #self.assertTrue(HoneypotBase._add_plugin_table())
-        self.assertTrue(HoneypotBase._create_plugin_tables())
         HoneypotBase._start_manager_threads()
         time.sleep(0.01)
         HoneypotBase._signal_handler('15', None)
@@ -25,8 +24,6 @@ class TestHoneypotBase(TestCase):
     def test_num_threads_stopped_using_ctrlc(self):
 
         self.assertTrue(HoneypotBase._load_plugins())
-        #self.assertTrue(HoneypotBase._add_plugin_table())
-        self.assertTrue(HoneypotBase._create_plugin_tables())
         del(HoneypotBase.threads[:])
         HoneypotBase._start_manager_threads()
         time.sleep(0.01)
@@ -58,31 +55,25 @@ class TestHoneypotBase(TestCase):
         self.assertTrue(HoneypotBase._load_plugins())
         HoneypotBase._signal_handler('15', None)
 
-
-    """def test_num_threads_started(self):
-        print"test num threads started"
-        self.assertTrue(HoneypotBase._load_plugins())
-        #self.assertTrue(HoneypotBase._add_plugin_table())
-        self.assertTrue(HoneypotBase._create_plugin_tables())
-        HoneypotBase._start_manager_threads()
-        self.assertEqual(len(HoneypotBase.threads), len(HoneypotBase.plugin_list))
-
-        for i in HoneypotBase.threads:
-            self.assertTrue(i.is_alive())
+    def test_bad_plugins_directory(self):
+        HoneypotBase.plugins = '/test_plugins'
+        self.assertFalse(HoneypotBase._load_plugins())
         HoneypotBase._signal_handler('15', None)
-        time.sleep(1)
+
+    def test_add_table(self):
+        self.assertTrue(HoneypotBase._add_plugin_table())
 
 
-    def test_invalid_ports(self):
-        # 0, 65535
-        pass
+    def test_create_table(self):
+        self.assertTrue(HoneypotBase._create_plugin_tables())
 
 
-    #def test_bad_plugins_directory(self):
-        #HoneypotBase.plugin_directory = '/test_plugins'
-        #self.assertFalse(HoneypotBase._load_plugins())
-        #HoneypotBase._signal_handler('15', None)
 
-    # def test_bad_plugin(self):
+
+
+
+
+
+    """# def test_bad_plugin(self):
         pass
      """
