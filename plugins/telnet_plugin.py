@@ -2,8 +2,7 @@ from sqlalchemy import Column, Integer, String
 from base import Base
 import GeoIP
 import geojson
-
-giDB = GeoIP.open("geoIP/GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
+giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
 
 def convert_to_geojson_point(ip_record):
     return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
@@ -53,7 +52,7 @@ class Plugin:
         self.geo_ip = None
         self.PORT = 8888
 
-    def display(self):
+    def get_display(self):
         return "telnet"
 
     def get_description(self):
