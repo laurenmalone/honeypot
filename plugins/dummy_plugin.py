@@ -27,7 +27,7 @@ class Plugin:
                      }}
 
     class Dummy(Base):
-        __tablename__ = 'dummy'
+        __tablename__ = self.value
         id = Column(Integer, primary_key=True)
         ip_address = Column(String)
         port_number = Column(String)
