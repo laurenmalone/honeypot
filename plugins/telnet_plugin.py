@@ -3,6 +3,7 @@ from base import Base
 import GeoIP
 import geojson
 import socket
+import json
 
 
 class Plugin:
@@ -16,13 +17,9 @@ class Plugin:
         password1 = Column(String)
         password2 = Column(String)
         password3 = Column(String)
-        geo_ip = Column(String)
+        feature = Column(String)
+        ip_address = Column(String)
 
-    ORM = {"table": {"table_name": "telnet",
-                     "column": [{"name": "username", "type": "TEXT"},
-                                {"name": "password", "type": "TEXT"},
-                                {"name": "ip", "type": "TEXT"}]
-                     }}
 
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
@@ -31,8 +28,13 @@ class Plugin:
         self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.info = ("This plugin uses the telnet port to listen how attackers try to attack the telnet specific port. "
                      "It gives three attempts to a username and password and store the information in a sql database.")
+        self.ORM = {"table": {"table_name": "telnet",
+                     "column": [{"name": "username", "type": "TEXT"},
+                                {"name": "password", "type": "TEXT"},
+                                {"name": "ip", "type": "TEXT"}]
+                    }}
 
-    def display(self):
+    def get_display(self):
         return "telnet"
 
     def run(self, passed_socket, address, session):
@@ -64,7 +66,7 @@ class Plugin:
             # commit all the information from the session
             record = self.Telnet(username1=usernames[0], username2=usernames[1], username3=usernames[2],
                                  password1=passwords[0], password2=passwords[1], password3=passwords[2],
-                                 geo_ip=self.get_geo_ip(address[0]))
+                                 feature=self.get_geo_ip(address[0], ip_address=address[0]))
             session.add(record)
             session.commit()
             session.close()
@@ -98,7 +100,9 @@ class Plugin:
             "country_code": ip_record["country_code"],
             "country_name": ip_record["country_name"]
         }
-        return feature
+
+        feature_string = json.dumps(feature)
+        return feature_string
 
     def get_description(self):
         return self.info

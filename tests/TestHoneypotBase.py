@@ -7,9 +7,10 @@ class TestHoneypotBase(TestCase):
 
     def setUp(self):
 
-        HoneypotBase.plugin_directory = 'plugins/'
+        #HoneypotBase.plugin_directory = 'plugins/'
         HoneypotBase.threads = []
         HoneypotBase.plugin_list = []
+        HoneypotBase._read_config('honeypot.ini')
 
     def test_num_threads_stopped_using_kill(self):
 
@@ -55,7 +56,7 @@ class TestHoneypotBase(TestCase):
         HoneypotBase._signal_handler('15', None)
 
     def test_bad_plugins_directory(self):
-        HoneypotBase.plugin_directory = '/test_plugins'
+        HoneypotBase.plugins = '/test_plugins'
         self.assertFalse(HoneypotBase._load_plugins())
         HoneypotBase._signal_handler('15', None)
 
