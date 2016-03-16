@@ -92,7 +92,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //             };
             
             db.serialize(function(){
-                db.all("Select value from plugins", function(err, row){
+                db.all("Select value from plugin", function(err, row){
                    console.log("get row", row);
                    db.serialize(function(){
                     row.forEach(function (item){
@@ -146,8 +146,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          
             db.serialize(function(){
 
-                db.get("Select COUNT(*) as count from plugins", setTotalCount);
-                db.all("Select * from plugins", selectCB);
+                db.get("Select COUNT(*) as count from plugin", setTotalCount);
+                db.all("Select * from plugin", selectCB);
 
             });
 
