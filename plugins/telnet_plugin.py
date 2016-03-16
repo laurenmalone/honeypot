@@ -8,20 +8,7 @@ import datetime
 
 
 class Plugin:
-
-    class Telnet(Base):
-        __tablename__ = 'telnet'
-        id = Column(Integer, primary_key=True)
-        username1 = Column(String)
-        username2 = Column(String)
-        username3 = Column(String)
-        password1 = Column(String)
-        password2 = Column(String)
-        password3 = Column(String)
-        feature = Column(String)
-        ip_address = Column(String)
-        time_stamp = Column(DateTime)
-
+    
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
         self.geo_ip = None
@@ -38,6 +25,20 @@ class Plugin:
         self.time_stamp = ''
         self.value = "telnet"
         self.display = "Telnet"
+    
+    
+    class Telnet(Base):
+        __tablename__ = self.value
+        id = Column(Integer, primary_key=True)
+        username1 = Column(String)
+        username2 = Column(String)
+        username3 = Column(String)
+        password1 = Column(String)
+        password2 = Column(String)
+        password3 = Column(String)
+        feature = Column(String)
+        ip_address = Column(String)
+        time_stamp = Column(DateTime)
 
     def get_display(self):
         return self.display
