@@ -13,7 +13,6 @@ class Plugin:
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
         self.display = "Dummy Plugin"
-        self.geo_ip = None
         self.PORT = 9006
         self.description = "This is a dummy plugin used to test connections to ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
@@ -39,9 +38,13 @@ class Plugin:
         self.stream_input = socket.recv(64)
         socket.close()
         self.geoIp_feature_json_string = self.convert_to_geojson_feature(self.get_record_from_geoip(address[0]))
-        session.add(self.Dummy(ip_address=address[0], port_number=str(self.PORT),
-                               feature=self.geoIp_feature_json_string, stream=self.stream_input))
-        session.commit()
+        try:
+            session.add(self.Dummy(ip_address=address[0], port_number=str(self.PORT),
+                                   feature=self.geoIp_feature_json_string, stream=self.stream_input))
+            session.commit()
+        except RuntimeError:
+            print "Error Saving Data: "
+            pass
         session.close()
 
     def get_port(self):
@@ -85,6 +88,8 @@ class Plugin:
 
     def get_record_from_geoip(self, ip_address):
         #print "ip_address", ip_address
+        #the IP Address is hard coded for testing. Need to add
+        #TODO
         record = self.geoIpDB.record_by_name('71.205.10.208')
         #print "record", record
         return record
