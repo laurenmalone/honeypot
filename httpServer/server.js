@@ -66,10 +66,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var tempObj = {};
             
             var finish = function() {
-                db.close();
+                
                 console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
                 console.log("close");
+                db.close();
             };
             
 //             var addToObject = function (err, data) {
@@ -103,10 +104,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                 console.log("add to object " + tempObj.value);
                                 pluginList.push({ "count": data.count, "table": tempObj.value});
                             }); 
-                            db.get("", finish);   
+                            db.get("Select * from plugin", finish);   
+                            });
                         });
                     });
-                });
                 });
                 
             });
