@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError
 from sqlalchemy import *
 from PluginManager import PluginManager
 import os
@@ -11,15 +11,15 @@ import traceback
 from base import Base
 from ConfigParser import SafeConfigParser
 
-threads = []
-plugin_list = []
+_threads = []
+_plugin_list = []
 my_date_time = datetime.datetime
 
-plugins = null
-db = null
-Session = sessionmaker()
-engine = null
-config = 'honeypot.ini'
+_plugins = null
+_db = null
+_Session = sessionmaker()
+_engine = null
+_config = 'honeypot.ini'
 
 
 class Plugin(Base):
@@ -34,22 +34,23 @@ class Plugin(Base):
     orm = Column(String, nullable=False)
 
 
+
 def _read_config():
     """Initialize settings
 
     Get locations of db, log, and plugins.
     Create engine and sessionmaker for interacting with db.
     """
-    global db, plugins, log, engine, Session
+    global _db, _plugins, log, _engine, _Session
     parser = SafeConfigParser()
-    parser.read(config)
+    parser.read(_config)
 
-    db = parser.get('honeypot', 'db')
-    plugins = parser.get('honeypot', 'plugins')
+    _db = parser.get('honeypot', 'db')
+    _plugins = parser.get('honeypot', 'plugins')
     log = parser.get('honeypot', 'log')
 
-    engine = create_engine(db, echo=False)
-    Session.configure(bind=engine)
+    _engine = create_engine(_db, echo=False)
+    _Session.configure(bind=_engine)
 
     logging.basicConfig(filename=log, level=logging.DEBUG)
 
@@ -58,19 +59,20 @@ def _import_plugins():
     """Import plugins.
 
     Add successfully imported plugins to plugin_list.
+    return: bool -- False if plugin folder cannot be found, True otherwise.
     Raise OSError if plugin folder isn't found.
     Raise Exception if a plugin cannot be imported.
     """
     try:
-        sys.path.insert(0, plugins)
-        os.listdir(plugins)
+        sys.path.insert(0, _plugins)
+        os.listdir(_plugins)
 
     except OSError:
         print("Plugin folder not found.")
         return False
 
     else:
-        for i in os.listdir(plugins):
+        for i in os.listdir(_plugins):
             filename, ext = os.path.splitext(i)
             if filename == '__init__' or ext != '.py':
                 continue
@@ -84,13 +86,13 @@ def _import_plugins():
                     print (filename + " not loaded. Port " + str(plugin.get_port()) + " not available.")
 
                 else:
-                    if plugin.get_port == 0: # add to end of list
-                        plugin_list.append(plugin)
+                    if plugin.get_port == 0:  # add to end of list
+                        _plugin_list.append(plugin)
 
                     else:
-                        plugin_list.insert(0, plugin)
+                        _plugin_list.insert(0, plugin)  # add to beginning of list
 
-                    print (filename + ext + " successfuly loaded")
+                    print (filename + ext + " successfully loaded")
 
             except Exception as e:
                 traceback.print_exc(file=sys.stdout)
@@ -99,6 +101,7 @@ def _import_plugins():
                 print (filename + ext + " not loaded")
 
         sys.path.pop(0)
+        return True
 
 
 def _port_valid(port):
@@ -107,7 +110,7 @@ def _port_valid(port):
     param: port -- the port being checked
     return: bool -- True if port is valid and available, False otherwise
     """
-    for i in plugin_list:
+    for i in _plugin_list:
 
         if i.get_port() == port and port != 0:
             return False
@@ -124,10 +127,11 @@ def _create_plugin_tables():
     Raise SQLAlchemyError if a table is not created successfully.
     """
     try:
-        Base.metadata.create_all(engine)
-
-    except SQLAlchemyError as e:
+        Base.metadata.create_all(_engine)
+    except InvalidRequestError as e:
         print(e)
+    except Exception as e:
+        #print(e)
         logging.exception("plugin table not created " ":Time: " + str(my_date_time.now()))
 
 
@@ -137,8 +141,8 @@ def _add_items_to_plugin_table():
     Raise AttributeError if a plugin does not have attributes required for visual tool.
     Raise SQLAlchemyError if an item is not added to plugin table successfully.
     """
-    session = Session()
-    for i in plugin_list:
+    session = _Session()
+    for i in _plugin_list:
         try:
             record = Plugin(display=i.get_display(), description=i.get_description(), orm=str(i.get_orm()))
         except AttributeError:
@@ -158,26 +162,25 @@ def _add_items_to_plugin_table():
 def _start_manager_threads():
     """Start a PluginManager thread for each item in plugins
     """
-    for plugin in plugin_list:
-        thread = PluginManager(plugin, Session)
+    for plugin in _plugin_list:
+        thread = PluginManager(plugin, _Session)
         thread.start()
-        threads.append(thread)
+        _threads.append(thread)
 
 
 def _signal_handler(signal, frame):
-    """ Stop each PluginManager thread in threads
-    """
-    for thread in threads:
+    """ Stop each PluginManager thread in threads."""
+    for thread in _threads:
         thread.stop()
         thread.join()
 
 
 def run():
-    """ Drive program.
-    """
+    """ Drive program."""
     _read_config()
 
-    _import_plugins()
+    if not _import_plugins():
+        raise SystemExit(1)
 
     _create_plugin_tables()
 
