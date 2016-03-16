@@ -1,11 +1,9 @@
 from sqlalchemy import Column, Integer, String
-#from HoneypotBase import Base
-from sqlalchemy.ext.declarative import declarative_base
+from base import Base
 import GeoIP
 import geojson
 import json
 
-Base = declarative_base()
 
 
 class Plugin:
