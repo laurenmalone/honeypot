@@ -47,12 +47,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
 //	var dblite = require('/../../../../../usr/bin/sqlite3');
-    var dbLocation = "HPTSERVER.db";
+    var dbLocation = "../test.db";
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
-    
-    
     var db = new dblite.Database(dbLocation);
 //    PRAGMA table_info(plugins)
     // SELECT name as value FROM sqlite_master WHERE type = "table"
@@ -68,10 +66,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var tempObj = {};
             
             var finish = function() {
-                db.close();
+                
                 console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
                 console.log("close");
+                db.close();
             };
             
 //             var addToObject = function (err, data) {
@@ -94,7 +93,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //             };
             
             db.serialize(function(){
-                db.all("Select value from plugins", function(err, row){
+                db.all("Select value from plugin", function(err, row){
                    console.log("get row", row);
                    db.serialize(function(){
                     row.forEach(function (item){
@@ -105,10 +104,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                 console.log("add to object " + tempObj.value);
                                 pluginList.push({ "count": data.count, "table": tempObj.value});
                             }); 
-                            db.get("", finish);   
+                            //db.get("Select * from plugin", finish);   
+                            });
                         });
                     });
-                });
+                  db.get("Select * from plugin", finish);  
                 });
                 
             });
@@ -148,8 +148,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          
             db.serialize(function(){
 
-                db.get("Select COUNT(*) as count from plugins", setTotalCount);
-                db.all("Select * from plugins", selectCB);
+                db.get("Select COUNT(*) as count from plugin", setTotalCount);
+                db.all("Select * from plugin", selectCB);
 
             });
 

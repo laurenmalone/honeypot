@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from base import Base
 import GeoIP
 import geojson
 import json
+import datetime
 
 
 
@@ -11,11 +12,13 @@ class Plugin:
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
         self.display = "Dummy Plugin"
+        self.value = "dummy_plugin"
         self.PORT = 9006
         self.description = "This is a dummy plugin used to test connections to ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
         self.stream_input = ""
         self.geoIpDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
+        self.time_stamp = ''
         self.orm = {"table": {"table_name": "Dummy",
                      "column":[{"name": "ip_address", "type": "TEXT"},
                                {"name": "port_number", "type": "TEXT"},
@@ -24,21 +27,26 @@ class Plugin:
                      }}
 
     class Dummy(Base):
-        __tablename__ = 'dummy'
+        __tablename__ = "dummy_plugin"
         id = Column(Integer, primary_key=True)
         ip_address = Column(String)
         port_number = Column(String)
         feature = Column(String)
         stream = Column(String)
+        time_stamp = Column(DateTime)
 
     def run(self, socket, address, session):
         print "dummy ip", address
-        self.stream_input = socket.recv(64)
+        self.stream_input = socket.recv(1024)
         socket.close()
-        self.geoIp_feature_json_string = self.convert_to_geojson_feature(self.get_record_from_geoip(address[0]))
+        self.time_stamp = datetime.datetime.now()
+        geo_ip_record = self.get_record_from_geoip(address[0])
+        if geo_ip_record is not None:
+            self.geoIp_feature_json_string = self.convert_to_geojson_feature(geo_ip_record)
         try:
             session.add(self.Dummy(ip_address=address[0], port_number=str(self.PORT),
-                                   feature=self.geoIp_feature_json_string, stream=self.stream_input))
+                                   feature=self.geoIp_feature_json_string, stream=self.stream_input,
+                                   time_stamp=self.time_stamp))
             session.commit()
         except RuntimeError:
             print "Error Saving Data: "
@@ -72,7 +80,8 @@ class Plugin:
             "postal_code": ip_record["postal_code"],
             "dma_code": ip_record["dma_code"],
             "country_code": ip_record["country_code"],
-            "country_name": ip_record["country_name"]
+            "country_name": ip_record["country_name"],
+            "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
         }
         #print "feature", feature
         feature_string = json.dumps(feature)
@@ -88,9 +97,12 @@ class Plugin:
         #print "ip_address", ip_address
         #the IP Address is hard coded for testing. Need to add
         #TODO
-        record = self.geoIpDB.record_by_name('71.205.10.208')
+        record = self.geoIpDB.record_by_name(ip_address)
         #print "record", record
         return record
 
     def get_orm(self):
         return self.orm
+
+    def get_value(self):
+        return self.value
