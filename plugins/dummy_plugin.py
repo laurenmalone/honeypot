@@ -12,6 +12,7 @@ class Plugin:
     def __init__(self):
         # print "Module Loaded and waiting on run() command"
         self.display = "Dummy Plugin"
+        self.value = "dummy_plugin"
         self.PORT = 9006
         self.description = "This is a dummy plugin used to test connections to ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
@@ -36,7 +37,7 @@ class Plugin:
 
     def run(self, socket, address, session):
         print "dummy ip", address
-        self.stream_input = socket.recv(64)
+        self.stream_input = socket.recv(1024)
         socket.close()
         self.time_stamp = datetime.datetime.now()
         geo_ip_record = self.get_record_from_geoip(address[0])
@@ -102,3 +103,6 @@ class Plugin:
 
     def get_orm(self):
         return self.orm
+
+    def get_value(self):
+        return self.value

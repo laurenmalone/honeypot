@@ -47,12 +47,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
 //	var dblite = require('/../../../../../usr/bin/sqlite3');
-    var dbLocation = "HPTSERVER.db";
+    var dbLocation = "../test.db";
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
 //    var resultObject = {"success": "", "rows": [], totalCount: 0};
-    
-    
     var db = new dblite.Database(dbLocation);
 //    PRAGMA table_info(plugins)
     // SELECT name as value FROM sqlite_master WHERE type = "table"

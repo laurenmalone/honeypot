@@ -32,7 +32,7 @@ class Plugin(Base):
     display = Column(String, nullable=False)
     description = Column(String, nullable=False)
     orm = Column(String, nullable=False)
-
+    value = Column(String, nullable=False)
 
 
 def _read_config():
@@ -144,7 +144,8 @@ def _add_items_to_plugin_table():
     session = _Session()
     for i in _plugin_list:
         try:
-            record = Plugin(display=i.get_display(), description=i.get_description(), orm=str(i.get_orm()))
+            record = Plugin(display=i.get_display(), description=i.get_description(),
+                            orm=str(i.get_orm()), value=(i.get_value()))
         except AttributeError:
             print "Plugin does not have attributes to use visual tool"
             logging.exception("Plugin does not have attributes to use visual tool :Time: " + str(my_date_time.now()))

@@ -36,12 +36,15 @@ class Plugin:
                                 {"name": "ip", "type": "TEXT"}]
                     }}
         self.time_stamp = ''
+        self.value = "telnet"
+        self.display = "Telnet"
 
     def get_display(self):
-        return "telnet"
+        return self.display
 
     def run(self, passed_socket, address, session):
         self.time_stamp = datetime.datetime.now()
+       #passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
             # for loop and try catch the timeout exception
@@ -51,6 +54,7 @@ class Plugin:
                 # look into clearing the buffer to read and write
                 login = ''
                 password = ''
+
                 passed_socket.sendall("login as: ")
                 try:
                     login = passed_socket.recv(64)
@@ -128,3 +132,6 @@ class Plugin:
 
     def get_description(self):
         return self.info
+
+    def get_value(self):
+        return self.value
