@@ -15,18 +15,24 @@ class Plugin:
         self.PORT = 8888
         self.geoIp_feature_json_string = ""
         self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
-        self.info = ("This plugin uses the telnet port to listen how attackers try to attack the telnet specific port. "
-                     "It gives three attempts to a username and password and store the information in a sql database.")
-        self.ORM = {"table": {"table_name": "telnet",
-                     "column": [{"name": "username", "type": "TEXT"},
-                                {"name": "password", "type": "TEXT"},
-                                {"name": "ip", "type": "TEXT"}]
-                    }}
+        self.info = ("This plugin uses the telnet port to listen for attackers. "
+                     "It allows three attempts to a username and password"
+                     " and stores the information in a sql database.")
+        self.ORM = {
+            "table": {
+                "table_name": "telnet",
+                "column": [
+                    {"name": "username", "type": "TEXT"},
+                    {"name": "password", "type": "TEXT"},
+                    {"name": "ip", "type": "TEXT"}
+                ]
+            }
+        }
+
         self.time_stamp = ''
         self.value = "telnet"
         self.display = "Telnet"
-    
-    
+
     class Telnet(Base):
         __tablename__ = "telnet"
         id = Column(Integer, primary_key=True)
@@ -45,7 +51,7 @@ class Plugin:
 
     def run(self, passed_socket, address, session):
         self.time_stamp = datetime.datetime.now()
-       #passed_socket.recv(2048, flags=socket.MSG_TRUNC)
+        # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
             # for loop and try catch the timeout exception
@@ -55,7 +61,6 @@ class Plugin:
                 # look into clearing the buffer to read and write
                 login = ''
                 password = ''
-
                 passed_socket.sendall("login as: ")
                 try:
                     login = passed_socket.recv(64)
@@ -63,8 +68,9 @@ class Plugin:
                     usernames.append(login)
                 except socket.timeout:
                     print 'timeout error'
-                    usernames.append('timeout error')
-                    passwords.append('timeout error')
+                    passed_socket.sendall('timeout error')
+                    usernames.append('invalid')
+                    passwords.append('invalid')
                     passed_socket.sendall("\n")
                     continue
                 login_string = login + "@73.78.8.177's " + "password: "
@@ -101,11 +107,11 @@ class Plugin:
         return self.ORM
 
     def get_record_from_geoip(self, ip_address):
-        #print "ip_address", ip_address
-        #the IP Address is hard coded for testing. Need to add
-        #TODO
+        # print "ip_address", ip_address
+        # the IP Address is hard coded for testing. Need to add
+        # TODO
         record = self.giDB.record_by_name(ip_address)
-        #print "record", record
+        # print "record", record
         return record
 
     def convert_to_geojson_point(self, ip_record):

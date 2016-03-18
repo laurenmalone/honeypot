@@ -104,10 +104,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                 console.log("add to object " + tempObj.value);
                                 pluginList.push({ "count": data.count, "table": tempObj.value});
                             }); 
-                            db.get("Select * from plugin", finish);   
+                            //db.get("Select * from plugin", finish);   
                             });
                         });
                     });
+                  db.get("Select * from plugin", finish);  
                 });
                 
             });
