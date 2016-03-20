@@ -83,7 +83,7 @@ Ext.onReady(function () {
             pluginComboAna.bindStore(pluginsStore);
             pluginComboAna.setValue('All');
             createAllStore();
-            center_panel.grid_panel.setStoreColumns(["plugin", 'hits'], 'all');
+//            center_panel.grid_panel.setStoreColumns(["plugin", 'hits'], 'all');
             me.pluginsStore.each(function(item){
                 console.log("store item", item);
                 createPluginStore(item);
@@ -162,7 +162,7 @@ Ext.onReady(function () {
     
         
     center_panel.down("#pluginComboTable").on('select', function(combo, records, eOpts){
-        center_panel.grid_panel.setStoreColumns(records.data.fields.fields, records.data.value);
+        center_panel.grid_panel.setStoreColumns(records.data.fields.table.column, records.data.value);
         console.log("");
     });
     
