@@ -18,7 +18,7 @@ class Plugin:
         self.info = ("This plugin uses the telnet port to listen for attackers. "
                      "It allows three attempts to a username and password"
                      " and stores the information in a sql database.")
-        self.ORM = {
+        self.ORM = json.dumps({
             "table": {
                 "table_name": "telnet",
                 "column": [
@@ -27,7 +27,7 @@ class Plugin:
                     {"name": "ip", "type": "TEXT"}
                 ]
             }
-        }
+        })
 
         self.time_stamp = ''
         self.value = "telnet"
