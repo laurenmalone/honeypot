@@ -36,7 +36,7 @@ class Plugin:
     class Telnet(Base):
         __tablename__ = "telnet"
         id = Column(Integer, primary_key=True)
-        username1 = Column(String)cd
+        username1 = Column(String)
         username2 = Column(String)
         username3 = Column(String)
         password1 = Column(String)
