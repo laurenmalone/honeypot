@@ -22,9 +22,15 @@ class Plugin:
             "table": {
                 "table_name": "telnet",
                 "column": [
-                    {"name": "username", "type": "TEXT"},
-                    {"name": "password", "type": "TEXT"},
-                    {"name": "ip", "type": "TEXT"}
+                    {"name": "username1", "type": "TEXT"},
+                    {"name": "username2", "type": "TEXT"},
+                    {"name": "username3", "type": "TEXT"},
+                    {"name": "password1", "type": "TEXT"},
+                    {"name": "password2", "type": "TEXT"},
+                    {"name": "password3", "type": "TEXT"},
+                    {"name": "feature", "type": "TEXT"},
+                    {"name": "ip_address", "type": "TEXT"},
+                    {"name": "time_stamp", "type": "TEXT"}
                 ]
             }
         })
