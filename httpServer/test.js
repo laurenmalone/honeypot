@@ -5,7 +5,6 @@ var should2 = require("should-http");
 var server = supertest.agent("http://localhost:9005");
 
 describe("Node Http Server Tests", function () {
-	// #1 should return list of plugins
 	it ("Check to see if /index is invalid", function test(done) {
 		server
 		.get("/index")

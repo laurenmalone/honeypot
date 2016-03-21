@@ -6,7 +6,6 @@ import json
 import datetime
 
 
-
 class Plugin:
 
     def __init__(self):
@@ -19,12 +18,12 @@ class Plugin:
         self.stream_input = ""
         self.geoIpDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.time_stamp = ''
-        self.orm = {"table": {"table_name": "Dummy",
+        self.orm = json.dumps({"table": {"table_name": "Dummy",
                      "column":[{"name": "ip_address", "type": "TEXT"},
                                {"name": "port_number", "type": "TEXT"},
                                {"name": "feature", "type": "TEXT"},
                                {"name": "stream", "type": "TEXT"}]
-                     }}
+                     }})
 
     class Dummy(Base):
         __tablename__ = "dummy_plugin"
