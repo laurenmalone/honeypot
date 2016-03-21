@@ -3,7 +3,7 @@
 case "$(pidof python HoneypotBase.py | wc -w)" in
 
 0) echo "0"
-   python ../honeypot/HoneypotBase.py
+   python ../HoneypotBase.py
 	;;
 1) echo "Honeypot Already Running";;
 *) echo "more then one"
