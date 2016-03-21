@@ -42,7 +42,7 @@ Ext.define('mapPanel', {
             var map = this.getMap();
             var features = [];
             data.forEach(function (item){
-                console.log("addmapLayer data.forEach", item);
+                //console.log("addmapLayer data.forEach", item);
                 features.push(item.data.feature);    
             });
             var newLayer = L.geoJson(features, {
@@ -50,7 +50,10 @@ Ext.define('mapPanel', {
                     console.log("feature", feature);
                     var description = "";
                     for(i in feature.properties){
-                        description += i + ": " + feature.properties[i] + "<br>";
+                        if(feature.properties[i]){
+                            description += i + ": " + feature.properties[i] + "<br>";    
+                        }
+                        
                     }
                     layer.bindPopup(description);
                 }
@@ -64,7 +67,7 @@ Ext.define('mapPanel', {
                 var data = [];
                 var store = Ext.StoreMgr.lookup(plugin);
                 store.each(function (item){
-                    console.log("Map Panel Add Feature Store.each", item);
+                    //console.log("Map Panel Add Feature Store.each", item);
                     data.push(me.correctGeoJsonFeature(item));
                 });
                 this.addMapLayer(data, plugin);

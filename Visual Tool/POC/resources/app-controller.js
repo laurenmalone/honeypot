@@ -92,15 +92,17 @@ Ext.onReady(function () {
                 {
                     value: 'all', 
                     display: 'All', 
-                    orm: '{"fields":[{"name":"Plugin","type":"string"},{"name":"Hits","type":"integer"}]}',
+                    orm: '{"fields":[{"name":"table","type":"string"},{"name":"count","type":"integer"}]}',
                     fields: {
-                        fields: [
-                            {name: 'Plugins', type: "string"},{name: "Hits", type: "integer"}
-                        ]
+                        table: {
+                            column: [
+                                {name: 'table', type: "string"},{name: "count", type: "integer"}
+                            ]
+                        }
                     } 
                 }
             );
-            center_panel.grid_panel.setStoreColumns([{name: 'Plugins', type: "string"},{name: "Hits", type: "integer"}], 'all');
+            center_panel.grid_panel.setStoreColumns([{name: 'table', type: "string"},{name: "count", type: "integer"}], 'all');
                     // Remove Loading Div
             Ext.get('loading').remove();
             Ext.get('loading-mask').fadeOut({
