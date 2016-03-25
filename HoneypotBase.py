@@ -143,7 +143,11 @@ def _add_items_to_plugin_table():
     """
     session = _Session()
     for i in _plugin_list:
+
         try:
+            q = session.query(Plugin).filter(Plugin.display == i.get_display())
+            if q.count() > 0:
+                continue
             record = Plugin(display=i.get_display(), description=i.get_description(),
                             orm=str(i.get_orm()), value=(i.get_value()))
         except AttributeError:
