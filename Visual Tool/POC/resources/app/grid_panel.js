@@ -3,16 +3,6 @@ Ext.define("grid_panel",{
     itemId: 'table_grid_panel',
     title: 'grid',
     border: false,
-//    columns: [
-//        {text: 'IP Address', dataIndex: 'ipAddress', flex: 3},
-//        {text: 'Login Value', dataIndex: 'loginValue', flex: 1},
-//        {text: 'Password', dataIndex: 'password', flex: 1},
-//        {text: 'Family', dataIndex: 'family', flex: 1},
-//        {text: 'Type', dataIndex: 'type', flex: 3},
-//        {text: 'Proto', dataIndex: 'proto', flex: 1}
-              
-//    ],
-    
     initComponent: function (){
 		
         this.columns = [];
@@ -21,7 +11,11 @@ Ext.define("grid_panel",{
 			});
 		this.callParent();
 	},
-    
+    /**
+    This method uses the orm object to set the columns of the table. The plugin param is the store to attach to the table.
+    @param {string} plugin - The name of the store to load. 
+    @param {object} orm - Object that describes the data that will be displayed
+    **/
     setStoreColumns: function (orm, plugin) {
         var me = this;
         this.columns = [];
@@ -30,13 +24,14 @@ Ext.define("grid_panel",{
                 me.columns.push({text: item.name, dataIndex: item.name, flex: 1});
             }
         });
-//        this.getTheresetGrid();
-//        this.removeGridData();
-        
         var theStore = (Ext.StoreMgr.lookup(plugin)) ? Ext.StoreMgr.lookup(plugin) : this.createNewStore(orm, plugin);
         this.reconfigure(theStore, this.columns);
     },
-    
+      /**
+    This method creates a data store and autoloads that data.
+    @param {string} plugin - The name of the store to load. 
+    @param {object} orm - Object that describes the data that will be displayed
+    **/  
     createNewStore: function(orm, plugin) {
         var urlPath = './resources/app/jsons/' + plugin + "/tableData.json"
         var newStore = Ext.create('Ext.data.Store', {
@@ -53,7 +48,13 @@ Ext.define("grid_panel",{
             autoLoad: true
         });
         return newStore;
-    }
+    },
+    
+    dockedItems: [{
+        xtype: 'pagingtoolbar',
+        store: null,
+        dock: 'bottom'
+    }]
 
 
 });

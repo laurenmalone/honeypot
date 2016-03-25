@@ -57,7 +57,6 @@ Ext.define("center_panel",{
                             {display: "Wheat Paste", value: "mapbox.wheatpaste"},
                             {display: "Streets-Basic", value: "mapbox.streets-basic"},
                             {display: "Comic", value: "mapbox.comic"}
-
                         ]
                     })
                 },{

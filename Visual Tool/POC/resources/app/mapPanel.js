@@ -8,24 +8,25 @@ Ext.define('mapPanel', {
 		},
 		afterRender: function(t, eOpts){
 			this.callParent(arguments);
- 
+            
 			var leafletRef = window.L;
 			if (leafletRef == null){
 				this.update('No leaflet library loaded');
 			} else {
 				var map = L.map(this.getId());
 				map.setView([21, 15], 3);
+                map.options.maxZoom = 15;
 				this.setMap(map);
 				this.baseLayer = L.tileLayer('https://api.mapbox.com/v4/{mapId}/{z}/{x}/{y}.png?access_token={key}', {
 					key: 'pk.eyJ1IjoiY295bGU1MjgwIiwiYSI6ImNpbDRqczl1dzQydDV2Zm0zcjg0cGt5MGMifQ.fLKS-GqFeQOi6Z3pBwvm1Q',
 					mapId: "mapbox.satellite",
-					maxZoom: 18
+					maxZoom: 12
 				}).addTo(map);
 			}
 		},
         
         changeBaseLayer: function (baselayerString) {
-            console.log("baselayer", baselayerString);
+//            console.log("baselayer", baselayerString);
             this.baseLayer.options.mapId = baselayerString;
             this.baseLayer.redraw();
         },
@@ -43,11 +44,12 @@ Ext.define('mapPanel', {
             var features = [];
             data.forEach(function (item){
                 //console.log("addmapLayer data.forEach", item);
+                item.data.feature.properties.ip_address = item.data.ip_address;
                 features.push(item.data.feature);    
             });
             var newLayer = L.geoJson(features, {
                 onEachFeature: function (feature, layer) {
-                    console.log("feature", feature);
+//                    console.log("feature", feature);
                     var description = "";
                     for(i in feature.properties){
                         if(feature.properties[i]){
@@ -55,6 +57,7 @@ Ext.define('mapPanel', {
                         }
                         
                     }
+                    description += "plugin name: " + plugin;
                     layer.bindPopup(description);
                 }
             }).addTo(map);
@@ -87,8 +90,19 @@ Ext.define('mapPanel', {
         },
         
         displaySelectedPluginLayer: function (plugin) {
+            var map = this.getMap();
             if(plugin !== 'all'){
-                
+                this.config.storeLayers.forEach(function (item){
+                    if(item.name === plugin) {
+                        map.addLayer(item.layer);    
+                    }else{
+                        map.removeLayer(item.layer);
+                    }   
+                });
+            }else{
+                this.config.storeLayers.forEach(function (item){
+                    map.addLayer(item.layer);
+                });
             }
             
         }
