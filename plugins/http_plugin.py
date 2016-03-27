@@ -6,8 +6,17 @@ import json
 
 
 class Plugin(Template):
+    """Reads an http request and adds data to db.
+
+    Inherit Template from plugin_template.py
+    run(socket, address, session) called by PluginManager
+    """
 
     class Http(Base):
+        """Represent http table in db.
+
+        Inherit declarative base class from base.py
+        """
         __tablename__ = "http"
         id = Column(Integer, primary_key=True)
         address= Column(String)
@@ -19,7 +28,12 @@ class Plugin(Template):
         feature = Column(String)
 
     class Handler(BaseHTTPRequestHandler):
+        """Http request handler.
 
+        Inherit Base HTTPRequestHandler from BaseHTTPServer.
+        Handle() is automatically called, which parses request and possibly sends a response.
+        do_command() methods send an http response and are automatically called in handle().
+        """
         def do_GET(self):
             pass
 
@@ -70,7 +84,13 @@ class Plugin(Template):
         })
 
     def run(self, socket, address, session):
+        """Start http request handler and add data to db.
 
+        param: socket --
+        param: address -- http client address
+        session: session to communicate with db
+        return: bool -- True if data is successfully added to http table, False otherwise
+        """
         request_handler = self.Handler(socket, address,  None)
 
         address = request_handler.client_address[0]
@@ -87,5 +107,7 @@ class Plugin(Template):
             session.add(record)
             session.commit()
             session.close()
+            return True
         except Exception:
             print 'error'
+            return False
