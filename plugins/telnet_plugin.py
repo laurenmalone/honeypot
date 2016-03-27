@@ -13,7 +13,7 @@ class Plugin:
         # print "Module Loaded and waiting on run() command"
         self.geo_ip = None
         self.PORT = 8888
-        self.geoIp_feature_json_string = ""
+        self.geoIp_feature_json_string = None
         self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.info = ("This plugin uses the telnet port to listen for attackers. "
                      "It allows three attempts to a username and password"

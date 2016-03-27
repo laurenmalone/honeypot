@@ -1,6 +1,7 @@
 import GeoIP
 import json
 import geojson
+import datetime
 
 
 class Template(object):
@@ -9,11 +10,12 @@ class Template(object):
         self.geo_ip = None
         self.PORT = 0
         self.geoIp_feature_json_string = None
-        self.giDB = GeoIP.open("../GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
+        self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.description = None
         self.ORM = None
         self.value = None
         self.display = None
+        self.time_stamp = self.time_stamp = datetime.datetime.now()
 
     def get_port(self):
         return self.PORT
@@ -61,6 +63,12 @@ class Template(object):
         feature_string = json.dumps(feature)
         return feature_string
 
+    def get_feature(self, address):
+        record = self.get_record_from_geoip(address)
+        if record is not None:
+            return self.convert_to_geojson_feature(record)
+        else:
+            return None
 
 
 

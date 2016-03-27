@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError
+from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError, OperationalError
 from sqlalchemy import *
 from PluginManager import PluginManager
 import os
@@ -76,7 +76,7 @@ def _import_plugins():
             filename, ext = os.path.splitext(i)
             if filename == '__init__' or ext != '.py':
                 continue
-            print filename + ext+ " loading..."
+            #print filename + ext+ " loading..."
 
             try:
                 mod = __import__(filename)
@@ -93,7 +93,8 @@ def _import_plugins():
                         _plugin_list.insert(0, plugin)  # add to beginning of list
 
                     print (filename + ext + " successfully loaded")
-
+            except AttributeError:
+                logging.exception(filename + " not loaded " ":Time: " + str(my_date_time.now()))
             except Exception as e:
                 traceback.print_exc(file=sys.stdout)
                 print(e)
@@ -145,14 +146,17 @@ def _add_items_to_plugin_table():
     for i in _plugin_list:
 
         try:
-            q = session.query(Plugin).filter(Plugin.display == i.get_display())
+            q = session.query(Plugin.id).filter(Plugin.display == i.get_display())
             if q.count() > 0:
                 continue
             record = Plugin(display=i.get_display(), description=i.get_description(),
                             orm=str(i.get_orm()), value=(i.get_value()))
+
         except AttributeError:
             print "Plugin does not have attributes to use visual tool"
             logging.exception("Plugin does not have attributes to use visual tool :Time: " + str(my_date_time.now()))
+        except Exception:
+            print "error"
         else:
             try:
                 session.add(record)
@@ -160,7 +164,8 @@ def _add_items_to_plugin_table():
             except SQLAlchemyError as e:
                 print(e)
                 logging.exception("record not added to table " ":Time: " + str(my_date_time.now()))
-
+            except Exception:
+                print "error"
     session.close()
 
 
