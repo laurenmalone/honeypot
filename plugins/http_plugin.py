@@ -3,6 +3,8 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 from sqlalchemy import Column, Integer, String, DateTime
 from base import Base
 import json
+import datetime
+import logging
 
 
 class Plugin(Template):
@@ -19,7 +21,7 @@ class Plugin(Template):
         """
         __tablename__ = "http"
         id = Column(Integer, primary_key=True)
-        address= Column(String)
+        address= Column(String, nullable=False)
         command = Column(String)
         path = Column(String)
         version = Column(String)
@@ -84,30 +86,40 @@ class Plugin(Template):
         })
 
     def run(self, socket, address, session):
-        """Start http request handler and add data to db.
+        """Start http request handler, then call get_record and insert_record.
 
         param: socket --
         param: address -- http client address
         session: session to communicate with db
         return: bool -- True if data is successfully added to http table, False otherwise
         """
+        self.session = session
         request_handler = self.Handler(socket, address,  None)
 
-        address = request_handler.client_address[0]
-        command = request_handler.command
-        path = request_handler.path
-        version = request_handler.request_version
-        headers = str(request_handler.headers)
-        time = self.time_stamp
-        feature = self.get_feature(address)
+        record = self.get_record(request_handler)
 
-        record = self.Http(address=address, command=command, path=path, version=version,
-                           headers=headers, time=time, feature=feature )
+        self.insert_record(record, session)
+
+    def insert_record(self, record, session):
         try:
             session.add(record)
             session.commit()
             session.close()
             return True
         except Exception:
-            print 'error'
+
+            logging.exception("http record cannot be added to db " ":Time: " + str(datetime.datetime.now()))
             return False
+
+    def get_record(self, handler):
+        address = handler.client_address[0]
+        command = handler.command
+        path = handler.path
+        version = handler.request_version
+        headers = str(handler.headers)
+        time = self.time_stamp
+        feature = self.get_feature(address)
+
+        record = self.Http(address=address, command=command, path=path, version=version,
+                           headers=headers, time=time, feature=feature)
+        return record
