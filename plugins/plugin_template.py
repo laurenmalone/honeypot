@@ -15,7 +15,7 @@ class Template(object):
         self.ORM = None
         self.value = None
         self.display = None
-        self.time_stamp = self.time_stamp = datetime.datetime.now()
+        self.time_stamp = datetime.datetime.now()
 
     def get_port(self):
         return self.PORT
