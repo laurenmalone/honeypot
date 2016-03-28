@@ -22,7 +22,6 @@ class TestTelnetPlugin(TestCase):
         self.assertRaises(IOError, lambda: Plugin().run('Closed Connection Passed'))
 
         # test a session, use mock
-            # needs to test sleep time
 
             # message1 = 'username: '
             # message2 = 'password: '

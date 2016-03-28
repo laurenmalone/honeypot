@@ -4,12 +4,13 @@ import GeoIP
 import geojson
 import socket
 import json
-import datetime
+import datetime, logging
 
 
 class Plugin:
     
     def __init__(self):
+        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         # print "Module Loaded and waiting on run() command"
         self.geo_ip = None
         self.PORT = 8888
@@ -57,6 +58,7 @@ class Plugin:
 
     def run(self, passed_socket, address, session):
         self.time_stamp = datetime.datetime.now()
+        logging.info(self.time_stamp)
         # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
@@ -72,11 +74,13 @@ class Plugin:
                     login = passed_socket.recv(64)
                     login.strip()
                     usernames.append(login)
+                    logging.info('Login information obtained')
                 except socket.timeout:
                     print 'timeout error'
                     passed_socket.sendall('timeout error')
                     usernames.append('invalid')
                     passwords.append('invalid')
+                    logging.error('invalid input error')
                     passed_socket.sendall("\n")
                     continue
                 login_string = login + "@73.78.8.177's " + "password: "
@@ -88,8 +92,10 @@ class Plugin:
                     passwords.append('timeout error')
                     passed_socket.sendall("\n")
                 passed_socket.sendall("Access denied\n")
+                logging.info('Access was denied ')
 
             passed_socket.close()
+            logging.info('socket closed ')
             geo_ip_record = self.get_record_from_geoip(address[0])
             if geo_ip_record is not None:
                 self.geoIp_feature_json_string = self.convert_to_geojson_feature(geo_ip_record)
@@ -105,6 +111,7 @@ class Plugin:
             session.close()
         else:
             print "socket error"
+            logging.error('socket error occurred')
 
     def get_port(self):
         return self.PORT
@@ -139,6 +146,7 @@ class Plugin:
             "country_name": ip_record["country_name"],
             "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
         }
+        logging.info('sent information')
 
         feature_string = json.dumps(feature)
         return feature_string
