@@ -6,7 +6,7 @@ Ext.define("analytics_panel", {
         var pie = Ext.create("center_piechart", {
             listeners: {
                 afterrender: function() {
-                    this.redraw();
+//                    this.redraw();
                 }
             }
         });

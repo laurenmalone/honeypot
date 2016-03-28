@@ -42,11 +42,17 @@ Ext.define('mapPanel', {
         addMapLayer: function (data, plugin) {
             var map = this.getMap();
             var features = [];
+                
             data.forEach(function (item){
-                //console.log("addmapLayer data.forEach", item);
-                item.data.feature.properties.ip_address = item.data.ip_address;
-                features.push(item.data.feature);    
+                if(item.data && item.data.ip_address && item.data.feature){
+                    //console.log("addmapLayer data.forEach", item);
+                    item.data.feature.properties.ip_address = item.data.ip_address;
+                    features.push(item.data.feature);
+                }
+                        
             });
+            
+            
             var newLayer = L.geoJson(features, {
                 onEachFeature: function (feature, layer) {
 //                    console.log("feature", feature);
@@ -61,6 +67,8 @@ Ext.define('mapPanel', {
                     layer.bindPopup(description);
                 }
             }).addTo(map);
+            
+            
             this.config.storeLayers.push({name: plugin, layer: newLayer});
         },
         
@@ -78,14 +86,17 @@ Ext.define('mapPanel', {
         },
         //Correct GeoJson Feature: Leaflet maps reverse the LatLong order. This funciton corrects this. 
         correctGeoJsonFeature: function (row) {
-            var geoPoints = [];
-            JSONfeature = JSON.parse(row.data.feature);
+            if(row.data.feature){    
+                var geoPoints = [];
+                JSONfeature = JSON.parse(row.data.feature);
+
+                geoPoints[0] = JSONfeature.geometry.coordinates[1];
+                geoPoints[1] = JSONfeature.geometry.coordinates[0];
+
+                JSONfeature.geometry.coordinates = geoPoints;
+                row.data.feature = JSONfeature;
+            }
             
-            geoPoints[0] = JSONfeature.geometry.coordinates[1];
-            geoPoints[1] = JSONfeature.geometry.coordinates[0];
-            
-            JSONfeature.geometry.coordinates = geoPoints;
-            row.data.feature = JSONfeature;
             return row;
         },
         
