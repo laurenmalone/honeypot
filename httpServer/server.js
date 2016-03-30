@@ -46,14 +46,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var fs = require("fs");
     console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
-//	var dblite = require('/../../../../../usr/bin/sqlite3');
     var dbLocation = "../test.db";
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
-//    var resultObject = {"success": "", "rows": [], totalCount: 0};
     var db = new dblite.Database(dbLocation);
-//    PRAGMA table_info(plugins)
-    // SELECT name as value FROM sqlite_master WHERE type = "table"
+
     if(dbExists){
         app.get('/plugins', function (req, res) {
             console.log("Plugins Total Accessed");
@@ -65,52 +62,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var count = 0;
             var tempObj = {};
             
-            var finish = function() {
-                
+            var finish = function() {   
                 console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
                 console.log("close");
                 db.close();
             };
-            
-//             var addToObject = function (err, data) {
-//                 console.log("add to object");
-//                 pluginList.push({"count": data, "table": tempObj.value});
-                
-//             };
-            
-            
-//             var getPlugins = function (err, row) {
-//                 console.log("get row", row);
-//                 row.forEach(function (item){
-//                     tempObj = item;
-//                     console.log(" this is temp obj" + tempObj);
-//                     db.all("SELECT COUNT(*) from " + item.value, addToObject )
-//                     //pluginList.push(item);
-// //                    db.
-// //                    pluginList.push({value: item.value, count:    
-//                 });
-//             };
-            
             db.serialize(function(){
                 db.all("Select value from plugin", function(err, row){
                    console.log("get row", row);
                    db.serialize(function(){
-                    row.forEach(function (item){
-                        tempObj = item;
-                        console.log(" this is temp obj" + tempObj);
-                        db.serialize(function(){
-                            db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
-                                console.log("add to object " + tempObj.value);
-                                pluginList.push({ "count": data.count, "table": tempObj.value});
-                            }); 
-                            //db.get("Select * from plugin", finish);   
+                        row.forEach(function (item){
+                            //tempObj = item;
+                            console.log(" this is temp obj" + item);
+                            db.serialize(function(){
+                                db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
+                                    console.log("add to object " + item.value);
+                                    pluginList.push({ "count": data.count, "table": item.value});
+                                });   
                             });
                         });
                     });
                   db.get("Select * from plugin", finish);  
-                });
-                
+                });   
             });
         });
         
@@ -144,8 +118,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     console.log("Error: ", err);
                 }
             };
-            
-         
+                
             db.serialize(function(){
 
                 db.get("Select COUNT(*) as count from plugin", setTotalCount);
@@ -161,8 +134,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var db = new dblite.Database(dbLocation);
             console.log("Plugin Table " + req.params.id + " Accessed");
             var resultObject = {
-                    rows: [],
-    
+                rows: [],
                 totalCount: 0
             };
             var dbQueryCallback = function (err, row) {
@@ -186,16 +158,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     resultObject.error = err;
                     console.log('err', err);
                 }
-
-
             };
 
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
                 db.all("Select * from " + req.params.id, dbQueryCallback);
-            });
-            
-            
+            });    
         });
 
 
@@ -215,7 +183,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             });    
         });
 
-
         var server = app.listen(9005, function () {
         var host = server.address().address
         var port = server.address().port
@@ -223,7 +190,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         console.log("Honeypot HTTP SERVER Running on", port);
 
         });
-    }else{
+
+    } else {
         console.log("DB was not found and the Server load was cancelled");
     }
 }());
