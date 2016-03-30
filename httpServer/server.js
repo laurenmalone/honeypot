@@ -70,19 +70,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             };
             db.serialize(function(){
                 db.all("Select value from plugin", function(err, row){
-                   console.log("get row", row);
-                   db.serialize(function(){
-                        row.forEach(function (item){
-                            //tempObj = item;
-                            console.log(" this is temp obj" + item);
-                            db.serialize(function(){
-                                db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
-                                    console.log("add to object " + item.value);
-                                    pluginList.push({ "count": data.count, "table": item.value});
-                                });   
+                    console.log("get row", row);
+                    //check to make sure database isn't empty
+                    if(row && row.length > 0){
+                        db.serialize(function(){
+                            row.forEach(function (item){
+                                //tempObj = item;
+                                console.log(" this is temp obj" + item);
+                                db.serialize(function(){
+                                    db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
+                                        console.log("add to object " + item.value);
+                                        pluginList.push({ "count": data.count, "table": item.value});
+                                    });   
+                                });
                             });
                         });
-                    });
+                    }
+                   
                   db.get("Select * from plugin", finish);  
                 });   
             });
