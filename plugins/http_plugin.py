@@ -36,29 +36,34 @@ class Plugin(Template):
         Handle() is automatically called, which parses request and possibly sends a response.
         do_command() methods send an http response and are automatically called in handle().
         """
+
+        def __init__(self, socket, address, server, version):
+            BaseHTTPRequestHandler.__init__(self, socket, address, server)
+            self.protocol_version = version
+
         def do_GET(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_POST(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_OPTIONS(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_HEAD(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_PUT(self):
-             pass
+             self.send_error(400, 'Bad Request')
 
         def do_DELETE(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_TRACE(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
         def do_CONNECT(self):
-            pass
+            self.send_error(400, 'Bad Request')
 
     def __init__(self):
         Template.__init__(self)
@@ -93,12 +98,14 @@ class Plugin(Template):
         session: session to communicate with db
         return: bool -- True if data is successfully added to http table, False otherwise
         """
-        self.session = session
-        request_handler = self.Handler(socket, address,  None)
+
+        request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
 
         record = self.get_record(request_handler)
 
         self.insert_record(record, session)
+
+        socket.close()
 
     def insert_record(self, record, session):
         try:
@@ -114,9 +121,16 @@ class Plugin(Template):
     def get_record(self, handler):
         address = handler.client_address[0]
         command = handler.command
-        path = handler.path
+        try:
+            path = handler.path
+        except:
+            path = ""
+
         version = handler.request_version
-        headers = str(handler.headers)
+        try:
+            headers = str(handler.headers)
+        except:
+            headers = ""
         time = self.time_stamp
         feature = self.get_feature(address)
 
