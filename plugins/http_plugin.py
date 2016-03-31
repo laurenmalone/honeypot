@@ -8,7 +8,7 @@ import logging
 
 
 class Plugin(Template):
-    """Reads an http request and adds data to db.
+    """Reads an http request, responds to client, and adds data to db.
 
     Inherit Template from plugin_template.py
     run(socket, address, session) called by PluginManager
@@ -33,8 +33,9 @@ class Plugin(Template):
         """Http request handler.
 
         Inherit Base HTTPRequestHandler from BaseHTTPServer.
-        Handle() is automatically called, which parses request and possibly sends a response.
-        do_command() methods send an http response and are automatically called in handle().
+        Handle() is automatically called, which parses request and sends an error
+        msg if appropriate. do_command() methods send an http 400 response and are
+        automatically called in handle().
         """
 
         def __init__(self, socket, address, server, version):
@@ -93,32 +94,40 @@ class Plugin(Template):
     def run(self, socket, address, session):
         """Start http request handler, then call get_record and insert_record.
 
-        param: socket --
-        param: address -- http client address
-        session: session to communicate with db
-        return: bool -- True if data is successfully added to http table, False otherwise
+        param: socket -- connection to client
+        param: address -- client address
+        param: session -- session to communicate with db
         """
-
         request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
-
         record = self.get_record(request_handler)
-
         self.insert_record(record, session)
-
         socket.close()
 
     def insert_record(self, record, session):
+        """Insert item into http table
+
+        param: record -- record being added
+        session: session to communicate with db
+        return: True if data is successfully added, False otherwise
+        Raise exception if data cannot be added
+        """
         try:
             session.add(record)
             session.commit()
             session.close()
             return True
-        except Exception:
+        except:
 
             logging.exception("http record cannot be added to db " ":Time: " + str(datetime.datetime.now()))
             return False
 
     def get_record(self, handler):
+        """Get http request record from handler
+
+        param: handler -- Handler instance that communicates with client
+        return: record
+        Raise exception if field cannot be found in request
+        """
         address = handler.client_address[0]
         command = handler.command
         try:
