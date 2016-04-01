@@ -129,20 +129,25 @@ class Plugin(Template):
         Raise exception if field cannot be found in request
         """
         address = handler.client_address[0]
-        command = handler.command
+        try:
+            command = handler.command
+        except:
+            command = ""
         try:
             path = handler.path
         except:
             path = ""
-
-        version = handler.request_version
+        try:
+            version = handler.request_version
+        except:
+            version = ""
         try:
             headers = str(handler.headers)
         except:
             headers = ""
         time = self.time_stamp
         feature = self.get_feature(address)
-
         record = self.Http(address=address, command=command, path=path, version=version,
                            headers=headers, time=time, feature=feature)
+
         return record
