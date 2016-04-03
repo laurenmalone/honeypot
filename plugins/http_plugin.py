@@ -79,7 +79,7 @@ class Plugin(Template):
             "table": {
                 "table_name": "http",
                 "column": [
-                    {"name": "address", "type": "TEXT"},
+                    {"name": "ip_address", "type": "TEXT"},
                     {"name": "command", "type": "TEXT"},
                     {"name": "path", "type": "TEXT"},
                     {"name": "version", "type": "TEXT"},
