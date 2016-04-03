@@ -21,7 +21,7 @@ class Plugin(Template):
         """
         __tablename__ = "http"
         id = Column(Integer, primary_key=True)
-        address= Column(String, nullable=False)
+        ip_address= Column(String, nullable=False)
         command = Column(String)
         path = Column(String)
         version = Column(String)
@@ -147,7 +147,7 @@ class Plugin(Template):
             headers = ""
         time = self.time_stamp
         feature = self.get_feature(address)
-        record = self.Http(address=address, command=command, path=path, version=version,
+        record = self.Http(ip_address=address, command=command, path=path, version=version,
                            headers=headers, time=time, feature=feature)
 
         return record
