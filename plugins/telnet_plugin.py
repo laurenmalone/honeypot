@@ -4,7 +4,8 @@ import GeoIP
 import geojson
 import socket
 import json
-import datetime, logging
+import datetime
+import logging
 
 
 class Plugin:
@@ -23,12 +24,9 @@ class Plugin:
             "table": {
                 "table_name": "telnet",
                 "column": [
-                    {"name": "username1", "type": "TEXT"},
-                    {"name": "username2", "type": "TEXT"},
-                    {"name": "username3", "type": "TEXT"},
-                    {"name": "password1", "type": "TEXT"},
-                    {"name": "password2", "type": "TEXT"},
-                    {"name": "password3", "type": "TEXT"},
+                    {"name": "username", "type": "TEXT"},
+                    {"name": "password", "type": "TEXT"},
+                    {"name": "hack commands", "type": "TEXT"},
                     {"name": "feature", "type": "TEXT"},
                     {"name": "ip_address", "type": "TEXT"},
                     {"name": "time_stamp", "type": "TEXT"}
@@ -43,12 +41,9 @@ class Plugin:
     class Telnet(Base):
         __tablename__ = "telnet"
         id = Column(Integer, primary_key=True)
-        username1 = Column(String)
-        username2 = Column(String)
-        username3 = Column(String)
-        password1 = Column(String)
-        password2 = Column(String)
-        password3 = Column(String)
+        username = Column(String)
+        password = Column(String)
+        command = Column(String)
         feature = Column(String)
         ip_address = Column(String)
         time_stamp = Column(DateTime)
@@ -62,49 +57,52 @@ class Plugin:
         # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
-            # for loop and try catch the timeout exception
-            usernames = []
-            passwords = []
-            for _ in range(3):
-                # now accept initial username and password
-                # record all commands attempted
-                login = ''
-                password = ''
-                passed_socket.sendall("login as: ")
-                try:
-                    login = passed_socket.recv(64)
-                    login.strip()
-                    usernames.append(login)
-                    logging.info('Login information obtained')
-                except socket.timeout:
-                    print 'timeout error'
-                    passed_socket.sendall('timeout error')
-                    usernames.append('invalid')
-                    passwords.append('invalid')
-                    logging.error('invalid input error')
-                    passed_socket.sendall("\n")
-                    continue
-                login_string = login + "@73.78.8.177's " + "password: "
-                passed_socket.sendall(login_string)
-                try:
-                    passwords.append(passed_socket.recv(64))
-                except socket.timeout:
-                    print 'timeout error'
-                    passwords.append('timeout error')
-                    passed_socket.sendall("\n")
-                passed_socket.sendall("Access denied\n")
-                logging.info('Access was denied ')
+            # check Stephen's about how he stops negotiating inputs
+            login = ''
+            username = ''
+            password = ''
+            command = ''
+            passed_socket.sendall("login as: ")
+            try:
+                login = passed_socket.recv(64)
+                login.strip()
+                username.append(login)
+                logging.info('Login information obtained')
+            except socket.timeout:
+                print 'timeout error'
+                passed_socket.sendall('timeout error')
+                username.append('invalid input')
+                logging.error('invalid input error')
+                passed_socket.sendall("\n")
+                # login string as shell script style
+            login_string = login + "@73.78.8.177's " + "password: "
+            passed_socket.sendall(login_string)
+            try:
+                password.append(passed_socket.recv(64))
+            except socket.timeout:
+                print 'timeout error'
+                password.append('timeout error')
+                passed_socket.sendall("\n")
+            passed_socket.sendall("Access denied\n")
+            logging.info('Attempted access denied ')
+
+            command_string = login + "@73.78.8.177's" + ": "
+            passed_socket.sendall(command_string)
+            try:
+                command.append(passed_socket.recv(64))
+            except socket.timeout:
+                print 'timeout error'
+                command.append('timeout error')
+                passed_socket.sendall("\n")
 
             passed_socket.close()
             logging.info('socket closed ')
             geo_ip_record = self.get_record_from_geoip(address[0])
             if geo_ip_record is not None:
                 self.geoIp_feature_json_string = self.convert_to_geojson_feature(geo_ip_record)
-            # record all the information within columns of the db table
-            # commit all the information from the session
 
-            record = self.Telnet(username1=usernames[0], username2=usernames[1], username3=usernames[2],
-                                 password1=passwords[0], password2=passwords[1], password3=passwords[2],
+            #
+            record = self.Telnet(username=username,password=password, command = command,
                                  feature=self.geoIp_feature_json_string, ip_address=address[0],
                                  time_stamp=self.time_stamp)
             session.add(record)
