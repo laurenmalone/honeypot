@@ -61,7 +61,7 @@ def _import_plugins():
     Add successfully imported plugins to plugin_list.
     return: bool -- False if plugin folder cannot be found, True otherwise.
     Raise OSError if plugin folder isn't found.
-    Raise Exception if a plugin cannot be imported.
+    Raise exception if a plugin cannot be imported.
     """
     try:
         sys.path.insert(0, _plugins)
@@ -109,7 +109,7 @@ def _port_valid(port):
     """Check that given port is valid and available.
 
     param: port -- the port being checked
-    return: bool -- True if port is valid and available, False otherwise
+    return: True if port is valid and available, False otherwise
     """
     for i in _plugin_list:
 

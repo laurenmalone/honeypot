@@ -2,6 +2,7 @@ Ext.define("center_piechart",{
     extend: "Ext.chart.PolarChart",
     itemId: "pieChart",
     region: "center",
+    animation: false,
     insetPadding: 50,
     innerPadding: 20,
     style: {

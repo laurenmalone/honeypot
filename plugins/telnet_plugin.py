@@ -66,7 +66,8 @@ class Plugin:
             usernames = []
             passwords = []
             for _ in range(3):
-                # look into clearing the buffer to read and write
+                # now accept initial username and password
+                # record all commands attempted
                 login = ''
                 password = ''
                 passed_socket.sendall("login as: ")
