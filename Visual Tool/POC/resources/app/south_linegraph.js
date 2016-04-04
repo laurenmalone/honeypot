@@ -1,22 +1,6 @@
 Ext.define("south_linegraph",{
     extend: "Ext.chart.CartesianChart",
-    store: Ext.create('Ext.data.JsonStore', {
-            fields: ['month', 'data1' ],
-            data: [
-                { month: 'Jan', data1: 20 },
-                { month: 'Feb', data1: 20 },
-                { month: 'Mar', data1: 19 },
-                { month: 'Apr', data1: 18 },
-                { month: 'May', data1: 18 },
-                { month: 'Jun', data1: 17 },
-                { month: 'Jul', data1: 16 },
-                { month: 'Aug', data1: 16 },
-                { month: 'Sep', data1: 16 },
-                { month: 'Oct', data1: 16 },
-                { month: 'Nov', data1: 15 },
-                { month: 'Dec', data1: 15 }
-            ]
-        }),
+    itemId: "lineGraph",
     insetPadding: 40,
     innerPadding: {
         left: 40,
@@ -49,14 +33,14 @@ Ext.define("south_linegraph",{
         position: 'left',
         grid: true,
         minimum: 0,
-        maximum: 24,
+        maximum: 10000,
 //        renderer: function (v) { 
 //            console.log("V", v);
 //            return v.name + '%'; 
 //        }
     }, {
         type: 'category',
-        fields: 'month',
+        fields: 'day',
         position: 'bottom',
         grid: true,
         label: {
@@ -67,7 +51,7 @@ Ext.define("south_linegraph",{
     }],
     series: [{
         type: 'line',
-        xField: 'month',
+        xField: 'day',
         yField: 'data1',
         style: {
             lineWidth: 4
@@ -87,12 +71,12 @@ Ext.define("south_linegraph",{
         },
         tooltip: {
             trackMouse: true,
-            style: 'background: #fff',
+            style: 'background: #000',
             showDelay: 0,
             dismissDelay: 0,
             hideDelay: 0,
-            renderer: function(storeItem, item) {
-                this.setHtml(storeItem.get('month') + ': ' + storeItem.get('data1') + '%');
+            renderer: function(tooltip, storeItem, item) {
+                tooltip.setHtml(storeItem.get('month') + ': ' + storeItem.get('data1') + '%');
             }
         }
     }]

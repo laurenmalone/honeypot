@@ -23,11 +23,16 @@ Ext.define("analytics_panel", {
 
             Ext.create("Ext.panel.Panel",{
                 region: "west",
+                itemId: "detailsPanel",
                 layout: "fit",
                 header: false,
                 width: "30%",
                 collapsible: true,
                 split: true,
+                tpl: [
+                    
+                    
+                ],
                 html: '',
                 items: []
 
