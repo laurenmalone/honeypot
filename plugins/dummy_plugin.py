@@ -12,7 +12,7 @@ class Plugin:
         # print "Module Loaded and waiting on run() command"
         self.display = "Dummy Plugin"
         self.value = "dummy_plugin"
-        self.PORT = 9006
+        self.PORT = 81
         self.description = "This is a dummy plugin used to test connections to ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
         self.stream_input = ""

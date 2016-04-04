@@ -64,7 +64,7 @@ class Plugin(Template):
         Template.__init__(self)
         self.value = "http"
         self.display = "Http"
-        self.PORT = 9999
+        self.PORT = 80
         self.description = ("This plugin uses the http port to listen for attackers. "
                             "It returns a 404 not found error to the client "
                             "and stores the information in a sql database.")
