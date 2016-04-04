@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
     var db = new dblite.Database(dbLocation);
+    var serialize = require('serialize');
 
     if(dbExists){
         app.get('/plugins', function (req, res) {
@@ -170,21 +171,67 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             });    
         });
 
-
-        app.get('/plugins/:id/features', function (req, res) {
-            //get plugin table :id Table Data
+        app.get('/distinctLocations/:tableName', function (req, res) {
+            console.log("Plugins Total Accessed");
             console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
-            console.log("Sever Table " + req.params.id + "from IP " + req.ip);
+            var resultObject = {"success": true, "rows": [], totalCount: 0};
+            var pluginObject = {"value":"", "display":"",  "count": 0};
+            var pluginList = [];
+            var count = 0;
+            var tempObj = {};
             
-            var returnFeature = function (err, row) {
-                res.jsonp({value: row, totalCount: -1});
+            var finish = function() {   
+                console.log("response sent");
+                res.jsonp({"rows": pluginList, "count": pluginList.length });
+                console.log("close");
                 db.close();
             };
-            
             db.serialize(function(){
-                db.all("Select feature from " + req.params.id, returnFeature);     
-            });    
+                db.all("SELECT DISTINCT ip_address from " + req.params.tableName, function(err, listIp){
+                    console.log("get distinct ip_addresses ", listIp);
+                    //check to make sure database isn't empty
+                    if(listIp && listIp.length > 0){
+                        db.serialize(function(){
+                            listIp.forEach(function (item){
+                                //tempObj = item;
+                                console.log(" this is temp obj " + item.ip_address);
+                                db.serialize(function(){
+                                    db.get("Select * from " + req.params.tableName + " where " + req.params.tableName + ".ip_address = " + item.ip_address, function(err, result){
+                                        console.log("Select * from " + req.params.tableName + " where "+ req.params.tableName + ".ip_address = " + item.ip_address);
+                                        console.log("add to object " , result);
+                                        pluginList.push({ "ips": result, "table": item.value});    
+                                    });    
+                                });
+                            });
+                        });
+                    }
+                   
+                  db.get("Select * from plugin", finish);  
+                });   
+            });
+        });
+
+        app.get('/plugin/:table/features', function (req, res) {
+            console.log("Unique Ip Accessed");
+            console.log("Opening DB at location: " + dbLocation);
+            db = new dblite.Database(dbLocation);
+            var pluginList = [];
+            
+            db.all("Select * from " + req.params.table + " group by ip_address", function(err, ipList){
+                console.log("get row", ipList);
+                //check to make sure database isn't empty
+                if(ipList && ipList.length > 0){
+                    console.log("add to object " , ipList);
+                    pluginList = ipList; 
+                    
+                }
+                res.jsonp({"rows": pluginList });
+                console.log("close");
+                db.close();   
+
+            });   
+              
         });
 
         var server = app.listen(9005, function () {
@@ -193,7 +240,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         console.log("Honeypot HTTP SERVER Running on", port);
 
-        });
+        });   
 
     } else {
         console.log("DB was not found and the Server load was cancelled");
