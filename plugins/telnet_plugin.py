@@ -26,7 +26,7 @@ class Plugin:
                 "column": [
                     {"name": "username", "type": "TEXT"},
                     {"name": "password", "type": "TEXT"},
-                    {"name": "hack commands", "type": "TEXT"},
+                    {"name": "commands", "type": "TEXT"},
                     {"name": "feature", "type": "TEXT"},
                     {"name": "ip_address", "type": "TEXT"},
                     {"name": "time_stamp", "type": "TEXT"}
