@@ -46,11 +46,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var fs = require("fs");
     console.log("Loading SQLITE3: ");
     var dblite = require('sqlite3').verbose();
-    var dbLocation = "../test.db";
+    var dbLocation = "../honeypot.db";
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
     var db = new dblite.Database(dbLocation);
-    var serialize = require('serialize');
+   // var serialize = require('serialize');
 
     if(dbExists){
         app.get('/plugins', function (req, res) {
@@ -212,13 +212,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             });
         });
 
-        app.get('/plugin/:table/features', function (req, res) {
+        app.get('/plugins/:table/features', function (req, res) {
             console.log("Unique Ip Accessed");
             console.log("Opening DB at location: " + dbLocation);
-            db = new dblite.Database(dbLocation);
+            var dbFeatures = new dblite.Database(dbLocation);
             var pluginList = [];
             
-            db.all("Select * from " + req.params.table + " group by ip_address", function(err, ipList){
+            dbFeatures.all("Select * from " + req.params.table + " group by ip_address", function(err, ipList){
                 console.log("get row", ipList);
                 //check to make sure database isn't empty
                 if(ipList && ipList.length > 0){
@@ -228,7 +228,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
                 res.jsonp({"rows": pluginList });
                 console.log("close");
-                db.close();   
+                dbFeatures.close();   
 
             });   
               
