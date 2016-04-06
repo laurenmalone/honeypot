@@ -63,7 +63,7 @@ class TestHoneypotBase(TestCase):
 
     def test_bad_plugins_directory(self):
         print "5"
-        HoneypotBase._plugins = '/test_plugins'
+        HoneypotBase._plugin_directory = '/test_plugins'
         self.assertFalse(HoneypotBase._import_plugins())
         HoneypotBase._signal_handler('15', None)
 
