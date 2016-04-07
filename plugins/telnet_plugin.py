@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from base import Base
+from string import join
 import GeoIP
 import geojson
 import socket
@@ -14,7 +15,7 @@ class Plugin:
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         # print "Module Loaded and waiting on run() command"
         self.geo_ip = None
-        self.PORT = 23
+        self.PORT = 8888
         self.geoIp_feature_json_string = None
         self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.info = ("This plugin uses the telnet port to listen for attackers. "
@@ -43,7 +44,7 @@ class Plugin:
         id = Column(Integer, primary_key=True)
         username = Column(String)
         password = Column(String)
-        command = Column(String)
+        commands = Column(String)
         feature = Column(String)
         ip_address = Column(String)
         time_stamp = Column(DateTime)
@@ -58,42 +59,42 @@ class Plugin:
         passed_socket.settimeout(35)
         if socket:
             # check Stephen's about how he stops negotiating inputs
-            login = ''
-            username = ''
-            password = ''
-            command = ''
             passed_socket.sendall("login as: ")
             try:
-                login = passed_socket.recv(64)
-                login.strip()
-                username.append(login)
+                username = passed_socket.recv(64)
+                username.strip()
                 logging.info('Login information obtained')
             except socket.timeout:
                 print 'timeout error'
                 passed_socket.sendall('timeout error')
-                username.append('invalid input')
+                username = 'invalid input'
                 logging.error('invalid input error')
                 passed_socket.sendall("\n")
                 # login string as shell script style
-            login_string = login + "@73.78.8.177's " + "password: "
+            login_string = username + "@73.78.8.177's " + "password: "
             passed_socket.sendall(login_string)
             try:
-                password.append(passed_socket.recv(64))
+                password = passed_socket.recv(64)
+                password.strip()
             except socket.timeout:
                 print 'timeout error'
-                password.append('timeout error')
+                password = 'timeout error'
                 passed_socket.sendall("\n")
             passed_socket.sendall("Access denied\n")
             logging.info('Attempted access denied ')
 
-            command_string = login + "@73.78.8.177's" + ": "
-            passed_socket.sendall(command_string)
-            try:
-                command.append(passed_socket.recv(64))
-            except socket.timeout:
-                print 'timeout error'
-                command.append('timeout error')
-                passed_socket.sendall("\n")
+            commands = []
+            for _ in range(5):
+                command_string = username + "@73.78.8.177's" + ": "  # command prompt -> 'username@host:path $ '
+                passed_socket.sendall(command_string)
+                try:
+                    command = passed_socket.recv(64)
+                    command.strip()
+                    commands.append(command)
+                except socket.timeout:
+                    print 'timeout error'
+                    commands.append('timeout error')
+                    passed_socket.sendall("\n")
 
             passed_socket.close()
             logging.info('socket closed ')
@@ -101,8 +102,7 @@ class Plugin:
             if geo_ip_record is not None:
                 self.geoIp_feature_json_string = self.convert_to_geojson_feature(geo_ip_record)
 
-            #
-            record = self.Telnet(username=username,password=password, command = command,
+            record = self.Telnet(username=username, password=password, commands=join(commands, ', '),
                                  feature=self.geoIp_feature_json_string, ip_address=address[0],
                                  time_stamp=self.time_stamp)
             session.add(record)
