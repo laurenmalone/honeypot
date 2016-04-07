@@ -98,6 +98,7 @@ class Plugin(Template):
         param: address -- client address
         param: session -- session to communicate with db
         """
+        self.time_stamp = datetime.datetime.now()
         request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
         record = self.get_record(request_handler)
         self.insert_record(record, session)
