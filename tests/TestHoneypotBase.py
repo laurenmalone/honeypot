@@ -12,8 +12,8 @@ class TestHoneypotBase(TestCase):
 
 
         HoneypotBase._read_config()
-        HoneypotBase._threads = []
-        HoneypotBase._plugin_list = []
+        HoneypotBase.thread_list = []
+        HoneypotBase.plugin_instance_list = []
 
     def test_num_threads_stopped_using_kill(self):
 
@@ -22,18 +22,18 @@ class TestHoneypotBase(TestCase):
         HoneypotBase._start_manager_threads()
         time.sleep(0.01)
         HoneypotBase._signal_handler('15', None)
-        for i in HoneypotBase._threads:
+        for i in HoneypotBase.thread_list:
             self.assertFalse(i.is_alive())
 
     def test_num_threads_stopped_using_ctrlc(self):
 
         print "2"
         self.assertTrue(HoneypotBase._import_plugins())
-        del(HoneypotBase._threads[:])
+        del(HoneypotBase.thread_list[:])
         HoneypotBase._start_manager_threads()
         time.sleep(0.01)
         HoneypotBase._signal_handler('^C2', None)
-        for i in HoneypotBase._threads:
+        for i in HoneypotBase.thread_list:
             self.assertFalse(i.is_alive())
 
     def test_port_valid(self):
@@ -46,7 +46,7 @@ class TestHoneypotBase(TestCase):
             def get_port(self):
                 return self._port
 
-        HoneypotBase._plugin_list = [Plugin(80), Plugin(23), Plugin(25)]
+        HoneypotBase.plugin_instance_list = [Plugin(80), Plugin(23), Plugin(25)]
         self.assertFalse(HoneypotBase._port_valid(80))
         self.assertFalse(HoneypotBase._port_valid(23))
         self.assertFalse(HoneypotBase._port_valid(25))
@@ -63,7 +63,7 @@ class TestHoneypotBase(TestCase):
 
     def test_bad_plugins_directory(self):
         print "5"
-        HoneypotBase._plugin_directory = '/test_plugins'
+        HoneypotBase.plugin_directory = '/test_plugins'
         self.assertFalse(HoneypotBase._import_plugins())
         HoneypotBase._signal_handler('15', None)
 
@@ -82,7 +82,7 @@ class TestHoneypotBase(TestCase):
             c = Column(String, nullable=False)
 
         HoneypotBase._create_plugin_tables()
-        self.assertTrue(HoneypotBase._engine.dialect.has_table(HoneypotBase._engine.connect(), "test1"))
+        self.assertTrue(HoneypotBase.engine.dialect.has_table(HoneypotBase.engine.connect(), "test1"))
 
     def test_create_table_that_does_not_extend_base(self):
         print"8"
@@ -98,7 +98,7 @@ class TestHoneypotBase(TestCase):
             c = Column(String, nullable=False)
 
         HoneypotBase._create_plugin_tables()
-        self.assertFalse(HoneypotBase._engine.dialect.has_table(HoneypotBase._engine.connect(), "test2"))
+        self.assertFalse(HoneypotBase.engine.dialect.has_table(HoneypotBase.engine.connect(), "test2"))
 
     def test_create_table_that_does_not_define_tablename(self):
         print"9"
