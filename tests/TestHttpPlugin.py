@@ -52,7 +52,7 @@ class TestHttpPlugin(TestCase):
         self.assertTrue(Plugin.insert_record(Plugin(), record, HoneypotBase.Session()))
 
     def test_response_unsupported_method(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request(None, "/")
         res = conn.getresponse()
         res.read()
@@ -60,7 +60,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 501)
 
     def test_response(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("GET", None)
         res = conn.getresponse()
         res.read()
@@ -68,7 +68,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 400)
 
     def test_response1(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("GET", "")
         res = conn.getresponse()
         res.read()
@@ -76,7 +76,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 400)
         
     def test_response_1(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("DELETE", None)
         res = conn.getresponse()
         res.read()
@@ -84,7 +84,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 400)
 
     def test_response_2(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("POST", None)
         res = conn.getresponse()
         res.read()
@@ -92,7 +92,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 400)
 
     def test_response_valid_request(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("GET", "/")
         res = conn.getresponse()
         res.read()
@@ -100,7 +100,7 @@ class TestHttpPlugin(TestCase):
         self.assertEqual(res.status, 400)
 
     def test_response_bad_status_line(self):
-        conn = HTTPConnection('localhost', 9999, True)
+        conn = HTTPConnection('localhost', 80, True)
         conn.request("get", "/")
         res = conn.getresponse()
         res.read()
