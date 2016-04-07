@@ -8,7 +8,7 @@ import time
 
 class TestHttpPlugin(TestCase):
     def setUp(self):
-        HoneypotBase._read_config()
+        HoneypotBase.read_config()
         self.thread = PluginManager(Plugin(), HoneypotBase.Session)
         self.thread.start()
         time.sleep(.1)

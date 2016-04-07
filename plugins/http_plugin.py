@@ -8,7 +8,7 @@ import logging
 
 
 class Plugin(Template):
-    """Reads an http request, responds to client, and adds data to db.
+    """Listens for http request, responds to client, and adds data to db.
 
     Inherit Template from plugin_template.py
     run(socket, address, session) called by PluginManager

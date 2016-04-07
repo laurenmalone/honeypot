@@ -11,11 +11,15 @@ from ConfigParser import SafeConfigParser
 import ast
 import plugins.dummy_plugin
 
-thread_list = []
-plugin_instance_list = []
-plugin_list = []
-catch_all_list = []
+""" Note - this class uses broad exceptions because it doesn't care why any one plugin didn't load,
+persist to db, etc. The error is simply logged, and the the show must go on. Specific errors must be
+caught by the plugin writer.
 
+"""
+thread_list = []            # keep track of plugin manager threads
+plugin_instance_list = []   # plugin instances, used to start plugin manager threads
+plugin_list = []            # plugins that are successfully imported, used to add records to plugin table
+catch_all_list = []         # list of ports user wants to listen on
 
 my_date_time = datetime.datetime
 
@@ -56,20 +60,25 @@ def read_config():
 
     engine = create_engine(db, echo=False)
     Session.configure(bind=engine)
-
     logging.basicConfig(filename=log, level=logging.DEBUG)
     catch_all_list = ast.literal_eval(parser.get('honeypot', 'ports'))
-    #print catch_all_list
 
 
 def import_plugins():
+    """Import plugins
+
+    Add successfully imported plugins to plugin_list.
+    return: bool -- False if plugin folder cannot be found, True otherwise.
+    Raise OSError if plugin directory isn't found.
+    Raise exception if a plugin cannot be imported.
+    """
     try:
         sys.path.insert(0, plugin_directory)
         os.listdir(plugin_directory)
 
     except OSError:
-        print("Plugin folder not found.")
-        return
+        print("Plugin directory not found.")
+        return False
 
     else:
         for i in os.listdir(plugin_directory):
@@ -86,8 +95,7 @@ def import_plugins():
                 plugin = mod.Plugin()
                 port = plugin.get_port()
                 if port in catch_all_list:
-                    catch_all_list.remove(port)
-                    #plugin_list.append(plugin)
+                    catch_all_list.remove(port)  # so that list only contains ports with unspecified plugins
                     if add_item_to_plugin_instance_list(plugin):
                         plugin_list.append(plugin)
 
@@ -98,6 +106,12 @@ def import_plugins():
 
 
 def add_item_to_plugin_instance_list(plugin):
+    """Add a newly created plugin instance to plugin_instance_list
+    (Later used to start plugin managers)
+
+    plugin: item to add
+    return: True if item is added, False otherwise
+    """
     port = plugin.get_port()
     if port_valid(port):
         plugin_instance_list.append(plugin)
@@ -109,11 +123,16 @@ def add_item_to_plugin_instance_list(plugin):
         return False
 
 
-def start_catchall_plugins():
-    #print catch_all_list
+def set_catchall_plugins():
+    """Create catchall plugin for every port in catch_all_list
+
+    (At this point in program, catch_all_list only consists of ports without specified plugin)
+    Add catchall plugins to plugin_instance_list
+    If catchall plugins are created, add dummy_plugin to plugins table
+    return: True if catchall plugins are created, False otherwise
+    """
     if len(catch_all_list) < 0:
         return False
-
 
     add_record_to_plugin_table(plugins.dummy_plugin.Plugin())
     for i in range(len(catch_all_list)):
@@ -125,16 +144,24 @@ def start_catchall_plugins():
 
 
 def add_records_to_plugin_table():
+    """Add record to plugin table for every item in plugin_list
+    """
     for i in plugin_list:
         add_record_to_plugin_table(i)
 
 
 def add_record_to_plugin_table(plugin):
+    """Add a single record to plugin table
+
+    param: plugin -- plugin being added to table
+    return: True if table has been added or already exists, False otherwise
+    Raise exception if record cannot be added
+    """
     try:
         session = Session()
         q = session.query(Plugin.id).filter(Plugin.display == plugin.get_display())
         if q.count() > 0:
-            return
+            return True
 
         record = Plugin(display=plugin.get_display(), description=plugin.get_description(),
                         orm=str(plugin.get_orm()), value=(plugin.get_value()))
@@ -165,10 +192,14 @@ def port_valid(port):
 
 
 def create_tables():
-    """Create tables that are defined by plugins.
+    """Create tables that are defined by plugins
 
-    For each class that inherits from declarative base and defines __tablename__.
-    Raise SQLAlchemyError if a table is not created successfully.
+    For each class that inherits from declarative base and defines both __tablename__ and primary key.
+    Raise exception if tables are not created successfully.
+    Because Python can't "unimport", tables will also be created for plugins that are invalid.
+    (since plugin has to be imported to check for validity)
+    However, the plugin will not run, it will not have a place in the plugins table, and data will
+    not be recorded to its own table.
     """
     try:
         Base.metadata.create_all(engine)
@@ -177,7 +208,7 @@ def create_tables():
 
 
 def start_manager_threads():
-    """Start a PluginManager thread for each item in plugins
+    """Start a PluginManager thread for each item in plugin_instance_list
     """
     for plugin in plugin_instance_list:
         thread = PluginManager(plugin, Session)
@@ -195,13 +226,14 @@ def signal_handler(signal, frame):
 def run():
     """ Drive program."""
     read_config()
-    import_plugins()
+    if not import_plugins():
+        raise SystemExit(1)  # no point in going on
     create_tables()
     add_records_to_plugin_table()
-    start_catchall_plugins()
+    set_catchall_plugins()
     start_manager_threads()
 
-    #wait for program to be killed
+    # wait for program to be killed
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     signal.pause()
