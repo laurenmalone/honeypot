@@ -103,6 +103,7 @@ def import_plugins():
                 logging.exception(filename + " cannot be loaded " ":Time: " + str(my_date_time.now()))
 
         sys.path.pop(0)
+        return True
 
 
 def add_item_to_plugin_instance_list(plugin):
@@ -119,7 +120,8 @@ def add_item_to_plugin_instance_list(plugin):
         return True
 
     else:
-        logging.exception(plugin.get_value() + " not loaded, port already in use :Time: " + str(my_date_time.now()))
+        logging.exception(plugin.get_value() + " not loaded, port " + str(port)+
+                          " already in use :Time: " + str(my_date_time.now()))
         return False
 
 
