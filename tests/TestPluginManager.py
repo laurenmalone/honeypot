@@ -2,7 +2,7 @@ import socket
 import time
 from threading import Event
 from unittest import TestCase
-from PluginManager import PluginManager
+from honeypot.PluginManager import PluginManager
 
 class TestPluginManager(TestCase):
 
