@@ -80,8 +80,6 @@ class Plugin:
                 print 'timeout error'
                 password = 'timeout error'
                 passed_socket.sendall("\n")
-            passed_socket.sendall("Access denied\n")
-            logging.info('Attempted access denied ')
 
             commands = []
             for _ in range(5):
