@@ -1,6 +1,5 @@
 # honeypot
 
-[![Join the chat at https://gitter.im/gdejohn/honeypot](https://badges.gitter.im/gdejohn/honeypot.svg)](https://gitter.im/gdejohn/honeypot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)<br/>
 Python honeypot framework with plugin API
 
 authbind must be installed to allow plugins to bind to well-known ports without running as root. To set up authbind, create the file `/etc/authbind/byuid/<uid>`, where `<uid>` is the `uid` of the user that will run the honeypot (can be obtained with `id -u <username>`, substituting the actual user name). The file should contain the line `0.0.0.0/32:1,1023` to allow binding to any well-known port (anything in the range 1-1023, inclusive). Start the honeypot by running `./start.sh`, which will use authbind.

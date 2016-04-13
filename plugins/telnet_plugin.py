@@ -19,7 +19,7 @@ class Plugin:
         self.geoIp_feature_json_string = None
         self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.info = ("This plugin uses the telnet port to listen for attackers. "
-                     "It allows three attempts to a username and password"
+                     "It allows a user to login and then record upto 5 commands from the user"
                      " and stores the information in a sql database.")
         self.ORM = json.dumps({
             "table": {
@@ -53,6 +53,7 @@ class Plugin:
         return self.display
 
     def run(self, passed_socket, address, session):
+        
         self.time_stamp = datetime.datetime.now()
         logging.info(self.time_stamp)
         # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
@@ -61,7 +62,9 @@ class Plugin:
             # check Stephen's about how he stops negotiating inputs
             passed_socket.sendall("login as: ")
             try:
-                username = passed_socket.recv(64)
+                # data = passed_socket.recv(4096)
+                # if(data in '\\xff' || '\\xfb' || '\\x1f' || '\\x18' || '\\x01' || '\\x03' || '\\xfd' || '\\xfe' || '\\xfc')
+                 username = passed_socket.recv(4096)
                 username.strip()
                 logging.info('Login information obtained')
             except socket.timeout:
