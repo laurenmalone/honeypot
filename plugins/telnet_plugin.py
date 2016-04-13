@@ -113,6 +113,30 @@ class Plugin:
             print "socket error"
             logging.error('socket error occurred')
 
+
+    def negotiate(self, passed_socket):
+        # read in a initial negotiation byte make sure it's the start
+        # read next byte, etc. Send corresponding negotiations in loop
+        # once negotiations end, begin to read information
+        # while loop for negotiations
+        # 252 is 'will not'
+        try:
+            while True:  # may need to create a flag
+                byte = passed_socket.recv(1)
+                if byte != 255:
+                    continue
+                else:
+                    verb = passed_socket.recv(1)
+                    if verb != 251 & verb != 253:
+                        continue
+                    else:
+                        option = passed_socket.recv(1)
+                        passed_socket.sendall(255, 252, option)
+        except socket.timeout:
+            print 'timeout error'
+            passed_socket.sendall("\n")
+            return
+
     def get_port(self):
         return self.PORT
 
