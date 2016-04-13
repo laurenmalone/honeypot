@@ -64,7 +64,7 @@ class Plugin:
             try:
                 # data = passed_socket.recv(4096)
                 # if(data in '\\xff' || '\\xfb' || '\\x1f' || '\\x18' || '\\x01' || '\\x03' || '\\xfd' || '\\xfe' || '\\xfc')
-                 username = passed_socket.recv(4096)
+                username = passed_socket.recv(4096)
                 username.strip()
                 logging.info('Login information obtained')
             except socket.timeout:
