@@ -108,7 +108,7 @@ Ext.onReady(function () {
 					} 
 				}
 			);
-			center_panel.grid_panel.setStoreColumns([{name: 'table', type: "string"},{name: "count", type: "integer"}], 'all');
+			center_panel.grid_details_panel.grid_panel.setStoreColumns([{name: 'table', type: "string"},{name: "count", type: "integer"}], 'all');
 			allStore.load(function(){
 				createPieStore();
 			});
@@ -290,15 +290,15 @@ Ext.onReady(function () {
 	}; 
 		
 	center_panel.down("#pluginComboTable").on('select', function(combo, records, eOpts){
-		center_panel.grid_panel.setStoreColumns(records.data.fields.table.column, records.data.value);
+		center_panel.grid_details_panel.grid_panel.setStoreColumns(records.data.fields.table.column, records.data.value);
 //        console.log("");
 	});
 	
 	center_panel.down("#pluginComboAnalytics").on('select', function(combo, records, eOpts){
 		center_panel.down("#lineGraph").setLineGraphStore(records.data.value + "LineGraphStore");
 	});
-	
-	center_panel.down("#map_table_button").on('change', function(segGroup, newValue, oldValue){
+    
+    center_panel.down("#map_table_button").on('change', function(segGroup, newValue, oldValue){
 //        console.log(newValue[0]);
 //        if(newValue[0] == 1){
 ////            Ext.getStore('table_data_store').load();

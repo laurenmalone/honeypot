@@ -32,39 +32,8 @@ Ext.define("analytics_panel", {
 					}
 					this.callParent();  
 				}
-			}),
-
-			Ext.create("Ext.panel.Panel",{
-				region: "west",
-				itemId: "detailsPanel",
-				layout: "fit",
-				header: false,
-				width: "30%",
-				collapsible: true,
-				split: true,
-				tpl: [
-					
-					
-				],
-				html: '',
-				items: []
-
 			})
-//            ,
-//            Ext.create("Ext.panel.Panel",{
-//                region: "east",
-//                layout: "fit",
-//                width: "30%",
-//                header: false,
-//                collapsible: true,
-//                split: true,
-//                html: "east",
-//                split: true,
-//                items: [] 
-//            })
 		]
-//        this.items = Ext.create("center_piechart");
-//        this.items = Ext.create("south_linegraph");
 		this.callParent();
 	}
 });
