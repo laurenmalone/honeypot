@@ -101,6 +101,7 @@ def import_plugins():
 
             except:
                 logging.exception(filename + " cannot be loaded " ":Time: " + str(my_date_time.now()))
+                print (filename + "cannot be loaded")
 
         sys.path.pop(0)
         return True
