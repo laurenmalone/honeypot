@@ -1,0 +1,16 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://github.com/ckaz18/honeypot
+	fetch = +refs/heads/*:refs/remotes/origin/*
+	pushurl = git@github.com:ckaz18/honeypot
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[remote "upstream"]
+	url = https://github.com/gdejohn/honeypot.git
+	fetch = +refs/heads/*:refs/remotes/upstream/*
+	pushurl = git@github.com:gdejohn/honeypot
