@@ -122,7 +122,8 @@ class Plugin:
         # 252 is 'will not'
         try:
             while True:  # may need to create a flag
-                byte = passed_socket.recv(1)
+                raw_input = passed_socket.recv(1)
+                byte = ord(byte)
                 if byte != 255:
                     continue
                 else:
@@ -132,8 +133,8 @@ class Plugin:
                     else:
                         option = passed_socket.recv(1)
                         passed_socket.sendall(255, 252, option)
-        except socket.timeout:
-            print 'timeout error'
+        except TypeError:
+            print 'not valid type'
             passed_socket.sendall("\n")
             return
 
@@ -155,20 +156,22 @@ class Plugin:
         return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
 
     def convert_to_geojson_feature(self, ip_record):
-        feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
-        feature["properties"] = {
-            "city": ip_record["city"],
-            "region_name": ip_record["region_name"],
-            "reg@on": ip_record["region"],
-            "area_code": ip_record["area_code"],
-            "time_zone": ip_record["time_zone"],
-            "metro_code": ip_record["metro_code"],
-            "country_code3": ip_record["country_code3"],
-            "postal_code": ip_record["postal_code"],
-            "dma_code": ip_record["dma_code"],
-            "country_code": ip_record["country_code"],
-            "country_name": ip_record["country_name"],
-            "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
+        try:
+            feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
+        except:
+            feature["properties"] = {
+                "city": ip_record["city"],
+                "region_name": ip_record["region_name"],
+                "reg@on": ip_record["region"],
+                "area_code": ip_record["area_code"],
+                "time_zone": ip_record["time_zone"],
+                "metro_code": ip_record["metro_code"],
+                "country_code3": ip_record["country_code3"],
+                "postal_code": ip_record["postal_code"],
+                "dma_code": ip_record["dma_code"],
+                "country_code": ip_record["country_code"],
+                "country_name": ip_record["country_name"],
+                "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
         }
         logging.info('sent information')
 
