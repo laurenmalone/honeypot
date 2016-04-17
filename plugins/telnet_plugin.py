@@ -158,7 +158,6 @@ class Plugin:
     def convert_to_geojson_feature(self, ip_record):
         try:
             feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
-        except:
             feature["properties"] = {
                 "city": ip_record["city"],
                 "region_name": ip_record["region_name"],
@@ -172,11 +171,11 @@ class Plugin:
                 "country_code": ip_record["country_code"],
                 "country_name": ip_record["country_name"],
                 "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
-        }
-        logging.info('sent information')
-
-        feature_string = json.dumps(feature)
-        return feature_string
+            }
+            logging.info('sent information')
+        except RuntimeError:
+            feature_string = json.dumps(feature)
+            return feature_string
 
     def get_description(self):
         return self.info
