@@ -16,6 +16,7 @@ class Template(object):
         self.value = None
         self.display = None
         self.time_stamp = datetime.datetime.now()
+
     def get_port(self):
         return self.PORT
 
@@ -32,11 +33,7 @@ class Template(object):
         return self.description
 
     def get_record_from_geoip(self, ip_address):
-        # print "ip_address", ip_address
-        # the IP Address is hard coded for testing. Need to add
-        # TODO
         record = self.giDB.record_by_name(ip_address)
-        # print "record", record
         return record
 
     def convert_to_geojson_point(self, ip_record):

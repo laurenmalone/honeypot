@@ -1,16 +1,11 @@
 Ext.define("grid_panel",{
     extend: 'Ext.grid.Panel',
     itemId: 'table_grid_panel',
-    title: 'grid',
+    region: "center",
+    title: 'Table',
     border: false,
-    listeners: {
-        rowclick: function (context, record, tr, index, e) {
-            console.log("log ", record, tr, index);
-        }
-    },
     initComponent: function (){
-		
-        this.columns = [];
+		this.columns = [];
 		Ext.apply(this, {
 			columns: this.columns
 			});

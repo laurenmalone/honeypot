@@ -5,11 +5,11 @@ Ext.define("center_panel",{
     items: [],
     initComponent: function (){
 		this.map_panel = Ext.create("mapPanel");
-        this.grid_panel = Ext.create("grid_panel");
+        this.grid_details_panel = Ext.create("grid_details_panel");
         this.analytics_panel = Ext.create("analytics_panel");
-
+        
 		Ext.apply(this, {
-			items:[this.map_panel, this.grid_panel, this.analytics_panel]
+			items:[this.map_panel, this.grid_details_panel, this.analytics_panel]
 			});
 		this.callParent();
 	},
@@ -93,13 +93,5 @@ Ext.define("center_panel",{
         hidden: true,
         valueFiled: "value",
         queryMode: 'local'
-    },{
-        xtype:'tbfill'
-    },{
-        xtype: 'splitbutton',
-        text: "Refresh",
-        menu: [{
-            text: 'Auto 3 Min'
-        }]
     }]
 });
