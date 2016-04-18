@@ -113,6 +113,31 @@ class Plugin:
             print "socket error"
             logging.error('socket error occurred')
 
+
+    def negotiate(self, passed_socket):
+        # read in a initial negotiation byte make sure it's the start
+        # read next byte, etc. Send corresponding negotiations in loop
+        # once negotiations end, begin to read information
+        # while loop for negotiations
+        # 252 is 'will not'
+        try:
+            while True:  # may need to create a flag
+                raw_input = passed_socket.recv(1)
+                byte = ord(byte)
+                if byte != 255:
+                    continue
+                else:
+                    verb = passed_socket.recv(1)
+                    if verb != 251 & verb != 253:
+                        continue
+                    else:
+                        option = passed_socket.recv(1)
+                        passed_socket.sendall(255, 252, option)
+        except TypeError:
+            print 'not valid type'
+            passed_socket.sendall("\n")
+            return
+
     def get_port(self):
         return self.PORT
 
@@ -131,25 +156,26 @@ class Plugin:
         return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
 
     def convert_to_geojson_feature(self, ip_record):
-        feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
-        feature["properties"] = {
-            "city": ip_record["city"],
-            "region_name": ip_record["region_name"],
-            "reg@on": ip_record["region"],
-            "area_code": ip_record["area_code"],
-            "time_zone": ip_record["time_zone"],
-            "metro_code": ip_record["metro_code"],
-            "country_code3": ip_record["country_code3"],
-            "postal_code": ip_record["postal_code"],
-            "dma_code": ip_record["dma_code"],
-            "country_code": ip_record["country_code"],
-            "country_name": ip_record["country_name"],
-            "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
-        }
-        logging.info('sent information')
-
-        feature_string = json.dumps(feature)
-        return feature_string
+        try:
+            feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
+            feature["properties"] = {
+                "city": ip_record["city"],
+                "region_name": ip_record["region_name"],
+                "reg@on": ip_record["region"],
+                "area_code": ip_record["area_code"],
+                "time_zone": ip_record["time_zone"],
+                "metro_code": ip_record["metro_code"],
+                "country_code3": ip_record["country_code3"],
+                "postal_code": ip_record["postal_code"],
+                "dma_code": ip_record["dma_code"],
+                "country_code": ip_record["country_code"],
+                "country_name": ip_record["country_name"],
+                "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
+            }
+            logging.info('sent information')
+        except RuntimeError:
+            feature_string = json.dumps(feature)
+            return feature_string
 
     def get_description(self):
         return self.info
