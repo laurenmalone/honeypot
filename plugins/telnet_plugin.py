@@ -59,7 +59,7 @@ class Plugin:
         # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
-            # check Stephen's about how he stops negotiating inputs
+            self.negotiate(passed_socket)
             passed_socket.sendall("login as: ")
             try:
                 # data = passed_socket.recv(4096)
