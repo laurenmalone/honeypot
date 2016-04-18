@@ -167,8 +167,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
-                console.log("Select * from " + req.params.id + "LIMIT " + req.params.limit + " OFFSET "+ (req.params.page * req.params.limit));
-                db.all("Select * from " + req.params.id + "LIMIT " + req.params.limit + " OFFSET "+ (req.params.page * req.params.limit), dbQueryCallback);
+                console.log("***** ", req.params);
+                db.all("Select * from " + req.params.id + " LIMIT " + req.params.limit + " OFFSET "+ (req.params.page * req.params.limit), dbQueryCallback);
             });    
         });
 
