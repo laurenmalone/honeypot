@@ -71,16 +71,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             };
             db.serialize(function(){
                 db.all("Select value from plugin", function(err, row){
-                    console.log("get row", row);
+                    // console.log("get row", row);
                     //check to make sure database isn't empty
                     if(row && row.length > 0){
                         db.serialize(function(){
                             row.forEach(function (item){
                                 //tempObj = item;
-                                console.log(" this is temp obj" + item);
+                                // console.log(" this is temp obj" + item);
                                 db.serialize(function(){
                                     db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
-                                        console.log("add to object " + item.value);
+                                        // console.log("add to object " + item.value);
                                         pluginList.push({ "count": data.count, "table": item.value});
                                     });   
                                 });
@@ -102,12 +102,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             
             var selectCB = function (err, row) {
                 if(!err){    
-                    console.log("Row", row);
+                    // console.log("Row", row);
                     resultObject.rows = row;
-                    console.log("Result", resultObject);
+                    // console.log("Result", resultObject);
                     res.type('application/json');
                     res.jsonp(resultObject);
-                    console.log("res");
+                    // console.log("res");
                     db.close();
                 }else{
                     console.log("Error: ", err);
@@ -144,7 +144,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             };
             var dbQueryCallback = function (err, row) {
                 if(!err){
-                    console.log("plugins/:id row", row, err);
+                    // console.log("plugins/:id row", row, err);
                     resultObject.rows = row;
                     res.jsonp(resultObject);
                     db.close(); 
@@ -167,8 +167,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
-                console.log("***** ", req.params);
-                db.all("Select * from " + req.params.id + " LIMIT " + req.params.limit + " OFFSET "+ (req.params.page * req.params.limit), dbQueryCallback);
+                console.log("***** ", req, req.params("limit"));
+                db.all("Select * from " + req.params.id + " LIMIT " + req.params("limit") + " OFFSET "+ (req.params("page") * req.params("limit")), dbQueryCallback);
             });    
         });
 
@@ -214,8 +214,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         });
 
         app.get('/plugins/:table/features', function (req, res) {
-            console.log("Unique Ip Accessed");
-            console.log("Opening DB at location: " + dbLocation);
+            // console.log("Unique Ip Accessed");
+            // console.log("Opening DB at location: " + dbLocation);
             var dbFeatures = new dblite.Database(dbLocation);
             var pluginList = [];
             
