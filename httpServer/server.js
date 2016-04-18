@@ -167,7 +167,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
-                db.all("Select * from " + req.params.id, dbQueryCallback);
+                db.all("Select * from " + req.params.id + "LIMIT " + req.params.limit + " OFFSET "+ (req.params.page * req.params.limit), dbQueryCallback);
             });    
         });
 
@@ -195,11 +195,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         db.serialize(function(){
                             listIp.forEach(function (item){
                                 //tempObj = item;
-                                console.log(" this is temp obj " + item.ip_address);
+                                //console.log(" this is temp obj " + item.ip_address);
                                 db.serialize(function(){
                                     db.get("Select * from " + req.params.tableName + " where " + req.params.tableName + ".ip_address = " + item.ip_address, function(err, result){
-                                        console.log("Select * from " + req.params.tableName + " where "+ req.params.tableName + ".ip_address = " + item.ip_address);
-                                        console.log("add to object " , result);
+                                        //console.log("Select * from " + req.params.tableName + " where "+ req.params.tableName + ".ip_address = " + item.ip_address);
+                                        //console.log("add to object " , result);
                                         pluginList.push({ "ips": result, "table": item.value});    
                                     });    
                                 });
