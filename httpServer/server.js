@@ -54,8 +54,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     if(dbExists){
         app.get('/plugins', function (req, res) {
-            console.log("Plugins Total Accessed");
-            console.log("Opening DB at location: " + dbLocation);
+            //console.log("Plugins Total Accessed");
+            //console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var pluginObject = {"value":"", "display":"",  "count": 0};
@@ -64,9 +64,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var tempObj = {};
             
             var finish = function() {   
-                console.log("response sent");
+                //console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
-                console.log("close");
+                //console.log("close");
                 db.close();
             };
             db.serialize(function(){
@@ -94,8 +94,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         });
         
         app.get('/', function (req, res) {
-            console.log("Plugins Accessed");
-            console.log("Opening DB at location: " + dbLocation);
+            //console.log("Plugins Accessed");
+            //console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             
@@ -135,9 +135,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         
         app.get('/plugins/:id', function (req, res) {
             //get plugin table :id 
-            console.log("Opening DB at location: " + dbLocation);
+            //console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
-            console.log("Plugin Table " + req.params.id + " Accessed");
+            //console.log("Plugin Table " + req.params.id + " Accessed");
             var resultObject = {
                 rows: [],
                 totalCount: 0
@@ -173,8 +173,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         });
 
         app.get('/distinctLocations/:tableName', function (req, res) {
-            console.log("Plugins Total Accessed");
-            console.log("Opening DB at location: " + dbLocation);
+            //console.log("Plugins Total Accessed");
+            //console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var pluginObject = {"value":"", "display":"",  "count": 0};
@@ -183,14 +183,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var tempObj = {};
             
             var finish = function() {   
-                console.log("response sent");
+                //console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
-                console.log("close");
+                //console.log("close");
                 db.close();
             };
             db.serialize(function(){
                 db.all("SELECT DISTINCT ip_address from " + req.params.tableName, function(err, listIp){
-                    console.log("get distinct ip_addresses ", listIp);
+                    //console.log("get distinct ip_addresses ", listIp);
                     //check to make sure database isn't empty
                     if(listIp && listIp.length > 0){
                         db.serialize(function(){
@@ -220,15 +220,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var pluginList = [];
             
             dbFeatures.all("Select * from " + req.params.table + " group by ip_address", function(err, ipList){
-                console.log("get row", ipList);
+                //console.log("get row", ipList);
                 //check to make sure database isn't empty
                 if(ipList && ipList.length > 0){
-                    console.log("add to object " , ipList);
+                    //console.log("add to object " , ipList);
                     pluginList = ipList; 
                     
                 }
                 res.jsonp({"rows": pluginList });
-                console.log("close");
+                //console.log("close");
                 dbFeatures.close();   
 
             });   
