@@ -1,9 +1,0 @@
-0000000000000000000000000000000000000000 f9b11ccb9cf1106c6a0c50c16562801145573082 Christi Kazakov <christi@debian> 1459796936 -0600	fetch --append upstream: storing head
-f9b11ccb9cf1106c6a0c50c16562801145573082 7ece5704afc30585bb988c2e2508fa00222e454a Christi Kazakov <christi@debian> 1459797008 -0600	pull upstream master: fast-forward
-7ece5704afc30585bb988c2e2508fa00222e454a 01fc62a2565c1bceb5ec5976e226ada8f3277c8f Christi Kazakov <christi@debian> 1459828835 -0600	pull upstream master: fast-forward
-01fc62a2565c1bceb5ec5976e226ada8f3277c8f 89921851bb9b3b8156d8b8666a2bdb42058cd45f Christi Kazakov <ckazakov18@gmail.com> 1459829697 -0600	update by push
-89921851bb9b3b8156d8b8666a2bdb42058cd45f f90e2c4fe8766d462f14e36bcb795838ce0b0b94 Christi Kazakov <christi@debian> 1459972863 -0600	pull upstream master: fast-forward
-f90e2c4fe8766d462f14e36bcb795838ce0b0b94 2a7caca3e64234388ed1f8b37d72f074a70ca2eb Christi Kazakov <ckazakov18@gmail.com> 1459976793 -0600	update by push
-2a7caca3e64234388ed1f8b37d72f074a70ca2eb 852cd5f1f3e6eee73924114528a5338bb0c4492f Christi Kazakov <christi@debian> 1460398121 -0600	pull upstream master: fast-forward
-852cd5f1f3e6eee73924114528a5338bb0c4492f 6b764f520763c396749ab9bc84d0d20656e05008 Christi Kazakov <christi@debian> 1460577579 -0600	pull upstream master: fast-forward
-6b764f520763c396749ab9bc84d0d20656e05008 9165b2294b680d24e38da25d980295dc404df66d Christi Kazakov <christi@debian> 1460667539 -0600	pull upstream master: fast-forward
