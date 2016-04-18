@@ -7,3 +7,5 @@ authbind must be installed to allow plugins to bind to well-known ports without 
 [Project Plan](https://docs.google.com/document/d/1NPZYz_Gn41zKydzIijU4lbnletNN57zfZNM8AaEY_ZQ/edit?usp=sharing)
 
 [Research Doc](https://docs.google.com/document/d/10FqRp2M8X2r19Jm75DzA1jPB805p85qZo2l6CmV1bM0/edit?usp=sharing)
+
+[Download Debian Package](http://cs4260honeypot.com.s3-website-us-west-2.amazonaws.com/debain/HoneyPotPackage.deb)
