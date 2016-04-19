@@ -173,9 +173,10 @@ class Plugin:
                 "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
             }
             logging.info('sent information')
+            feature = json.dumps(feature)
         except RuntimeError:
-            feature_string = json.dumps(feature)
-            return feature_string
+            feature = " "
+        return feature
 
     def get_description(self):
         return self.info
