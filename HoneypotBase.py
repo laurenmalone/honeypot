@@ -86,7 +86,7 @@ def import_plugins():
 
             if filename == '__init__' \
                     or ext != '.py' \
-                    or filename == 'dummy_plugin' \
+                    or filename == 'catch_all_plugin' \
                     or filename == 'plugin_template':
                 continue
 
@@ -174,7 +174,7 @@ def add_record_to_plugin_table(plugin):
         return True
 
     except:
-        logging.exception(plugin.get_value + " could not be added to plugins table :Time: " + str(my_date_time.now()))
+        logging.exception(plugin.get_value() + " could not be added to plugins table :Time: " + str(my_date_time.now()))
         return False
 
 
