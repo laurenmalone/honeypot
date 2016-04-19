@@ -16,7 +16,7 @@ class Plugin(Template):
         self.display = "Catch All"
         self.value = "catch_all"
         self.PORT = 81
-        self.description = "This is a catch all plugin used to connect to ports that are unused by other plugins"
+        self.description = "This is a catch all plugin used to listen on ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
         self.stream_input = ""
         self.geoIpDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
