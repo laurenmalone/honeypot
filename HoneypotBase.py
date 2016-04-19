@@ -9,7 +9,7 @@ import signal
 from base import Base
 from ConfigParser import SafeConfigParser
 import ast
-import plugins.dummy_plugin
+import plugins.catch_all_plugin
 
 """ Note - this class uses broad exceptions because it doesn't care why any one plugin didn't load,
 persist to db, etc. The error is simply logged, and the the show must go on. Specific errors must be
@@ -137,12 +137,12 @@ def set_catchall_plugins():
     if len(catch_all_list) < 0:
         return False
 
-    add_record_to_plugin_table(plugins.dummy_plugin.Plugin())
+    add_record_to_plugin_table(plugins.catch_all_plugin.Plugin())
     for i in range(len(catch_all_list)):
-        dummy = plugins.dummy_plugin.Plugin()
+        catchall = plugins.catch_all_plugin.Plugin()
         port = catch_all_list[i]
-        dummy.set_port(port)
-        add_item_to_plugin_instance_list(dummy)
+        catchall.set_port(port)
+        add_item_to_plugin_instance_list(catchall)
     return True
 
 
