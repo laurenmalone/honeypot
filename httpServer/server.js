@@ -176,7 +176,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 if(data && data.length > 0){
                     data.forEach(function(item){
                         var timeS = new Date(item.time_stamp);
-                        console.log(timeS.getDay());
                         weekdata[timeS.getDay()].data1++; 
                     });
                                   
