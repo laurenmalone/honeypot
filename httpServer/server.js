@@ -50,12 +50,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     console.log("Looking for DB at Location: " + dbLocation);
     var dbExists = fs.existsSync(dbLocation);
     var db = new dblite.Database(dbLocation);
-   // var serialize = require('serialize');
 
     if(dbExists){
         app.get('/plugins', function (req, res) {
-            console.log("Plugins Total Accessed");
-            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
             var pluginObject = {"value":"", "display":"",  "count": 0};
@@ -64,23 +61,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             var tempObj = {};
             
             var finish = function() {   
-                console.log("response sent");
                 res.jsonp({"rows": pluginList, "count": pluginList.length });
-                console.log("close");
                 db.close();
             };
             db.serialize(function(){
                 db.all("Select value from plugin", function(err, row){
-                    console.log("get row", row);
                     //check to make sure database isn't empty
                     if(row && row.length > 0){
                         db.serialize(function(){
                             row.forEach(function (item){
-                                //tempObj = item;
-                                console.log(" this is temp obj" + item);
                                 db.serialize(function(){
                                     db.get("SELECT COUNT(*) as count from " + item.value, function(err, data){
-                                        console.log("add to object " + item.value);
                                         pluginList.push({ "count": data.count, "table": item.value});
                                     });   
                                 });
@@ -94,20 +85,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         });
         
         app.get('/', function (req, res) {
-            console.log("Plugins Accessed");
-            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
             var resultObject = {"success": true, "rows": [], totalCount: 0};
-            
-            
+             
             var selectCB = function (err, row) {
                 if(!err){    
-                    console.log("Row", row);
                     resultObject.rows = row;
-                    console.log("Result", resultObject);
                     res.type('application/json');
                     res.jsonp(resultObject);
-                    console.log("res");
                     db.close();
                 }else{
                     console.log("Error: ", err);
@@ -135,16 +120,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         
         app.get('/plugins/:id', function (req, res) {
             //get plugin table :id 
-            console.log("Opening DB at location: " + dbLocation);
             var db = new dblite.Database(dbLocation);
-            console.log("Plugin Table " + req.params.id + " Accessed");
             var resultObject = {
                 rows: [],
                 totalCount: 0
             };
             var dbQueryCallback = function (err, row) {
                 if(!err){
-                    console.log("plugins/:id row", row, err);
                     resultObject.rows = row;
                     res.jsonp(resultObject);
                     db.close(); 
@@ -167,67 +149,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             db.serialize(function(){
                 db.get("Select COUNT(*) as count from " + req.params.id, setTotalCount);
-                db.all("Select * from " + req.params.id, dbQueryCallback);
+                db.all("Select * from " + req.params.id + " LIMIT " + req.query.limit + " OFFSET "+ (req.query.page * req.query.limit - req.query.limit) , dbQueryCallback);
             });    
         });
 
-        app.get('/distinctLocations/:tableName', function (req, res) {
-            console.log("Plugins Total Accessed");
-            console.log("Opening DB at location: " + dbLocation);
-            var db = new dblite.Database(dbLocation);
-            var resultObject = {"success": true, "rows": [], totalCount: 0};
-            var pluginObject = {"value":"", "display":"",  "count": 0};
-            var pluginList = [];
-            var count = 0;
-            var tempObj = {};
-            
-            var finish = function() {   
-                console.log("response sent");
-                res.jsonp({"rows": pluginList, "count": pluginList.length });
-                console.log("close");
-                db.close();
-            };
-            db.serialize(function(){
-                db.all("SELECT DISTINCT ip_address from " + req.params.tableName, function(err, listIp){
-                    console.log("get distinct ip_addresses ", listIp);
-                    //check to make sure database isn't empty
-                    if(listIp && listIp.length > 0){
-                        db.serialize(function(){
-                            listIp.forEach(function (item){
-                                //tempObj = item;
-                                console.log(" this is temp obj " + item.ip_address);
-                                db.serialize(function(){
-                                    db.get("Select * from " + req.params.tableName + " where " + req.params.tableName + ".ip_address = " + item.ip_address, function(err, result){
-                                        console.log("Select * from " + req.params.tableName + " where "+ req.params.tableName + ".ip_address = " + item.ip_address);
-                                        console.log("add to object " , result);
-                                        pluginList.push({ "ips": result, "table": item.value});    
-                                    });    
-                                });
-                            });
-                        });
-                    }
-                   
-                  db.get("Select * from plugin", finish);  
-                });   
-            });
-        });
-
         app.get('/plugins/:table/features', function (req, res) {
-            console.log("Unique Ip Accessed");
-            console.log("Opening DB at location: " + dbLocation);
             var dbFeatures = new dblite.Database(dbLocation);
             var pluginList = [];
-            
-            dbFeatures.all("Select * from " + req.params.table + " group by ip_address", function(err, ipList){
-                console.log("get row", ipList);
+            dbFeatures.all("Select * from " + req.params.table + " group by ip_address LIMIT 5000", function(err, ipList){
                 //check to make sure database isn't empty
                 if(ipList && ipList.length > 0){
-                    console.log("add to object " , ipList);
                     pluginList = ipList; 
-                    
                 }
                 res.jsonp({"rows": pluginList });
-                console.log("close");
                 dbFeatures.close();   
 
             });   

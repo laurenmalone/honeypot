@@ -16,12 +16,12 @@ class Plugin(Template):
         self.display = "Catch All"
         self.value = "catch_all"
         self.PORT = 81
-        self.description = "This is a catch all plugin used to connect to ports that are unused by other plugins"
+        self.description = "This is a catch all plugin used to listen on ports that are unused by other plugins"
         self.geoIp_feature_json_string = ""
         self.stream_input = ""
         self.geoIpDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.time_stamp = ''
-        self.orm = json.dumps({"table": {"table_name": "catch_all",
+        self.ORM = json.dumps({"table": {"table_name": "catch_all",
                      "column":[{"name": "ip_address", "type": "TEXT"},
                                {"name": "port_number", "type": "TEXT"},
                                {"name": "feature", "type": "TEXT"},
