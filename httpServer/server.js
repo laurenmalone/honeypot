@@ -170,13 +170,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         app.get('/plugins/:table/weekdata', function (req, res) {
             var dbFeatures = new dblite.Database(dbLocation);
-            var weekdata = [{day: 'Sunday', data1: 0}, {day: 'Monday', data1: 0},{day: 'Tuesday', data1: 0},{day: 'Wednesday', data1: 0},{day: 'Thursday', data1: 0},{day: 'Friday', data1: 0},{day: 'Saturday', data1: 0}];
+            var weekdata = [
+                                {day: 'Sunday', data1: 0}, 
+                                {day: 'Monday', data1: 0},
+                                {day: 'Tuesday', data1: 0},
+                                {day: 'Wednesday', data1: 0},
+                                {day: 'Thursday', data1: 0},
+                                {day: 'Friday', data1: 0},
+                                {day: 'Saturday', data1: 0}
+                            ];
             dbFeatures.all("Select * from " + req.params.table, function(err, data){
                 //check to make sure database isn't empty
+                
                 if(data && data.length > 0){
                     data.forEach(function(item){
-                        var timeS = new Date(item.time_stamp);
-                        weekdata[timeS.getDay()].data1++; 
+                        var timeS;
+                        if(item.time_stamp){
+                            timeS = new Date(item.time_stamp);
+                            weekdata[timeS.getDay()].data1++; 
+                        } else if(item.time){
+                            timeS = new Date(item.time);
+                            weekdata[timeS.getDay()].data1++; 
+                        } else{
+                            console.log('item.time_stamp and item.time do not exist. Check plugin definition.')
+                        }
+                        
                     });
                                   
                 }
