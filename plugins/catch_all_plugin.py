@@ -21,7 +21,7 @@ class Plugin(Template):
         self.stream_input = ""
         self.geoIpDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
         self.time_stamp = ''
-        self.orm = json.dumps({"table": {"table_name": "catch_all",
+        self.ORM = json.dumps({"table": {"table_name": "catch_all",
                      "column":[{"name": "ip_address", "type": "TEXT"},
                                {"name": "port_number", "type": "TEXT"},
                                {"name": "feature", "type": "TEXT"},
