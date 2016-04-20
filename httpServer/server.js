@@ -168,6 +168,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               
         });
 
+        app.get('/feature/:table/weekdata', function (req, res) {
+            var dbFeatures = new dblite.Database(dbLocation);
+            var weekdata = [{day: 'Monday', data1: 0},{day: 'Tuesday', data1: 0},{day: 'Wednesday', data1: 0},{day: 'Thursday', data1: 0},{day: 'Friday', data1: 0},{day: 'Saturday', data1: 0},{day: 'Sunday', data1: 0}];
+            dbFeatures.all("Select * from " + req.params.table, function(err, data){
+                //check to make sure database isn't empty
+                if(data && data.length > 0){
+                    console.log(data.time_stamp.weekday());
+                    weekdata[data.time_stamp.weekday()].data1 +=1;               
+                }
+                res.jsonp({"weekdata": pluginList });
+                dbFeatures.close();   
+
+            });   
+              
+        });
+
         var server = app.listen(9005, function () {
         var host = server.address().address
         var port = server.address().port
