@@ -10,6 +10,7 @@ from OpenSSL import crypto
 from ConfigParser import SafeConfigParser
 from os.path import exists, join
 import os
+from socket import SHUT_RDWR
 
 
 class Plugin(Template):
@@ -99,7 +100,6 @@ class Plugin(Template):
     def create_cert(self, cert_file, key_file):
 
         if os.path.isfile(cert_file) and os.path.isfile(key_file):
-            print 'already exist'
             return cert_file, key_file
 
         k = crypto.PKey()
@@ -145,6 +145,7 @@ class Plugin(Template):
         request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
         record = self.get_record(request_handler)
         self.insert_record(record, session)
+        socket.unwrap()
         #socket.shutdown(SHUT_RDWR)
         socket.close()
 

@@ -13,6 +13,7 @@ class Plugin(Template):
     run(socket, address, session) called by PluginManager
     """
     def __init__(self):
+        Template.__init__(self)
         self.display = "Catch All"
         self.value = "catch_all"
         self.PORT = 81
