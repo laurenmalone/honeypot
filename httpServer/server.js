@@ -198,7 +198,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     });
                                   
                 }
-                res.jsonp({"weekdata": weekdata });
+                res.jsonp({ "rows": weekdata });
                 dbFeatures.close();   
 
             });   
