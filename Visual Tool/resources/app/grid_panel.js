@@ -55,6 +55,8 @@ Ext.define("grid_panel",{
         xtype: 'pagingtoolbar',
         itemId: 'pageBar',
         store: null,
+        displayInfo: true,
+        displayMsg: 'Displaying topics {0} - {1} of {2}',
         dock: 'bottom'
     }]
 
