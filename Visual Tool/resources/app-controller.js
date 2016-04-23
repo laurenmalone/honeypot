@@ -55,6 +55,7 @@ Ext.onReady(function () {
 	 */
 	var createAllStore = function () {
 		var allStore = Ext.create('Ext.data.Store', {
+			pageSize: 100,
 			storeId: "all",
 			fields: [{name: 'plugin', type: "string"}, 
 					 {name: 'hits', type: "integer"}
@@ -64,7 +65,8 @@ Ext.onReady(function () {
 				url: CONFIG.url + '/plugins',
 				reader: {
 					type: 'json',
-					rootProperty: 'rows'
+					rootProperty: 'rows',
+                    totalProperty: 'totalCount'
 				}
 			},
 			autoLoad: false
@@ -126,13 +128,15 @@ Ext.onReady(function () {
 	var createPluginStore = function (plugin) {
 		plugin.data.fields = (plugin.data.orm) ? JSON.parse(plugin.data.orm) : "";
 		singlePluginStore = Ext.create('Ext.data.Store', {
+			pageSize: 100,
 			storeId: plugin.data.value,
 			proxy: {
 				type: 'jsonp',
 				url: CONFIG.url + "/plugins/" + plugin.data.value + "",
 				reader: {
 					type: 'json',
-					rootProperty: 'rows'
+					rootProperty: 'rows',
+                    totalProperty: 'totalCount'
 				},
 				listeners: {
 					exception: function(proxy, response, operation) {
@@ -291,7 +295,8 @@ Ext.onReady(function () {
 		
 	center_panel.down("#pluginComboTable").on('select', function(combo, records, eOpts){
 		center_panel.grid_details_panel.grid_panel.setStoreColumns(records.data.fields.table.column, records.data.value);
-//        console.log("");
+		var store = Ext.getStore(records.data.value);
+		Ext.ComponentQuery.query('#pageBar')[0].bindStore(store);
 	});
 	
 	center_panel.down("#pluginComboAnalytics").on('select', function(combo, records, eOpts){
