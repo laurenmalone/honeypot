@@ -75,6 +75,7 @@ Ext.onReady(function () {
 	};
 	
 	/**
+	 * This method creates a store to hold informaiton about the 
 	 */
 	var setupPluginStores = function () {
 		var me = this;
@@ -155,7 +156,7 @@ Ext.onReady(function () {
 					}
 				}
 			},
-			autoLoad: false
+			autoLoad: true
 		});
 		pluginsArray.push(singlePluginStore);
 	};
@@ -196,10 +197,9 @@ Ext.onReady(function () {
 			center_panel.map_panel.addPluginLayerToMap(plugin.data.value);		
 		})	
 	};
-	
-	
-	//TODO This method should only create a single store once the data is loaded.
 	/**
+	 * This method creates all the stores needed for the analytics Line graph. 
+	 * It uses the 'all' store to lookup what plugins need to be loaded.
 	 */
 	function createLineGraphStores() {
 		var allLineGraphStore = Ext.create('Ext.data.Store', {
@@ -210,7 +210,9 @@ Ext.onReady(function () {
 		var dataAll = [{day: "Sunday", data1: 0},{day: "Monday", data1: 0},{day: "Tuesday", data1: 0},{day: "Wednesday", data1: 0},
 						{day: "Thursday", data1: 0},{day: "Friday", data1: 0},{day: "Saturday", data1: 0}];
 		var yGraphRange = 0;
+		var pluginCount = 0;
 		Ext.getStore('all').each(function (pluginItem){
+			pluginCount++;
 			var lineGraphStore = Ext.create('Ext.data.Store', {
 										storeId: pluginItem.data.table + "LineGraphStore",
 										fields: [{name: 'day', type: "string"}, 
@@ -226,53 +228,50 @@ Ext.onReady(function () {
 										autoLoad: false
 									});
 				lineGraphStore.load(function (items) {
+					pluginCount--;
 					lineGraphStore.each(function (item) {
 						switch(item.data.day){
 							case "Sunday":
 								dataAll[0].data1 += item.data.data1;
 								yGraphRange = (yGraphRange < dataAll[0].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
 								break;
 							case "Monday":
 								dataAll[1].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[1].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[1].data1) ? dataAll[1].data1 : yGraphRange;
 								break;
 							case "Tuesday":
 								dataAll[2].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[2].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[2].data1) ? dataAll[2].data1 : yGraphRange;
 								break;
 							case "Wednesday":
 								dataAll[3].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[3].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[3].data1) ? dataAll[3].data1 : yGraphRange;
 								break;
 							case "Thursday":
 								dataAll[4].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[4].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[4].data1) ? dataAll[4].data1 : yGraphRange;
 								break;
 							case "Friday":
 								dataAll[5].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[5].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[5].data1) ? dataAll[5].data1 : yGraphRange;
 								break;
 							case "Saturday":
 								dataAll[6].data1 += item.data.data1;
-								yGraphRange = (yGraphRange < dataAll[6].data1) ? dataAll[0].data1 : yGraphRange;
-								Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+								yGraphRange = (yGraphRange < dataAll[6].data1) ? dataAll[6].data1 : yGraphRange;
 								break;
 							default:
 								console.log("DATA ERROR IN LINE GRAPH DATA");
 						}
-					});	
+					});
+					if(pluginCount === 0){
+						allLineGraphStore.loadRawData(dataAll, false);
+						Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+						Ext.ComponentQuery.query('#lineGraph')[0].bindStore(allLineGraphStore);	
+					}	
 			});
 		}, this);
-	 	// yGraphRange = yGraphRange * 1.33;
-		allLineGraphStore.loadRawData(dataAll, false);
-		Ext.ComponentQuery.query('#lineGraph')[0].bindStore(allLineGraphStore);    
-	};
+	 	
+    };
 	
 	
 	/**

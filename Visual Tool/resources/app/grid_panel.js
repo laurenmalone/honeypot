@@ -56,7 +56,7 @@ Ext.define("grid_panel",{
         itemId: 'pageBar',
         store: null,
         displayInfo: true,
-        displayMsg: 'Displaying topics {0} - {1} of {2}',
+        displayMsg: 'Displaying records {0} - {1} of {2}',
         dock: 'bottom'
     }]
 
