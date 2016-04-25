@@ -156,6 +156,7 @@ class Plugin:
         return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
 
     def convert_to_geojson_feature(self, ip_record):
+        feature_string = ""
         try:
             feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
             feature["properties"] = {
@@ -174,8 +175,9 @@ class Plugin:
             }
             logging.info('sent information')
         except RuntimeError:
-            feature_string = json.dumps(feature)
-            return feature_string
+            print "Error creating feature"
+        feature_string = json.dumps(feature)
+        return feature_string
 
     def get_description(self):
         return self.info
