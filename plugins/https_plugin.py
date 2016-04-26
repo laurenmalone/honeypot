@@ -11,6 +11,8 @@ from ConfigParser import SafeConfigParser
 from os.path import exists, join
 import os
 from socket import SHUT_RDWR
+from socket import gethostname
+from ssl import SSLError
 
 
 class Plugin(Template):
@@ -47,6 +49,8 @@ class Plugin(Template):
         def __init__(self, socket, address, server, version):
             BaseHTTPRequestHandler.__init__(self, socket, address, server)
             self.protocol_version = version
+
+
 
         def do_GET(self):
             self.send_error(400, 'Bad Request')
@@ -108,6 +112,14 @@ class Plugin(Template):
         cert.get_subject().C = "US"
         cert.get_subject().ST = "CO"
         cert.get_subject().L = "Denver"
+        name = gethostname()
+        cert.get_subject().CN = 'www.'+name+'.com'
+        #cert.get_subject().CN = gethostname()
+        #cert.get_subject().CN = 'localhost'
+        #cert.get_subject().CN = "73.78.8.177"
+        cert.get_subject().O = "Metropolitan State University of Denver"
+        cert.get_subject().OU = "Computer Science"
+        cert.set_serial_number(5)
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(365*24*60*60)
         cert.set_issuer(cert.get_subject())
@@ -140,14 +152,21 @@ class Plugin(Template):
         config = self.read_config('honeypot.ini')
         cert_and_key = self.create_cert(config[0], config[1])
 
-        socket = ssl.wrap_socket(socket, keyfile=cert_and_key[1], certfile=cert_and_key[0], server_side=True)
-        self.time_stamp = datetime.datetime.now()
-        request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
-        record = self.get_record(request_handler)
-        self.insert_record(record, session)
-        socket.unwrap()
-        #socket.shutdown(SHUT_RDWR)
-        socket.close()
+        try:
+            socket = ssl.wrap_socket(socket, keyfile=cert_and_key[1], certfile=cert_and_key[0], server_side=True)
+        except SSLError:
+            pass
+        else:
+
+            try:
+                request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
+            except:
+                print 'Waiting for client to trust site...'
+            else:
+                record = self.get_record(request_handler)
+                self.insert_record(record, session)
+                socket.shutdown(SHUT_RDWR)
+                socket.close()
 
     def insert_record(self, record, session):
         """Insert item into http table
@@ -191,7 +210,7 @@ class Plugin(Template):
             headers = str(handler.headers)
         except:
             headers = ""
-        time = self.time_stamp
+        time = datetime.datetime.now()
         feature = self.get_feature(address)
         record = self.Https(ip_address=address, command=command, path=path, version=version,
                             headers=headers, time=time, feature=feature)
