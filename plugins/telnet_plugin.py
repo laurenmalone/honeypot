@@ -120,7 +120,7 @@ class Plugin:
         try:
             while True:  # may need to create a flag
                 raw_input = passed_socket.recv(1)
-                byte = ord(byte)
+                byte = ord(raw_input)
                 if byte != 255:
                     continue
                 else:
@@ -171,7 +171,10 @@ class Plugin:
                 "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
             }
             logging.info('sent information')
+            feature = json.dumps(feature)
         except RuntimeError:
+            feature = " "
+            return feature
             print "Error creating feature"
         feature_string = json.dumps(feature)
         return feature_string
