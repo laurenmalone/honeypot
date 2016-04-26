@@ -39,9 +39,9 @@ To write to db and use visual tool, Plugin class must have the following:
 	 - ex: 
 
 	 `    class Http(Base):`
-		`__tablename__ = "http"`
-	    `id = Column(Integer, primary_key=True)`
-	    `ip_address= Column(String, nullable=False)`
+	`__tablename__ = "http"`
+	`id = Column(Integer, primary_key=True)`
+	`ip_address= Column(String, nullable=False)`
         `command = Column(String)`
         `path = Column(String)`
         `version = Column(String)`
@@ -49,9 +49,15 @@ To write to db and use visual tool, Plugin class must have the following:
         `time = Column(DateTime)`
         `feature = Column(String)`
 
-      
+
 
 **Configuring your honeypot**
 You can edit honeypot.ini to configure your honeypot. honeypot.ini has several sections that correlate with specific files in the program. The section titles are surrounded with brackets. [honeypot] specifies paths of the database, plugins directory, log file, and also a list ports that the user wants to listen on. [https] specifies names of certificate and private key files for ssl connection. If an item is not specified in its section, data specified in [default] will be used.
 
-> Written with [StackEdit](https://stackedit.io/).
+[Project Plan](https://docs.google.com/document/d/1NPZYz_Gn41zKydzIijU4lbnletNN57zfZNM8AaEY_ZQ/edit?usp=sharing)
+
+[Research Doc](https://docs.google.com/document/d/10FqRp2M8X2r19Jm75DzA1jPB805p85qZo2l6CmV1bM0/edit?usp=sharing)
+
+[Download Debian Package](http://cs4260honeypot.com.s3-website-us-west-2.amazonaws.com/debian/HoneyPotPackage.deb)
+
+[SQLAlchemy Session Docs](http://docs.sqlalchemy.org/en/latest/orm/session.html)
