@@ -120,7 +120,7 @@ class Plugin:
         try:
             while True:  # may need to create a flag
                 raw_input = passed_socket.recv(1)
-                byte = ord(byte)
+                byte = ord(raw_input)
                 if byte != 255:
                     continue
                 else:
@@ -173,14 +173,11 @@ class Plugin:
             logging.info('sent information')
             feature = json.dumps(feature)
         except RuntimeError:
-<<<<<<< HEAD
             feature = " "
-        return feature
-=======
+            return feature
             print "Error creating feature"
         feature_string = json.dumps(feature)
         return feature_string
->>>>>>> 0ff3f2eb6d6d53233a4f59fe668901baa5257a80
 
     def get_description(self):
         return self.info
