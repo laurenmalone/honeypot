@@ -35,19 +35,19 @@ To write to db and use visual tool, Plugin class must have the following:
 	 - define primary key
 	 - include ip_address column
 	 - include time column
-	 - include feature column (puts a point on the map)
+	 - include feature column (point on the map)
 	 - ex: 
 
-	 `    class Http(Base):
-		__tablename__ = "http"
-	    id = Column(Integer, primary_key=True)
-	    ip_address= Column(String, nullable=False)
-        command = Column(String)
-        path = Column(String)
-        version = Column(String)
-        headers = Column(String)
-        time = Column(DateTime)
-        feature = Column(String)`
+	 `    class Http(Base):`
+		`__tablename__ = "http"`
+	    `id = Column(Integer, primary_key=True)`
+	    `ip_address= Column(String, nullable=False)`
+        `command = Column(String)`
+        `path = Column(String)`
+        `version = Column(String)`
+        `headers = Column(String)`
+        `time = Column(DateTime)`
+        `feature = Column(String)`
 
       
 
