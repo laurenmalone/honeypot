@@ -6,6 +6,11 @@ import json
 import datetime
 import logging
 import ssl
+from OpenSSL import crypto
+from ConfigParser import SafeConfigParser
+from os.path import exists, join
+import os
+from socket import SHUT_RDWR
 
 
 class Plugin(Template):
@@ -92,6 +97,38 @@ class Plugin(Template):
             }
         })
 
+    def create_cert(self, cert_file, key_file):
+
+        if os.path.isfile(cert_file) and os.path.isfile(key_file):
+            return cert_file, key_file
+
+        k = crypto.PKey()
+        k.generate_key(crypto.TYPE_RSA, 2048)
+        cert = crypto.X509()
+        cert.get_subject().C = "US"
+        cert.get_subject().ST = "CO"
+        cert.get_subject().L = "Denver"
+        cert.gmtime_adj_notBefore(0)
+        cert.gmtime_adj_notAfter(365*24*60*60)
+        cert.set_issuer(cert.get_subject())
+        cert.set_pubkey(k)
+        cert.sign(k, 'sha1')
+
+        open(join(cert_file), 'w').write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+        open(join(key_file), "w").write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
+        return cert_file, key_file
+
+
+
+    def read_config(self, config):
+        parser = SafeConfigParser()
+        parser.read(config)
+
+        cert = parser.get('https', 'cert')
+        key = parser.get('https', 'key')
+
+        return cert, key
+
     def run(self, socket, address, session):
         """Start http request handler, then call get_record and insert_record.
 
@@ -100,11 +137,16 @@ class Plugin(Template):
         param: session -- session to communicate with db
         """
 
-        socket = ssl.wrap_socket(socket, certfile='cert.pem', server_side=True)
+        config = self.read_config('honeypot.ini')
+        cert_and_key = self.create_cert(config[0], config[1])
+
+        socket = ssl.wrap_socket(socket, keyfile=cert_and_key[1], certfile=cert_and_key[0], server_side=True)
         self.time_stamp = datetime.datetime.now()
         request_handler = self.Handler(socket, address,  None, "HTTP/1.0")
         record = self.get_record(request_handler)
         self.insert_record(record, session)
+        socket.unwrap()
+        #socket.shutdown(SHUT_RDWR)
         socket.close()
 
     def insert_record(self, record, session):
@@ -152,6 +194,6 @@ class Plugin(Template):
         time = self.time_stamp
         feature = self.get_feature(address)
         record = self.Https(ip_address=address, command=command, path=path, version=version,
-                           headers=headers, time=time, feature=feature)
+                            headers=headers, time=time, feature=feature)
 
         return record

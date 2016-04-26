@@ -55,6 +55,7 @@ Ext.onReady(function () {
 	 */
 	var createAllStore = function () {
 		var allStore = Ext.create('Ext.data.Store', {
+			pageSize: 100,
 			storeId: "all",
 			fields: [{name: 'plugin', type: "string"}, 
 					 {name: 'hits', type: "integer"}
@@ -64,7 +65,8 @@ Ext.onReady(function () {
 				url: CONFIG.url + '/plugins',
 				reader: {
 					type: 'json',
-					rootProperty: 'rows'
+					rootProperty: 'rows',
+                    totalProperty: 'totalCount'
 				}
 			},
 			autoLoad: false
@@ -73,6 +75,7 @@ Ext.onReady(function () {
 	};
 	
 	/**
+	 * This method creates a store to hold informaiton about the 
 	 */
 	var setupPluginStores = function () {
 		var me = this;
@@ -111,6 +114,7 @@ Ext.onReady(function () {
 			center_panel.grid_details_panel.grid_panel.setStoreColumns([{name: 'table', type: "string"},{name: "count", type: "integer"}], 'all');
 			allStore.load(function(){
 				createPieStore();
+				createLineGraphStores(); 
 			});
 			Ext.get('loading').remove();
 			Ext.get('loading-mask').fadeOut({
@@ -126,13 +130,15 @@ Ext.onReady(function () {
 	var createPluginStore = function (plugin) {
 		plugin.data.fields = (plugin.data.orm) ? JSON.parse(plugin.data.orm) : "";
 		singlePluginStore = Ext.create('Ext.data.Store', {
+			pageSize: 100,
 			storeId: plugin.data.value,
 			proxy: {
 				type: 'jsonp',
 				url: CONFIG.url + "/plugins/" + plugin.data.value + "",
 				reader: {
 					type: 'json',
-					rootProperty: 'rows'
+					rootProperty: 'rows',
+                    totalProperty: 'totalCount'
 				},
 				listeners: {
 					exception: function(proxy, response, operation) {
@@ -150,17 +156,9 @@ Ext.onReady(function () {
 					}
 				}
 			},
-			autoLoad: false
+			autoLoad: true
 		});
 		pluginsArray.push(singlePluginStore);
-		singlePluginStore.load({scope: this, callback: function (records, operation, success){
-//                console.log("records", records, operation);
-				
-				//TODO This call should only create a single store once the data is loaded.
-				createLineGraphStores(); 
-			}
-		});
-		
 	};
 	
 	
@@ -199,10 +197,9 @@ Ext.onReady(function () {
 			center_panel.map_panel.addPluginLayerToMap(plugin.data.value);		
 		})	
 	};
-	
-	
-	//TODO This method should only create a single store once the data is loaded.
 	/**
+	 * This method creates all the stores needed for the analytics Line graph. 
+	 * It uses the 'all' store to lookup what plugins need to be loaded.
 	 */
 	function createLineGraphStores() {
 		var allLineGraphStore = Ext.create('Ext.data.Store', {
@@ -212,35 +209,69 @@ Ext.onReady(function () {
 									});
 		var dataAll = [{day: "Sunday", data1: 0},{day: "Monday", data1: 0},{day: "Tuesday", data1: 0},{day: "Wednesday", data1: 0},
 						{day: "Thursday", data1: 0},{day: "Friday", data1: 0},{day: "Saturday", data1: 0}];
-		var maxPlus = 0;
+		var yGraphRange = 0;
+		var pluginCount = 0;
 		Ext.getStore('all').each(function (pluginItem){
+			pluginCount++;
 			var lineGraphStore = Ext.create('Ext.data.Store', {
 										storeId: pluginItem.data.table + "LineGraphStore",
 										fields: [{name: 'day', type: "string"}, 
-												 {name: 'data1', type: "int"}]
+												 {name: 'data1', type: "int"}],
+										proxy: {
+											type: 'jsonp',
+											url: CONFIG.url + '/plugins/' + pluginItem.data.table + "/weekdata",
+											reader: {
+												type: 'json',
+												rootProperty: 'rows'
+											}
+										},
+										autoLoad: false
 									});
-			var data = [{day: "Sunday", data1: 0},{day: "Monday", data1: 0},{day: "Tuesday", data1: 0},{day: "Wednesday", data1: 0},
-						{day: "Thursday", data1: 0},{day: "Friday", data1: 0},{day: "Saturday", data1: 0}]; 
-			Ext.getStore(pluginItem.data.table).each(function (eachItem){
-				
-				if(pluginItem.data.table === "http"){
-					var timeStamp = new Date(eachItem.data.time);	
-				}else{
-					var timeStamp = new Date(eachItem.data.time_stamp); 
-				}
-				data[timeStamp.getDay()].data1++;
-				dataAll[timeStamp.getDay()].data1++;
-			}, this);	
-			lineGraphStore.loadRawData(data, false);
+				lineGraphStore.load(function (items) {
+					pluginCount--;
+					lineGraphStore.each(function (item) {
+						switch(item.data.day){
+							case "Sunday":
+								dataAll[0].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[0].data1) ? dataAll[0].data1 : yGraphRange;
+								break;
+							case "Monday":
+								dataAll[1].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[1].data1) ? dataAll[1].data1 : yGraphRange;
+								break;
+							case "Tuesday":
+								dataAll[2].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[2].data1) ? dataAll[2].data1 : yGraphRange;
+								break;
+							case "Wednesday":
+								dataAll[3].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[3].data1) ? dataAll[3].data1 : yGraphRange;
+								break;
+							case "Thursday":
+								dataAll[4].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[4].data1) ? dataAll[4].data1 : yGraphRange;
+								break;
+							case "Friday":
+								dataAll[5].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[5].data1) ? dataAll[5].data1 : yGraphRange;
+								break;
+							case "Saturday":
+								dataAll[6].data1 += item.data.data1;
+								yGraphRange = (yGraphRange < dataAll[6].data1) ? dataAll[6].data1 : yGraphRange;
+								break;
+							default:
+								console.log("DATA ERROR IN LINE GRAPH DATA");
+						}
+					});
+					if(pluginCount === 0){
+						allLineGraphStore.loadRawData(dataAll, false);
+						Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(yGraphRange * 1.33);
+						Ext.ComponentQuery.query('#lineGraph')[0].bindStore(allLineGraphStore);	
+					}	
+			});
 		}, this);
-		dataAll.forEach(function (item) {
-			maxPlus = (maxPlus < item.data1) ? item.data1 : maxPlus;
-		});
-		maxPlus = maxPlus * 1.33;
-		allLineGraphStore.loadRawData(dataAll, false);
-		Ext.ComponentQuery.query('#lineGraph')[0].getAxes()[0].setMaximum(maxPlus);
-		Ext.ComponentQuery.query('#lineGraph')[0].bindStore(allLineGraphStore);    
-	};
+	 	
+    };
 	
 	
 	/**
@@ -291,7 +322,8 @@ Ext.onReady(function () {
 		
 	center_panel.down("#pluginComboTable").on('select', function(combo, records, eOpts){
 		center_panel.grid_details_panel.grid_panel.setStoreColumns(records.data.fields.table.column, records.data.value);
-//        console.log("");
+		var store = Ext.getStore(records.data.value);
+		Ext.ComponentQuery.query('#pageBar')[0].bindStore(store);
 	});
 	
 	center_panel.down("#pluginComboAnalytics").on('select', function(combo, records, eOpts){
@@ -335,13 +367,11 @@ Ext.onReady(function () {
 	});
 	
 	center_panel.down("#pluginCombo").on('select', function(combo, records, eOpts){
-//        console.log("records", records);
 		center_panel.map_panel.displaySelectedPluginLayer(records.data.value);
 	});
 	
 	
 	center_panel.getLayout().setActiveItem(0);
-//    west_menu.getLayout().setActiveItem(0);
 	Ext.create('Ext.Viewport', {
 		title: 'Honey Pot',
 		layout: 'border',

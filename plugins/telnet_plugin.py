@@ -56,14 +56,11 @@ class Plugin:
         
         self.time_stamp = datetime.datetime.now()
         logging.info(self.time_stamp)
-        # passed_socket.recv(2048, flags=socket.MSG_TRUNC)
         passed_socket.settimeout(35)
         if socket:
             self.negotiate(passed_socket)
             passed_socket.sendall("login as: ")
             try:
-                # data = passed_socket.recv(4096)
-                # if(data in '\\xff' || '\\xfb' || '\\x1f' || '\\x18' || '\\x01' || '\\x03' || '\\xfd' || '\\xfe' || '\\xfc')
                 username = passed_socket.recv(4096)
                 username.strip()
                 logging.info('Login information obtained')
@@ -156,6 +153,7 @@ class Plugin:
         return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
 
     def convert_to_geojson_feature(self, ip_record):
+        feature_string = ""
         try:
             feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
             feature["properties"] = {
@@ -175,8 +173,14 @@ class Plugin:
             logging.info('sent information')
             feature = json.dumps(feature)
         except RuntimeError:
+<<<<<<< HEAD
             feature = " "
         return feature
+=======
+            print "Error creating feature"
+        feature_string = json.dumps(feature)
+        return feature_string
+>>>>>>> 0ff3f2eb6d6d53233a4f59fe668901baa5257a80
 
     def get_description(self):
         return self.info

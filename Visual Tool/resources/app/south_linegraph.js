@@ -76,7 +76,7 @@ Ext.define("south_linegraph",{
             dismissDelay: 0,
             hideDelay: 0,
             renderer: function(tooltip, storeItem, item) {
-                tooltip.setHtml(storeItem.get('month') + ': ' + storeItem.get('data1') + '%');
+                tooltip.setHtml(storeItem.get('day') + ': ' + storeItem.get('data1'));
             }
         }
     }]
