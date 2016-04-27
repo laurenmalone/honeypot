@@ -120,19 +120,15 @@ class Plugin:
         # 252 is 'will not'
         try:
             while True:  # may need to create a flag
-                raw_input = passed_socket.recv(1)
-                byte = ord(raw_input)
-                if byte != 255:
+                if ord(passed_socket.recv(1)) != 255:
                     continue
                 else:
-                    verb = passed_socket.recv(1)
+                    verb = ord(passed_socket.recv(1))
                     if verb != 251 & verb != 253:
                         continue
                     else:
                         option = passed_socket.recv(1)
-                        passed_socket.sendall(chr(255))
-                        passed_socket.sendall(chr(252))
-                        passed_socket.sendall(chr(option))
+                        passed_socket.sendall(chr(255) + chr(252) + option)
         except socket.timeout:
             passed_socket.sendall("\n")
             return
