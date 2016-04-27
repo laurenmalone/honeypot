@@ -56,9 +56,10 @@ class Plugin:
         
         self.time_stamp = datetime.datetime.now()
         logging.info(self.time_stamp)
-        passed_socket.settimeout(35)
-        if socket:
+        if passed_socket:
+            passed_socket.settimeout(4)
             self.negotiate(passed_socket)
+            passed_socket.settimeout(35)
             passed_socket.sendall("login as: ")
             try:
                 username = passed_socket.recv(4096)
@@ -119,20 +120,16 @@ class Plugin:
         # 252 is 'will not'
         try:
             while True:  # may need to create a flag
-                raw_input = passed_socket.recv(1)
-                byte = ord(raw_input)
-                if byte != 255:
+                if ord(passed_socket.recv(1)) != 255:
                     continue
                 else:
-                    verb = passed_socket.recv(1)
+                    verb = ord(passed_socket.recv(1))
                     if verb != 251 & verb != 253:
                         continue
                     else:
                         option = passed_socket.recv(1)
-                        passed_socket.sendall(255, 252, option)
-        except TypeError:
-            print 'not valid type'
-            passed_socket.sendall("\n")
+                        passed_socket.sendall(chr(255) + chr(252) + option)
+        except socket.timeout:
             return
 
     def get_port(self):
