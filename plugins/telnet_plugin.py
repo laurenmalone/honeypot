@@ -133,6 +133,7 @@ class Plugin:
                         passed_socket.sendall(255, 252, option)
         except socket.timeout:
             passed_socket.sendall("\n")
+            passed_socket.settimeout(35)
             return
 
     def get_port(self):
