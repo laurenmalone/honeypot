@@ -55,10 +55,10 @@ Ext.onReady(function () {
 	 */
 	var createAllStore = function () {
 		var allStore = Ext.create('Ext.data.Store', {
-			pageSize: 100,
+			pageSize: this.CONFIG.myPageCountChoice,
 			storeId: "all",
-			fields: [{name: 'plugin', type: "string"}, 
-					 {name: 'hits', type: "integer"}
+			fields: [{name: 'table', type: "string"}, 
+					 {name: 'count', type: "integer"}
 					 ],
 			proxy: {
 				type: 'jsonp',
@@ -91,9 +91,7 @@ Ext.onReady(function () {
 			pluginComboAna.bindStore(pluginsStore);
 			pluginComboAna.setValue('All');
 			var allStore = createAllStore();
-//            center_panel.grid_panel.setStoreColumns(["plugin", 'hits'], 'all');
 			me.pluginsStore.each(function(item){
-//                console.log("store item", item);
 				createPluginStore(item);
 				loadFeatureStores(item);
 			});
@@ -130,7 +128,7 @@ Ext.onReady(function () {
 	var createPluginStore = function (plugin) {
 		plugin.data.fields = (plugin.data.orm) ? JSON.parse(plugin.data.orm) : "";
 		singlePluginStore = Ext.create('Ext.data.Store', {
-			pageSize: 100,
+			pageSize: this.CONFIG.myPageCountChoice,
 			storeId: plugin.data.value,
 			proxy: {
 				type: 'jsonp',
