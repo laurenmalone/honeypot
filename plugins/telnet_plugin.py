@@ -56,9 +56,10 @@ class Plugin:
         
         self.time_stamp = datetime.datetime.now()
         logging.info(self.time_stamp)
-        passed_socket.settimeout(35)
-        if socket:
+        if passed_socket:
+            passed_socket.settimeout(4)
             self.negotiate(passed_socket)
+            passed_socket.settimeout(35)
             passed_socket.sendall("login as: ")
             try:
                 username = passed_socket.recv(4096)
@@ -117,7 +118,6 @@ class Plugin:
         # once negotiations end, begin to read information
         # while loop for negotiations
         # 252 is 'will not'
-        passed_socket.settimeout(4)
         try:
             while True:  # may need to create a flag
                 raw_input = passed_socket.recv(1)
@@ -133,7 +133,6 @@ class Plugin:
                         passed_socket.sendall(255, 252, option)
         except socket.timeout:
             passed_socket.sendall("\n")
-            passed_socket.settimeout(35)
             return
 
     def get_port(self):
