@@ -130,7 +130,6 @@ class Plugin:
                         option = passed_socket.recv(1)
                         passed_socket.sendall(chr(255) + chr(252) + option)
         except socket.timeout:
-            passed_socket.sendall("\n")
             return
 
     def get_port(self):
