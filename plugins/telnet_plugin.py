@@ -117,6 +117,7 @@ class Plugin:
         # once negotiations end, begin to read information
         # while loop for negotiations
         # 252 is 'will not'
+        passed_socket.settimeout(4)
         try:
             while True:  # may need to create a flag
                 raw_input = passed_socket.recv(1)
@@ -130,8 +131,7 @@ class Plugin:
                     else:
                         option = passed_socket.recv(1)
                         passed_socket.sendall(255, 252, option)
-        except TypeError:
-            print 'not valid type'
+        except socket.timeout:
             passed_socket.sendall("\n")
             return
 
