@@ -130,7 +130,9 @@ class Plugin:
                         continue
                     else:
                         option = passed_socket.recv(1)
-                        passed_socket.sendall(255, 252, option)
+                        passed_socket.sendall(chr(255))
+                        passed_socket.sendall(chr(252))
+                        passed_socket.sendall(chr(option))
         except socket.timeout:
             passed_socket.sendall("\n")
             return
