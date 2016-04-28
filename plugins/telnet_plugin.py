@@ -1,26 +1,28 @@
 from sqlalchemy import Column, Integer, String, DateTime
+from plugin_template import Template
 from base import Base
 from string import join
-import GeoIP
-import geojson
 import socket
 import json
-import datetime
 import logging
 
 
-class Plugin:
-    
+class Plugin(Template):
+    """Listens on Telnet Plugin for client-server responses. Adds data to database.
+
+    Inherit Template from plugin_template.py
+    """
+
+
     def __init__(self):
+        Template.__init__(self)
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-        # print "Module Loaded and waiting on run() command"
-        self.geo_ip = None
+        self.value = "telnet"
+        self.display = "Telnet"
         self.PORT = 23
-        self.geoIp_feature_json_string = None
-        self.giDB = GeoIP.open("./GeoLiteCity.dat", GeoIP.GEOIP_INDEX_CACHE | GeoIP.GEOIP_CHECK_CACHE)
-        self.info = ("This plugin uses the telnet port to listen for attackers. "
-                     "It allows a user to login and then record upto 5 commands from the user"
-                     " and stores the information in a sql database.")
+        self.description = ("This plugin uses the telnet port to listen for attackers. "
+                            "It allows a user to login and then record upto 5 commands from the user"
+                            " and stores the information in a sql database.")
         self.ORM = json.dumps({
             "table": {
                 "table_name": "telnet",
@@ -35,10 +37,6 @@ class Plugin:
             }
         })
 
-        self.time_stamp = ''
-        self.value = "telnet"
-        self.display = "Telnet"
-
     class Telnet(Base):
         __tablename__ = "telnet"
         id = Column(Integer, primary_key=True)
@@ -49,12 +47,8 @@ class Plugin:
         ip_address = Column(String)
         time_stamp = Column(DateTime)
 
-    def get_display(self):
-        return self.display
-
     def run(self, passed_socket, address, session):
-        
-        self.time_stamp = datetime.datetime.now()
+
         logging.info(self.time_stamp)
         if passed_socket:
             passed_socket.settimeout(4)
@@ -66,7 +60,6 @@ class Plugin:
                 username.strip()
                 logging.info('Login information obtained')
             except socket.timeout:
-                print 'timeout error'
                 passed_socket.sendall('timeout error')
                 username = 'invalid input'
                 logging.error('invalid input error')
@@ -78,9 +71,9 @@ class Plugin:
                 password = passed_socket.recv(64)
                 password.strip()
             except socket.timeout:
-                print 'timeout error'
                 password = 'timeout error'
                 passed_socket.sendall("\n")
+                logging.error('timeout error')
 
             commands = []
             for _ in range(5):
@@ -91,9 +84,9 @@ class Plugin:
                     command.strip()
                     commands.append(command)
                 except socket.timeout:
-                    print 'timeout error'
                     commands.append('timeout error')
                     passed_socket.sendall("\n")
+                    logging.error('timeout error')
 
             passed_socket.close()
             logging.info('socket closed ')
@@ -108,7 +101,6 @@ class Plugin:
             session.commit()
             session.close()
         else:
-            print "socket error"
             logging.error('socket error occurred')
 
 
@@ -116,8 +108,6 @@ class Plugin:
         # read in a initial negotiation byte make sure it's the start
         # read next byte, etc. Send corresponding negotiations in loop
         # once negotiations end, begin to read information
-        # while loop for negotiations
-        # 252 is 'will not'
         try:
             while True:  # may need to create a flag
                 if ord(passed_socket.recv(1)) != 255:
@@ -131,52 +121,3 @@ class Plugin:
                         passed_socket.sendall(chr(255) + chr(252) + option)
         except socket.timeout:
             return
-
-    def get_port(self):
-        return self.PORT
-
-    def get_orm(self):
-        return self.ORM
-
-    def get_record_from_geoip(self, ip_address):
-        # print "ip_address", ip_address
-        # the IP Address is hard coded for testing. Need to add
-        # TODO
-        record = self.giDB.record_by_name(ip_address)
-        # print "record", record
-        return record
-
-    def convert_to_geojson_point(self, ip_record):
-        return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
-
-    def convert_to_geojson_feature(self, ip_record):
-        feature_string = ""
-        try:
-            feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
-            feature["properties"] = {
-                "city": ip_record["city"],
-                "region_name": ip_record["region_name"],
-                "reg@on": ip_record["region"],
-                "area_code": ip_record["area_code"],
-                "time_zone": ip_record["time_zone"],
-                "metro_code": ip_record["metro_code"],
-                "country_code3": ip_record["country_code3"],
-                "postal_code": ip_record["postal_code"],
-                "dma_code": ip_record["dma_code"],
-                "country_code": ip_record["country_code"],
-                "country_name": ip_record["country_name"],
-                "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
-            }
-            logging.info('sent information')
-            feature_string = json.dumps(feature)
-        except RuntimeError:
-            feature = " "
-            return feature
-            print "Error creating feature"
-        return feature_string
-
-    def get_description(self):
-        return self.info
-
-    def get_value(self):
-        return self.value
