@@ -9,11 +9,11 @@ import datetime
 
 
 class Plugin(Template):
-    """Listens on Telnet Plugin for client-server responses. Adds data to database.
+    """ Listens on Telnet Plugin for client-server responses. Adds data to database.
 
-    Inherit Template from plugin_template.py
+    Inherit Template from plugin_template.py --convert_to_geojson_feature,
+    display, description, orm, port
     """
-
 
     def __init__(self):
         Template.__init__(self)
@@ -49,7 +49,16 @@ class Plugin(Template):
         time_stamp = Column(DateTime)
 
     def run(self, passed_socket, address, session):
+        """ Sets a 35 sec. timeout. Listens for a username, password,
+            and commands from a user for attack. Converts geoIP addresses for record.
+            Records and sends to DB.
 
+        :param passed_socket: connection to client
+        :param address: client address
+        :param session: session for DB communication
+        :return: record with the geoIP conversions
+        Raises exception if timeout occurs.
+        """
         logging.info(self.time_stamp)
         if passed_socket:
             passed_socket.settimeout(4)
@@ -106,6 +115,12 @@ class Plugin(Template):
 
 
     def negotiate(self, passed_socket):
+        """ This attempts to overpass the negotiation that Telnet sends
+            to begin communication
+
+        :param passed_socket: connection with client
+        :return: back to run, passed socket for further communication
+        """
         # read in a initial negotiation byte make sure it's the start
         # read next byte, etc. Send corresponding negotiations in loop
         # once negotiations end, begin to read information
