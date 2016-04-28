@@ -42,6 +42,7 @@ class Plugin(Template):
     def run(self, socket, address, session):
         """Start http request handler, then call get_record and insert_record.
 
+        overrides Template.run(self, socket, address, session)
         param: socket -- connection to client
         param: address -- client address
         param: session -- session to communicate with db
