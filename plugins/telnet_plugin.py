@@ -5,6 +5,7 @@ from string import join
 import socket
 import json
 import logging
+import datetime
 
 
 class Plugin(Template):
@@ -58,11 +59,11 @@ class Plugin(Template):
             try:
                 username = passed_socket.recv(4096)
                 username.strip()
-                logging.info('Login information obtained')
+                logging.info(str(datetime.datetime.now()) + ': Login information obtained')
             except socket.timeout:
                 passed_socket.sendall('timeout error')
                 username = 'invalid input'
-                logging.error('invalid input error')
+                logging.error(str(datetime.datetime.now()) + ': invalid input error')
                 passed_socket.sendall("\n")
                 # login string as shell script style
             login_string = username + "@73.78.8.177's " + "password: "
@@ -73,7 +74,7 @@ class Plugin(Template):
             except socket.timeout:
                 password = 'timeout error'
                 passed_socket.sendall("\n")
-                logging.error('timeout error')
+                logging.error(str(datetime.datetime.now()) + ': timeout error')
 
             commands = []
             for _ in range(5):
@@ -84,9 +85,9 @@ class Plugin(Template):
                     command.strip()
                     commands.append(command)
                 except socket.timeout:
-                    commands.append('timeout error')
+                    commands.append(str(datetime.datetime.now()) + ': timeout error')
                     passed_socket.sendall("\n")
-                    logging.error('timeout error')
+                    logging.error(str(datetime.datetime.now()) + ': timeout error')
 
             passed_socket.close()
             logging.info('socket closed ')
@@ -101,7 +102,7 @@ class Plugin(Template):
             session.commit()
             session.close()
         else:
-            logging.error('socket error occurred')
+            logging.error(str(datetime.datetime.now()) + ': socket error occurred')
 
 
     def negotiate(self, passed_socket):
