@@ -14,58 +14,6 @@ class Plugin(Template):
     run(socket, address, session) called by PluginManager
     """
 
-    class Http(Base):
-        """Represent http table in db.
-
-        Inherit declarative base class from base.py
-        """
-        __tablename__ = "http"
-        id = Column(Integer, primary_key=True)
-        ip_address= Column(String, nullable=False)
-        command = Column(String)
-        path = Column(String)
-        version = Column(String)
-        headers = Column(String)
-        time = Column(DateTime)
-        feature = Column(String)
-
-    class Handler(BaseHTTPRequestHandler):
-        """Http request handler.
-
-        Inherit Base HTTPRequestHandler from BaseHTTPServer.
-        Handle() is automatically called, which parses request and sends an error
-        msg if appropriate. do_command() methods send an http 400 response and are
-        automatically called in handle().
-        """
-
-        def __init__(self, socket, address, server, version):
-            BaseHTTPRequestHandler.__init__(self, socket, address, server)
-            self.protocol_version = version
-
-        def do_GET(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_POST(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_OPTIONS(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_HEAD(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_PUT(self):
-             self.send_error(400, 'Bad Request')
-
-        def do_DELETE(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_TRACE(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_CONNECT(self):
-            self.send_error(400, 'Bad Request')
-
     def __init__(self):
         Template.__init__(self)
         self.value = "http"
@@ -118,7 +66,6 @@ class Plugin(Template):
             session.close()
             return True
         except:
-
             logging.exception("http record cannot be added to db " ":Time: " + str(datetime.datetime.now()))
             return False
 
@@ -152,3 +99,55 @@ class Plugin(Template):
                            headers=headers, time=time, feature=feature)
 
         return record
+
+    class Http(Base):
+        """Represent http table in db.
+
+        Inherit declarative base class from base.py
+        """
+        __tablename__ = "http"
+        id = Column(Integer, primary_key=True)
+        ip_address= Column(String, nullable=False)
+        command = Column(String)
+        path = Column(String)
+        version = Column(String)
+        headers = Column(String)
+        time = Column(DateTime)
+        feature = Column(String)
+
+    class Handler(BaseHTTPRequestHandler):
+        """Http request handler.
+
+        Inherit Base HTTPRequestHandler from BaseHTTPServer.
+        handle() is automatically called, which parses request and sends an error
+        msg if appropriate. do_command() methods send an http 400 response and are
+        automatically called in handle().
+        """
+
+        def __init__(self, socket, address, server, version):
+            BaseHTTPRequestHandler.__init__(self, socket, address, server)
+            self.protocol_version = version
+
+        def do_GET(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_POST(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_OPTIONS(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_HEAD(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_PUT(self):
+             self.send_error(400, 'Bad Request')
+
+        def do_DELETE(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_TRACE(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_CONNECT(self):
+            self.send_error(400, 'Bad Request')
