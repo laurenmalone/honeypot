@@ -8,8 +8,17 @@ Honeypot
 Python honeypot framework with plugin API
 
 **Installing honeypot**
+You'll need a few things to get you started before you can use honeypot.
+Run the following commands:
+`dpkg -i HoneyPotPackage.deb`
+`cd /HP_Install/`
+`bash setup.sh`
+Setup Authbind (see Setting up Authbind)
+Return to honeypot directory and run start.sh
+Your honeypot is running!
 
-**Starting honeypot**
+
+**Setting up Authbind**
 
 Authbind must be installed to allow plugins to bind to well-known ports without running as root. To set up authbind, create the file /etc/authbind/byuid/<uid>, where <uid> is the uid of the user that will run the honeypot (can be obtained with id -u <username>, substituting the actual user name). The file should contain the line 0.0.0.0/32:1,1023 to allow binding to any well-known port (anything in the range 1-1023, inclusive). Start the honeypot by running ./start.sh, which will use authbind.
 
