@@ -22,60 +22,6 @@ class Plugin(Template):
     run(socket, address, session) called by PluginManager
     """
 
-    class Https(Base):
-        """Represent http table in db.
-
-        Inherit declarative base class from base.py
-        """
-        __tablename__ = "https"
-        id = Column(Integer, primary_key=True)
-        ip_address= Column(String, nullable=False)
-        command = Column(String)
-        path = Column(String)
-        version = Column(String)
-        headers = Column(String)
-        time = Column(DateTime)
-        feature = Column(String)
-
-    class Handler(BaseHTTPRequestHandler):
-        """Http request handler.
-
-        Inherit Base HTTPRequestHandler from BaseHTTPServer.
-        Handle() is automatically called, which parses request and sends an error
-        msg if appropriate. do_command() methods send an http 400 response and are
-        automatically called in handle().
-        """
-
-        def __init__(self, socket, address, server, version):
-            BaseHTTPRequestHandler.__init__(self, socket, address, server)
-            self.protocol_version = version
-
-
-
-        def do_GET(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_POST(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_OPTIONS(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_HEAD(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_PUT(self):
-             self.send_error(400, 'Bad Request')
-
-        def do_DELETE(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_TRACE(self):
-            self.send_error(400, 'Bad Request')
-
-        def do_CONNECT(self):
-            self.send_error(400, 'Bad Request')
-
     def __init__(self):
         Template.__init__(self)
         self.value = "https"
@@ -102,7 +48,8 @@ class Plugin(Template):
         })
 
     def create_cert(self, cert_file, key_file):
-
+        """Generate self signed cert for ssl connection
+        """
         if os.path.isfile(cert_file) and os.path.isfile(key_file):
             return cert_file, key_file
 
@@ -112,14 +59,10 @@ class Plugin(Template):
         cert.get_subject().C = "US"
         cert.get_subject().ST = "CO"
         cert.get_subject().L = "Denver"
-        name = gethostname()
-        cert.get_subject().CN = 'www.'+name+'.com'
-        #cert.get_subject().CN = gethostname()
-        #cert.get_subject().CN = 'localhost'
-        #cert.get_subject().CN = "73.78.8.177"
+        cert.get_subject().CN = gethostname()
         cert.get_subject().O = "Metropolitan State University of Denver"
         cert.get_subject().OU = "Computer Science"
-        cert.set_serial_number(5)
+        cert.set_serial_number(6)
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(365*24*60*60)
         cert.set_issuer(cert.get_subject())
@@ -130,9 +73,9 @@ class Plugin(Template):
         open(join(key_file), "w").write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
         return cert_file, key_file
 
-
-
     def read_config(self, config):
+        """Get file names for cert and private key
+        """
         parser = SafeConfigParser()
         parser.read(config)
 
@@ -144,6 +87,7 @@ class Plugin(Template):
     def run(self, socket, address, session):
         """Start http request handler, then call get_record and insert_record.
 
+        overrides Template.run(self, socket, address, session)
         param: socket -- connection to client
         param: address -- client address
         param: session -- session to communicate with db
@@ -169,7 +113,7 @@ class Plugin(Template):
                 socket.close()
 
     def insert_record(self, record, session):
-        """Insert item into http table
+        """Insert item into https table
 
         param: record -- record being added
         session: session to communicate with db
@@ -216,3 +160,55 @@ class Plugin(Template):
                             headers=headers, time=time, feature=feature)
 
         return record
+
+    class Https(Base):
+        """Represent https table in db.
+
+        Inherit declarative base class from base.py
+        """
+        __tablename__ = "https"
+        id = Column(Integer, primary_key=True)
+        ip_address= Column(String, nullable=False)
+        command = Column(String)
+        path = Column(String)
+        version = Column(String)
+        headers = Column(String)
+        time = Column(DateTime)
+        feature = Column(String)
+
+    class Handler(BaseHTTPRequestHandler):
+        """Http request handler.
+
+        Inherit Base HTTPRequestHandler from BaseHTTPServer.
+        Handle() is automatically called, which parses request and sends an error
+        msg if appropriate. do_command() methods send an http 400 response and are
+        automatically called in handle().
+        """
+
+        def __init__(self, socket, address, server, version):
+            BaseHTTPRequestHandler.__init__(self, socket, address, server)
+            self.protocol_version = version
+
+        def do_GET(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_POST(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_OPTIONS(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_HEAD(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_PUT(self):
+             self.send_error(400, 'Bad Request')
+
+        def do_DELETE(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_TRACE(self):
+            self.send_error(400, 'Bad Request')
+
+        def do_CONNECT(self):
+            self.send_error(400, 'Bad Request')

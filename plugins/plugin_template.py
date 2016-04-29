@@ -5,6 +5,11 @@ import datetime
 
 
 class Template(object):
+    """Can be inherited to write a new plugin.
+
+    Has most data/functionality for using visual tool and writing to db.
+    Just override run method.
+    """
 
     def __init__(self):
         self.geo_ip = None
@@ -16,6 +21,9 @@ class Template(object):
         self.value = None
         self.display = None
         self.time_stamp = datetime.datetime.now()
+
+    def run(self, socket, address, session):
+        pass
 
     def get_port(self):
         return self.PORT
@@ -68,6 +76,3 @@ class Template(object):
             return self.convert_to_geojson_feature(record)
         else:
             return None
-
-
-
