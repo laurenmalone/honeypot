@@ -10,11 +10,11 @@ Python honeypot framework with plugin API
 **Installing honeypot**
 You'll need a few things to get you started before you can use honeypot.
 Run the following commands:
-`dpkg -i HoneyPotPackage.deb`
-`cd /HP_Install/`
-`bash setup.sh`
-Setup Authbind (see Setting up Authbind)
-Return to honeypot directory and run start.sh
+`dpkg -i HoneyPotPackage.deb` 
+`cd /HP_Install/` 
+`bash setup.sh` 
+Setup Authbind (see Setting up Authbind). 
+Return to honeypot directory and run start.sh. 
 Your honeypot is running!
 
 
