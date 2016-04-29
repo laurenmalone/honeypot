@@ -61,8 +61,6 @@ class Plugin(Template):
         """
         logging.info(self.time_stamp)
         if passed_socket:
-            passed_socket.settimeout(4)
-            self.negotiate(passed_socket)
             passed_socket.settimeout(35)
             passed_socket.sendall("login as: ")
             try:
@@ -112,28 +110,3 @@ class Plugin(Template):
             session.close()
         else:
             logging.error(str(datetime.datetime.now()) + ': socket error occurred')
-
-
-    def negotiate(self, passed_socket):
-        """ This attempts to overpass the negotiation that Telnet sends
-            to begin communication
-
-        :param passed_socket: connection with client
-        :return: back to run, passed socket for further communication
-        """
-        # read in a initial negotiation byte make sure it's the start
-        # read next byte, etc. Send corresponding negotiations in loop
-        # once negotiations end, begin to read information
-        try:
-            while True:  # may need to create a flag
-                if ord(passed_socket.recv(1)) != 255:
-                    continue
-                else:
-                    verb = ord(passed_socket.recv(1))
-                    if verb != 251 & verb != 253:
-                        continue
-                    else:
-                        option = passed_socket.recv(1)
-                        passed_socket.sendall(chr(255) + chr(252) + option)
-        except socket.timeout:
-            return
