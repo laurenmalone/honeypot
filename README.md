@@ -8,6 +8,7 @@ Honeypot
 Python honeypot framework with plugin API
 
 **Installing honeypot**
+
 You'll need a few things to get you started before you can use honeypot.
 Run the following commands:
 `dpkg -i HoneyPotPackage.deb` 
@@ -61,6 +62,7 @@ To write to db and use visual tool, Plugin class must have the following:
 
 
 **Configuring your honeypot**
+
 You can edit honeypot.ini to configure your honeypot. honeypot.ini has several sections that correlate with specific files in the program. The section titles are surrounded with brackets. [honeypot] specifies paths of the database, plugins directory, log file, and also a list ports that the user wants to listen on. [https] specifies names of certificate and private key files for ssl connection. If an item is not specified in its section, data specified in [default] will be used.
 
 [Project Plan](https://docs.google.com/document/d/1NPZYz_Gn41zKydzIijU4lbnletNN57zfZNM8AaEY_ZQ/edit?usp=sharing)
