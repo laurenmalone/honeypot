@@ -7,8 +7,7 @@ Ext.define("center_panel",{
 		this.map_panel = Ext.create("mapPanel");
         this.grid_details_panel = Ext.create("grid_details_panel");
         this.analytics_panel = Ext.create("analytics_panel");
-        
-		Ext.apply(this, {
+        Ext.apply(this, {
 			items:[this.map_panel, this.grid_details_panel, this.analytics_panel]
 			});
 		this.callParent();

@@ -20,4 +20,3 @@ var feature = {
     };
 
 var stringify = JSON.stringify(feature);
-console.log("Feature String", stringify);

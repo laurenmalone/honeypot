@@ -1,6 +1,4 @@
 Ext.onReady(function () {
-	//url: './resources/app/jsons/testFeature.json'
-	
 	west_menu = Ext.create("menu_panel",{
 		listeners: {
 			afterrender: function (){
@@ -11,9 +9,6 @@ Ext.onReady(function () {
 	center_panel = Ext.create("center_panel");
 	this.pluginsArray = [];
 	pluginsStore = {};
-	
-	
-
 	var loadPlugins = function () {
 		pluginsStore = Ext.create('Ext.data.Store', {
 			storeId: "plugins",
@@ -30,9 +25,7 @@ Ext.onReady(function () {
 				},
 				listeners: {
 					exception: function(proxy, response, operation) {
-						
 						var message = "There was an error connecting to the Honey Pot Http server</br> @" + CONFIG.url
-//                        console.log("loading error", operation);
 						Ext.create('widget.uxNotification', {
 											title: 'Error Connecting to Server',
 											position: 't',
@@ -49,9 +42,10 @@ Ext.onReady(function () {
 		});
 		return pluginsStore;
 	};
-	
-	
 	/**
+	 * This method creates a data store to hold the data for the overall 
+	 * plugin table.  
+	 * 
 	 */
 	var createAllStore = function () {
 		var allStore = Ext.create('Ext.data.Store', {
@@ -75,7 +69,7 @@ Ext.onReady(function () {
 	};
 	
 	/**
-	 * This method creates a store to hold informaiton about the 
+	 * This method creates a store to hold informaiton about the available plugins.
 	 */
 	var setupPluginStores = function () {
 		var me = this;
@@ -120,7 +114,6 @@ Ext.onReady(function () {
 			});
 		});
 	};
-	
 	/**
 	 * Create a data store for a plugin. Also calls createLineGraphStores 
 	 * @param  {string} plugin
@@ -141,7 +134,6 @@ Ext.onReady(function () {
 				listeners: {
 					exception: function(proxy, response, operation) {
 						var message = "There was an error loading data for plugin " + plugin.data.value + "</br> @URL " + CONFIG.url
-//                        console.log("loading error", operation);
 						Ext.create('widget.uxNotification', {
 											title: 'Error Connecting to Server',
 											position: 't',
@@ -158,10 +150,9 @@ Ext.onReady(function () {
 		});
 		pluginsArray.push(singlePluginStore);
 	};
-	
-	
 	/**
-	 * @param  {any} plugin
+	 * The feature store holds the data used to populate the individual plugin map layers
+	 * @param  {string} plugin
 	 */
 	function loadFeatureStores(plugin) {
 		singleFeatureStore = Ext.create('Ext.data.Store', {
@@ -176,7 +167,6 @@ Ext.onReady(function () {
 				listeners: {
 					exception: function(proxy, response, operation) {
 						var message = "There was an error loading data for plugin " + plugin.data.value + "</br> @URL " + CONFIG.url
-//                        console.log("loading error", operation);
 						Ext.create('widget.uxNotification', {
 											title: 'Error loading features',
 											position: 't',
@@ -270,23 +260,10 @@ Ext.onReady(function () {
 		}, this);
 	 	
     };
-	
-	
-	/**
-	 * @param  {any} updateTime
-	 */
-	var continuousUpdate = function (updateTime) {
-		var timer = updateTime*1000;
-		while(this.continuousFlag){
-		  setTimeout(function(){
-			
-		  }, timer);
-	  }  
-	};
-	
 	setupPluginStores();
-	
 	/**
+	 * This method creates the data store that will be used by the pie on the
+	 * analytics page.
 	 */
 	function createPieStore() {
 		var pieChartStore = Ext.create('Ext.data.Store', {
@@ -296,16 +273,11 @@ Ext.onReady(function () {
 												 ]
 									});
 		var totalCount = 0;
-		
 		Ext.getStore('all').each(function (item){
 			totalCount += item.data.count;
-			console.log("totalCount", totalCount);
 		}, this);
-		//TODO fix this duplicate call to gert all store
-		 
 		Ext.getStore('all').each(function (item){
 			var dataObject = {name: item.data.table, data1: (item.data.count / totalCount)*100};
-			console.log("dataObject", dataObject);
 			if(dataObject.data1 >= 99){
 			   dataObject.data1 = 99 
 			}else if (dataObject.data1 <= 1){
@@ -329,10 +301,6 @@ Ext.onReady(function () {
 	});
     
     center_panel.down("#map_table_button").on('change', function(segGroup, newValue, oldValue){
-//        console.log(newValue[0]);
-//        if(newValue[0] == 1){
-////            Ext.getStore('table_data_store').load();
-//        }
 		center_panel.setView(newValue[0]);
 		switch(newValue[0]){
 			case 0:
@@ -354,10 +322,8 @@ Ext.onReady(function () {
 				center_panel.down("#pluginComboTable").hide();
 				break;
 			default:
-//                console.log("ERROR");
+               	console.log("ERROR");
 		}
-//            center_panel.down("#")
-//        west_menu.setView(newValue[0]);
 	});
 	
 	center_panel.down("#baseLayerCombo").on('select', function(combo, records, eOpts){
@@ -368,15 +334,12 @@ Ext.onReady(function () {
 		center_panel.map_panel.displaySelectedPluginLayer(records.data.value);
 	});
 	
-	
 	center_panel.getLayout().setActiveItem(0);
+	
 	Ext.create('Ext.Viewport', {
 		title: 'Honey Pot',
 		layout: 'border',
 		items: [center_panel]
 
 	});
-	
-
-	
 });

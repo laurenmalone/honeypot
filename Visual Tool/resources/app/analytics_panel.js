@@ -2,19 +2,9 @@ Ext.define("analytics_panel", {
 	extend: "Ext.panel.Panel",
 	layout: "border",
 	initComponent: function () {
-		
-		var pie = Ext.create("center_piechart", {
-			listeners: {
-				afterrender: function() {
-//                    this.redraw();
-				}
-			}
-		});
+		var pie = Ext.create("center_piechart");
 		this.items = [
-			
 			pie,
-			
-			
 			Ext.create("south_linegraph", {
 			   region: 'south',
 				height: "30%",

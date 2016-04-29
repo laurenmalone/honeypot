@@ -11,11 +11,5 @@ Ext.define("analytics_options",{
         displayField: "display",
         valueFiled: "value",
         queryMode: 'local'
-    }],
-    initComponent: function (){
-		Ext.apply(this, {
-			
-			});
-		this.callParent();
-	}
+    }]
 });

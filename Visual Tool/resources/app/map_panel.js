@@ -7,13 +7,14 @@ Ext.define('mapPanel', {
             storeLayers: []
 		},
 		/**
+         * This method is called after the mapPanel is finished being renderd.
+         * It will set the base tile map and options
 		 * @param  {any} t
 		 * @param  {any} eOpts
 		 */
 		afterRender: function(t, eOpts){
 			this.callParent(arguments);
-            
-			var leafletRef = window.L;
+            var leafletRef = window.L;
 			if (leafletRef == null){
 				this.update('No leaflet library loaded');
 			} else {
@@ -32,16 +33,17 @@ Ext.define('mapPanel', {
 				}).addTo(map);
 			}
 		},
-        
         /**
-         * @param  {any} baselayerString
+         * This method changes the base map tile Layer 
+         * @param  {string} baselayerString
          */
         changeBaseLayer: function (baselayerString) {
-//            console.log("baselayer", baselayerString);
             this.baseLayer.options.mapId = baselayerString;
             this.baseLayer.redraw();
         },
         /**
+         * This method will resize the map based on the size of the container and 
+         * will adjust accordingly
          * @param  {any} w
          * @param  {any} h
          * @param  {any} oW
@@ -56,24 +58,16 @@ Ext.define('mapPanel', {
         },
         
         /**
-         * @param  {any} data
-         * @param  {any} plugin
+         * This method adds an indiviual layer to the map and then adds the name and reference in
+         * the config.storelayers array
+         * @param  {object} data
+         * @param  {string} plugin
          */
         addMapLayer: function (data, plugin) {
             var map = this.getMap();
             var features = [];
             var markerList = [];
             var markers = L.markerClusterGroup({ chunkedLoading: true});
-                
-            // data.forEach(function (item){
-            //     if(item.data && item.data.ip_address && item.data.feature){
-            //         //console.log("addmapLayer data.forEach", item);
-            //         item.data.feature.properties.ip_address = item.data.ip_address;
-            //         features.push(item.data.feature);
-            //     }
-
-                        
-            // });
             data.forEach(function (item) {
                 if(item.data && item.data.ip_address && item.data.feature){
                     var address = item.data.feature.geometry.coordinates;
@@ -88,34 +82,14 @@ Ext.define('mapPanel', {
                 }
                 
             });
-            
-            /**
-             * @param  {any} features
-             */
-//             var newLayer = L.geoJson(features, {
-//                 onEachFeature: function (feature, layer) {
-// //                    console.log("feature", feature);
-//                     var description = "";
-//                     for(i in feature.properties){
-//                         if(feature.properties[i]){
-//                             description += i + ": " + feature.properties[i] + "<br>";    
-//                         }
-                        
-//                     }
-//                     description += "plugin name: " + plugin;
-//                     layer.bindPopup(description);
-//                 }
-//             }).addTo(map);
-            // this.config.storeLayers.push({name: plugin, layer: newLayer}); 
-            
             markers.addLayers(markerList);
             map.addLayer(markers);
             this.config.storeLayers.push({name: plugin, layer: markers});       
-    
         },
         /**
-         * @param  {any} data
-         * @param  {any} plugin
+         * This method is called from the app controller.  It calls the correctGeoJsonFeature method
+         * and then calls the addMapLayer function.  
+         * @param  {string} plugin
          */
         addPluginLayerToMap: function (plugin) {
             if(plugin !== 'all'){    
@@ -123,37 +97,28 @@ Ext.define('mapPanel', {
                 var correctedData = [];
                 var store = Ext.StoreMgr.lookup(plugin + "features");
                 store.each(function (item){
-                    //console.log("Map Panel Add Feature Store.each", item);
-                    // correctedData.push(me.correctGeoJsonFeature(item));
                     correctedData.push(me.correctGeoJsonFeature(item));
                 });
                 this.addMapLayer(correctedData, plugin);
             }
         },
-        //Correct GeoJson Feature: Leaflet maps reverse the LatLong order. This funciton corrects this. 
         /**
-         * @param  {any} item
+         * This method will correct the GeoJasonFeature and convert it into
+         * an object instead of a string 
+         * @param  {object} item
          */
         correctGeoJsonFeature: function (item) {
             if(item.data.feature){    
                 var geoPoints = [];
                 JSONfeature = JSON.parse(item.data.feature);
-
-                // geoPoints[0] = JSONfeature.geometry.coordinates[1];
-                // geoPoints[1] = JSONfeature.geometry.coordinates[0];
-                
-                geoPoints[1] = JSONfeature.geometry.coordinates[1];
-                geoPoints[0] = JSONfeature.geometry.coordinates[0];
-
-                JSONfeature.geometry.coordinates = geoPoints;
                 item.data.feature = JSONfeature;
             }
-            
             return item;
         },
-        
         /**
-         * @param  {any} plugin
+         * This function will hide or show layers based on user input.  The all layer is not an indiviual 
+         * layer but the combination of all layers an once.
+         * @param  {string} plugin
          */
         displaySelectedPluginLayer: function (plugin) {
             var map = this.getMap();
@@ -172,5 +137,4 @@ Ext.define('mapPanel', {
             }
             
         }
-    
-	});
+    });

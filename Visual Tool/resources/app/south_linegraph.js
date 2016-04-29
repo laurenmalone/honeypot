@@ -12,8 +12,8 @@ Ext.define("south_linegraph",{
         font: '22px Helvetica',
         width: 100,
         height: 30,
-        x: 40, // the sprite x position
-        y: 20  // the sprite y position
+        x: 40, 
+        y: 20  
     }, {
         type: 'text',
         text: 'Data: Browser Stats 2012',
@@ -34,10 +34,6 @@ Ext.define("south_linegraph",{
         grid: true,
         minimum: 0,
         maximum: 10000,
-//        renderer: function (v) { 
-//            console.log("V", v);
-//            return v.name + '%'; 
-//        }
     }, {
         type: 'category',
         fields: 'day',

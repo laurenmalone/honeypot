@@ -40,22 +40,25 @@ class Template(object):
         return geojson.Point((ip_record["latitude"], ip_record["longitude"]))
 
     def convert_to_geojson_feature(self, ip_record):
-        feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
-        feature["properties"] = {
-            "city": ip_record["city"],
-            "region_name": ip_record["region_name"],
-            "reg@on": ip_record["region"],
-            "area_code": ip_record["area_code"],
-            "time_zone": ip_record["time_zone"],
-            "metro_code": ip_record["metro_code"],
-            "country_code3": ip_record["country_code3"],
-            "postal_code": ip_record["postal_code"],
-            "dma_code": ip_record["dma_code"],
-            "country_code": ip_record["country_code"],
-            "country_name": ip_record["country_name"],
-            "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
-        }
-
+        feature_string = ""
+        try:
+            feature = geojson.Feature(geometry=self.convert_to_geojson_point(ip_record))
+            feature["properties"] = {
+                "city": ip_record["city"],
+                "region_name": ip_record["region_name"],
+                "reg@on": ip_record["region"],
+                "area_code": ip_record["area_code"],
+                "time_zone": ip_record["time_zone"],
+                "metro_code": ip_record["metro_code"],
+                "country_code3": ip_record["country_code3"],
+                "postal_code": ip_record["postal_code"],
+                "dma_code": ip_record["dma_code"],
+                "country_code": ip_record["country_code"],
+                "country_name": ip_record["country_name"],
+                "time_stamp": ('Timestamp: {:%Y-%m-%d %H:%M:%S}'.format(self.time_stamp))
+            }
+        except RuntimeError:
+            print "Error creating feature"   
         feature_string = json.dumps(feature)
         return feature_string
 

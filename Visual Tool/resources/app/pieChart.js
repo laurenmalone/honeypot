@@ -4,7 +4,6 @@ Ext.define('center_piechart', {
     width: 650,
     initComponent: function() {
         var me = this;
-
         me.items = [{
             xtype: 'polar',
             width: '100%',
@@ -23,8 +22,8 @@ Ext.define('center_piechart', {
                 fontSize: 22,
                 width: 100,
                 height: 30,
-                x: 40, // the sprite x position
-                y: 20  // the sprite y position
+                x: 40, 
+                y: 20  
             }, {
                 type: 'text',
                 text: 'Data: CS4260 Honeypot',
@@ -39,13 +38,13 @@ Ext.define('center_piechart', {
             series: [{
                 type: 'pie',
                 animation: {easing: 'easeOut', duration: 500},
-                angleField: 'data1',  // bind angle span to visits
+                angleField: 'data1',  
                 clockwise: false,
                 highlight: {
                     margin: 20
                 },
                 label: {
-                    field: 'name',        // bind label text to name
+                    field: 'name',       
                     display: 'outside',
                     font: '14px Arial'
                 },
@@ -61,7 +60,6 @@ Ext.define('center_piechart', {
                 }
             }]
         }];
-
         this.callParent();
     }
 });

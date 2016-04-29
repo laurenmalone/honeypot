@@ -4,7 +4,6 @@ Ext.define("grid_details_panel",{
 	layout: 'border',
 	initComponent: function (){
 		this.grid_panel = Ext.create("grid_panel");
-		
 		this.grid_html_panel = Ext.create("Ext.panel.Panel",{
 				region: "south",
 				itemId: "detailsPanel",
@@ -16,7 +15,6 @@ Ext.define("grid_details_panel",{
 			});
 		var me = this;
 		this.grid_panel.on('rowclick', function(context, record, tr, index, e) {
-			console.log("app_controller row click", record, tr, index);
 			var html = "<div class='container' style='width: 100%;padding-bottom: 12px; padding-left: 30px;'>";
 			this.details = '';
 			this.pluginnName = '';
@@ -35,14 +33,12 @@ Ext.define("grid_details_panel",{
 			html += "</div>"
 			for(var prop in record.data){
 				if(prop !== "id" && prop !== "feature"){
-					console.log(prop, record.data[prop]);
 					html += "<p>" + prop + ": " + record.data[prop] + "</p>";
 				}
 			}
 			html += "</div> "
 			me.grid_html_panel.update(html);
 		});
-		
 		Ext.apply(this, {
 			items:[this.grid_panel, this.grid_html_panel]
 			});
