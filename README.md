@@ -65,10 +65,16 @@ To write to db and use visual tool, Plugin class must have the following:
 
 You can edit honeypot.ini to configure your honeypot. honeypot.ini has several sections that correlate with specific files in the program. The section titles are surrounded with brackets. [honeypot] specifies paths of the database, plugins directory, log file, and also a list ports that the user wants to listen on. [https] specifies names of certificate and private key files for ssl connection. If an item is not specified in its section, data specified in [default] will be used.
 
+**Docker Image**
+
+The docker image linked below includes CentOS 7 as the base image and all of the required libraries need to run the honeypot program.  Additional VM port configuration may be required.  
+
 [Project Plan](https://docs.google.com/document/d/1NPZYz_Gn41zKydzIijU4lbnletNN57zfZNM8AaEY_ZQ/edit?usp=sharing)
 
 [Research Doc](https://docs.google.com/document/d/10FqRp2M8X2r19Jm75DzA1jPB805p85qZo2l6CmV1bM0/edit?usp=sharing)
 
 [Download Debian Package](http://cs4260honeypot.com.s3-website-us-west-2.amazonaws.com/debian/HoneyPotPackage.deb)
+
+[Docker Image](https://hub.docker.com/r/coyle5280/honeypot)
 
 [SQLAlchemy Session Docs](http://docs.sqlalchemy.org/en/latest/orm/session.html)
