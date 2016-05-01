@@ -9,7 +9,17 @@ Python honeypot framework with plugin API
 
 **Installing honeypot**
 
-**Starting honeypot**
+You'll need a few things to get you started before you can use honeypot.
+Run the following commands:
+`dpkg -i HoneyPotPackage.deb` 
+`cd /HP_Install/` 
+`bash setup.sh` 
+Setup Authbind (see Setting up Authbind). 
+Return to honeypot directory and run start.sh. 
+Your honeypot is running!
+
+
+**Setting up Authbind**
 
 Authbind must be installed to allow plugins to bind to well-known ports without running as root. To set up authbind, create the file /etc/authbind/byuid/<uid>, where <uid> is the uid of the user that will run the honeypot (can be obtained with id -u <username>, substituting the actual user name). The file should contain the line 0.0.0.0/32:1,1023 to allow binding to any well-known port (anything in the range 1-1023, inclusive). Start the honeypot by running ./start.sh, which will use authbind.
 
@@ -52,12 +62,19 @@ To write to db and use visual tool, Plugin class must have the following:
 
 
 **Configuring your honeypot**
+
 You can edit honeypot.ini to configure your honeypot. honeypot.ini has several sections that correlate with specific files in the program. The section titles are surrounded with brackets. [honeypot] specifies paths of the database, plugins directory, log file, and also a list ports that the user wants to listen on. [https] specifies names of certificate and private key files for ssl connection. If an item is not specified in its section, data specified in [default] will be used.
+
+**Docker Image**
+
+The docker image linked below includes CentOS 7 as the base image and all of the required libraries need to run the honeypot program.  Additional VM port configuration may be required.  
 
 [Project Plan](https://docs.google.com/document/d/1NPZYz_Gn41zKydzIijU4lbnletNN57zfZNM8AaEY_ZQ/edit?usp=sharing)
 
 [Research Doc](https://docs.google.com/document/d/10FqRp2M8X2r19Jm75DzA1jPB805p85qZo2l6CmV1bM0/edit?usp=sharing)
 
 [Download Debian Package](http://cs4260honeypot.com.s3-website-us-west-2.amazonaws.com/debian/HoneyPotPackage.deb)
+
+[Docker Image](https://hub.docker.com/r/coyle5280/honeypot)
 
 [SQLAlchemy Session Docs](http://docs.sqlalchemy.org/en/latest/orm/session.html)
