@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from plugin_template import Template
 from base import Base
+from select import select
 from string import join
-import socket
 import json
 import logging
 import datetime
@@ -48,65 +48,64 @@ class Plugin(Template):
         ip_address = Column(String)
         time_stamp = Column(DateTime)
 
-    def run(self, passed_socket, address, session):
-        """ Sets a 35 sec. timeout. Listens for a username, password,
-            and commands from a user for attack. Converts geoIP addresses for record.
-            Records and sends to DB.
+    def run(self, client_socket, address, session):
+        """ Listens for a username, password, and commands
+            from a user for attack. Converts geoIP
+            addresses for record. Records and sends to DB.
 
-        :param passed_socket: connection to client
+        :param client_socket: connection to client
         :param address: client address
         :param session: session for DB communication
         :return: record with the geoIP conversions
         Raises exception if timeout occurs.
         """
         logging.info(self.time_stamp)
-        if passed_socket:
-            passed_socket.settimeout(35)
-            passed_socket.sendall("login as: ")
-            try:
-                username = passed_socket.recv(4096)
-                username.strip()
+        timeout = 10
+        if client_socket:
+            client_socket.setblocking(0)
+            while select([client_socket], [], [], 2)[0]:
+                client_socket.recv(1024) # discard negotiation sequences
+            client_socket.sendall("login as: ")
+            if select([client_socket], [], [], timeout)[0]:
+                username = client_socket.recv(256).strip()
                 logging.info(str(datetime.datetime.now()) + ': Login information obtained')
-            except socket.timeout:
-                passed_socket.sendall('timeout error')
+            else:
                 username = 'invalid input'
-                logging.error(str(datetime.datetime.now()) + ': invalid input error')
-                passed_socket.sendall("\n")
-                # login string as shell script style
+                logging.error(str(datetime.datetime.now()) + ': timed out on username')
+                client_socket.sendall("\n")
+            # login string as shell script style
             login_string = username + "@73.78.8.177's " + "password: "
-            passed_socket.sendall(login_string)
-            try:
-                password = passed_socket.recv(64)
-                password.strip()
-            except socket.timeout:
+            client_socket.sendall(login_string)
+            if select([client_socket], [], [], timeout)[0]:
+                password = client_socket.recv(256).strip()
+            else:
                 password = 'timeout error'
-                passed_socket.sendall("\n")
                 logging.error(str(datetime.datetime.now()) + ': timeout error')
+                client_socket.sendall("\n")
 
             commands = []
             for _ in range(5):
                 command_string = username + "@73.78.8.177's" + ": "  # command prompt -> 'username@host:path $ '
-                passed_socket.sendall(command_string)
-                try:
-                    command = passed_socket.recv(64)
-                    command.strip()
-                    commands.append(command)
-                except socket.timeout:
+                client_socket.sendall(command_string)
+                if select([client_socket], [], [], timeout)[0]:
+                    commands.append(client_socket.recv(256).strip())
+                else:
                     commands.append(str(datetime.datetime.now()) + ': timeout error')
-                    passed_socket.sendall("\n")
                     logging.error(str(datetime.datetime.now()) + ': timeout error')
+                    client_socket.sendall("\n")
 
-            passed_socket.close()
+            client_socket.close()
             logging.info('socket closed ')
             geo_ip_record = self.get_record_from_geoip(address[0])
             if geo_ip_record is not None:
                 self.geoIp_feature_json_string = self.convert_to_geojson_feature(geo_ip_record)
 
             record = self.Telnet(username=username, password=password, commands=join(commands, ', '),
-                                 feature=self.geoIp_feature_json_string, ip_address=address[0],
+                                 feature=self.get_feature(address[0]), ip_address=address[0],
                                  time_stamp=self.time_stamp)
             session.add(record)
             session.commit()
             session.close()
         else:
             logging.error(str(datetime.datetime.now()) + ': socket error occurred')
+
